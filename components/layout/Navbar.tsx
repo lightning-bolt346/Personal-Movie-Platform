@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Search, User, Home, Film, Tv, Compass, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { motion } from 'motion/react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -39,32 +40,45 @@ export function Navbar() {
 
   return (
     <>
-      {/* ── DESKTOP FLOATING PILL NAV ── */}
+      {/* ── DESKTOP FLOATING CAPSULE NAV ── */}
       <nav
-        className={`hidden md:flex fixed z-[200] left-0 right-0 justify-center px-4 transition-all duration-500 ${scrolled ? 'top-3' : 'top-6'}`}
+        className={`hidden md:flex fixed z-[200] left-1/2 -translate-x-1/2 w-full max-w-[820px] transition-all duration-500 ${
+          scrolled ? 'top-4 px-6' : 'top-6 px-0'
+        }`}
       >
-        <div
-          className="group relative flex items-center px-5 py-2.5 gap-5 rounded-full transition-all duration-300"
-          style={{
-            backgroundColor: 'rgba(10, 8, 12, 0.45)',
-            backdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
-            border: '1px solid rgba(255, 165, 80, 0.15)',
-            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(255, 165, 80, 0.1)',
-          }}
-        >
-          {/* ── Inner Reflections ── */}
+        <div className="group relative w-full flex items-center justify-between px-6 py-3 rounded-full overflow-hidden transition-all duration-300">
+          
+          {/* Layer 1: Glass Body Refraction Sibling (standard blur + wobbly SVG displacement filter) */}
           <div 
-            className="absolute inset-0 rounded-full pointer-events-none overflow-hidden opacity-50 mix-blend-overlay transition-opacity duration-300 group-hover:opacity-70"
+            className="absolute inset-0 rounded-full pointer-events-none transition-all duration-300"
+            style={{
+              backdropFilter: 'blur(28px) saturate(220%) contrast(120%) brightness(0.96)',
+              WebkitBackdropFilter: 'blur(28px) saturate(220%) contrast(120%) brightness(0.96)',
+              filter: 'url(#trippy-glass-distortion)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+              backgroundColor: 'rgba(10, 8, 12, 0.38)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              boxShadow: `
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 1.5px 0 0 rgba(255, 255, 255, 0.38),
+                inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.08)
+              `,
+              zIndex: -1,
+            }}
+          />
+
+          {/* Layer 2: Soft Subtle Gradient Light Reflection shine overlay */}
+          <div 
+            className="absolute inset-0 rounded-full pointer-events-none opacity-40 mix-blend-overlay transition-opacity duration-300 group-hover:opacity-60 -z-10"
             style={{
               background: `
-                linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 20%, transparent 50%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.2) 100%),
-                linear-gradient(to right, rgba(255,255,255,0.1) 0%, transparent 10%, transparent 90%, rgba(255,255,255,0.1) 100%)
+                linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 25%, transparent 50%, rgba(255,255,255,0.2) 100%),
+                linear-gradient(to right, rgba(255,255,255,0.1) 0%, transparent 12%, transparent 88%, rgba(255,255,255,0.1) 100%)
               `
             }}
           />
 
-          {/* ── ZIVOX Logo ── */}
+          {/* ── Left logo: ZIVOX ── */}
           <Link
             href="/"
             onClick={clearIframes}
@@ -112,8 +126,8 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Nav Links */}
-          <div className="flex items-center gap-6 z-10 mx-2">
+          {/* ── Center links: Sliding Pill active state ── */}
+          <div className="flex items-center gap-1.5 z-10 mx-2">
             {NAV_ITEMS.map(({ href, label }) => {
               const active = isActive(href);
               return (
@@ -121,17 +135,16 @@ export function Navbar() {
                   key={href}
                   href={href}
                   onClick={clearIframes}
-                  className={`relative text-[14px] font-medium tracking-wide transition-all duration-300 hover:-translate-y-[1px] ${
-                    active
-                      ? 'text-white font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'
-                      : 'text-white/60 hover:text-white/95'
+                  className={`relative px-4 py-1.5 rounded-full text-[14px] font-semibold tracking-wide transition-colors duration-300 active:scale-95 ${
+                    active ? 'text-white' : 'text-white/60 hover:text-white'
                   }`}
                 >
                   {label}
                   {active && (
-                    <span
-                      className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full"
-                      style={{ background: 'linear-gradient(to right, #e50914, transparent)' }}
+                    <motion.span
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 rounded-full bg-white/12 border border-white/10 shadow-sm -z-10"
+                      transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                     />
                   )}
                 </Link>
@@ -139,15 +152,15 @@ export function Navbar() {
             })}
           </div>
 
-          {/* Action Icons (Right) */}
-          <div className="flex items-center gap-4 z-10 ml-2">
+          {/* ── Right-side icons: Action Buttons ── */}
+          <div className="flex items-center gap-4.5 z-10">
             <Link
               href="/search"
               onClick={clearIframes}
               className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"
               aria-label="Search"
             >
-              <Search size={17} strokeWidth={2} />
+              <Search size={17} strokeWidth={2.2} />
             </Link>
             <Link
               href="/profile"
@@ -155,7 +168,7 @@ export function Navbar() {
               className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"
               aria-label="Profile"
             >
-              <User size={17} strokeWidth={2} />
+              <User size={17} strokeWidth={2.2} />
             </Link>
           </div>
         </div>
@@ -165,7 +178,7 @@ export function Navbar() {
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-[200]"
         style={{
-          background: 'rgba(5, 5, 5, 0.97)',
+          background: 'rgba(5, 5, 5, 0.95)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderTop: '1px solid rgba(255,255,255,0.07)',
@@ -199,6 +212,28 @@ export function Navbar() {
           })}
         </div>
       </nav>
+
+      {/* ── Trippy Glass Liquid Water-Bottle Displacement Map Filter (subtle, not cartoonish) ── */}
+      <svg className="absolute w-0 h-0 pointer-events-none overflow-hidden" aria-hidden="true" style={{ width: 0, height: 0, position: 'absolute' }}>
+        <defs>
+          <filter id="trippy-glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence 
+              type="fractalNoise" 
+              baseFrequency="0.012 0.04" 
+              numOctaves="3" 
+              result="noise" 
+              seed="3"
+            />
+            <feDisplacementMap 
+              in="SourceGraphic" 
+              in2="noise" 
+              scale="18" 
+              xChannelSelector="R" 
+              yChannelSelector="G" 
+            />
+          </filter>
+        </defs>
+      </svg>
     </>
   );
 }

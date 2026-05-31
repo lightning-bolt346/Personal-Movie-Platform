@@ -197,7 +197,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                     onClick={() => setIsPlaying(true)}
                     className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-sm shadow-xl ${
                       continueWatching 
-                        ? 'bg-crimson-500 hover:bg-crimson-600 text-white shadow-crimson-500/20' 
+                        ? 'bg-cyan-400 hover:bg-cyan-500 text-white shadow-cyan-400/20' 
                         : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                     }`}
                   >
@@ -216,9 +216,9 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                   )}
                   <button
                     onClick={() => toggleWatchlist({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path })}
-                    className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
+                    className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-cyan-400/10 border-cyan-400/20 text-cyan-400' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                   >
-                    <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
+                    <Bookmark size={14} className={onWatchlist ? 'fill-cyan-400' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                   </button>
                   <button
                     onClick={() => toggleFavorite({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path })}
@@ -269,11 +269,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       <div className="relative w-32 aspect-video bg-void-950 rounded overflow-hidden flex-shrink-0 border border-zinc-800">
                         <Image src={getImageUrl(ep.still_path, 'w500')} alt={ep.name} fill className="object-cover opacity-80" referrerPolicy="no-referrer" />
                         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                          <Play size={16} className={isActive ? "text-crimson-500 fill-crimson-500" : "text-white opacity-0 group-hover:opacity-100 transition-opacity"} />
+                          <Play size={16} className={isActive ? "text-cyan-400 fill-cyan-400" : "text-white opacity-0 group-hover:opacity-100 transition-opacity"} />
                         </div>
                         {epProgress > 0 && !isWatched && (
                           <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-900 opacity-80">
-                            <div className="h-full bg-crimson-500" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
+                            <div className="h-full bg-cyan-400" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
                           </div>
                         )}
                       </div>
@@ -283,7 +283,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                             {ep.episode_number}. {ep.name}
                           </h4>
                           <button onClick={(e) => toggleWatched(ep, e)} className="text-zinc-500 hover:text-white transition-colors" title={isWatched ? "Mark Unwatched" : "Mark Watched"}>
-                            {isWatched ? <CheckCircle2 size={16} className="text-crimson-500" /> : <Circle size={16} />}
+                            {isWatched ? <CheckCircle2 size={16} className="text-cyan-400" /> : <Circle size={16} />}
                           </button>
                         </div>
                         <p className="text-[10px] text-zinc-500 mt-1 line-clamp-2 flex-1">{ep.overview}</p>

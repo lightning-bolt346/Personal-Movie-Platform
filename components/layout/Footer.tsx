@@ -38,14 +38,49 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <Link href="/" className="inline-block">
-              <span className="text-2xl font-display font-black tracking-tight text-white">
-                VOID<span className="text-crimson-500">STREAM</span>
+            <Link href="/" className="inline-flex items-baseline gap-0 select-none">
+              <span
+                className="font-display font-black tracking-[-0.05em] text-[26px] leading-none"
+                style={{
+                  background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                ZIV
+              </span>
+              <span
+                className="font-display font-black text-[26px] leading-none mx-[2px]"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  border: '2.5px solid rgba(229, 9, 20, 0.9)',
+                  boxShadow: '0 0 12px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.15)',
+                  WebkitTextFillColor: 'transparent',
+                  flexShrink: 0,
+                }}
+              >
+              </span>
+              <span
+                className="font-display font-black tracking-[-0.05em] text-[26px] leading-none"
+                style={{
+                  background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                X
               </span>
             </Link>
             <p className="text-sm text-white/35 leading-relaxed max-w-xs">
               Premium cinematic streaming experience. Discover, watch, and enjoy
-              thousands of movies and TV shows.
+              thousands of movies and TV shows — all in one place.
             </p>
             {/* Social */}
             <div className="flex items-center gap-3 mt-1">
@@ -122,7 +157,7 @@ export function Footer() {
                   TMDB API
                 </span>
               </div>
-              {/* CineSrc */}
+              {/* Streams */}
               <div
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-fit"
                 style={{
@@ -168,7 +203,7 @@ export function Footer() {
           style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
         >
           <p className="text-[11px] font-mono text-white/20 tracking-wider">
-            © {new Date().getFullYear()} VOIDSTREAM. For educational purposes only.
+            © {new Date().getFullYear()} ZIVOX. For educational purposes only.
           </p>
           <p className="text-[11px] font-mono text-white/15 tracking-wider">
             This product uses the TMDB API but is not endorsed by TMDB.

@@ -156,7 +156,7 @@ export function MediaCard({
       {onRemove && media.contextType === 'history' && (
         <button
           onClick={(e) => { e.preventDefault(); onRemove(media.id.toString(), media.contextType!); }}
-          className="absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-600 border border-white/10 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl"
+          className="absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl"
           title="Remove from History"
         >
           <Trash2 size={11} />

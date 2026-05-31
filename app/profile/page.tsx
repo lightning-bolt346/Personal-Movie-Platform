@@ -76,7 +76,7 @@ export default function ProfilePage() {
       <AnimatedBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-12 py-32 space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 pb-8 border-b border-zinc-800">
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-crimson-500 to-crimson-800 flex items-center justify-center shadow-2xl">
+        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-cyan-400 to-cyan-800 flex items-center justify-center shadow-2xl">
           <User size={40} className="text-white" />
         </div>
         <div>
@@ -105,7 +105,7 @@ export default function ProfilePage() {
             <p>Your watchlist is empty.</p>
             <Link
               href="/"
-              className="text-crimson-500 hover:text-crimson-400 mt-2 font-medium"
+              className="text-cyan-400 hover:text-cyan-300 mt-2 font-medium"
             >
               Discover movies
             </Link>
@@ -145,7 +145,7 @@ export default function ProfilePage() {
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-crimson-500 transition-colors bg-void-900 px-3 py-1.5 rounded-lg border border-zinc-800"
+                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-cyan-400 transition-colors bg-void-900 px-3 py-1.5 rounded-lg border border-zinc-800"
               >
                 <Trash2 size={14} /> Clear History
               </button>
@@ -167,7 +167,7 @@ export default function ProfilePage() {
         </h2>
         
         <div className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-crimson-500/5 rounded-full blur-3xl -z-10 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-400/5 rounded-full blur-3xl -z-10 pointer-events-none" />
           <h3 className="text-lg font-bold mb-2 text-white">Favorite Genres</h3>
           <p className="text-zinc-400 text-sm mb-6">Select your favorite genres to help us personalize your recommendations.</p>
           
@@ -180,7 +180,7 @@ export default function ProfilePage() {
                   onClick={() => handleToggleGenre(genre.id)}
                   className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
                     isSelected 
-                      ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20 scale-105' 
+                      ? 'bg-cyan-400 text-white shadow-lg shadow-cyan-400/20 scale-105' 
                       : 'bg-void-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700'
                   }`}
                 >
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => updatePreferences({ adultContent: !preferences.adultContent })}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${preferences.adultContent ? 'bg-crimson-500' : 'bg-zinc-700'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${preferences.adultContent ? 'bg-cyan-400' : 'bg-zinc-700'}`}
                 >
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all transform ${preferences.adultContent ? 'left-7' : 'left-1'}`} />
                 </button>
@@ -213,7 +213,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => updatePreferences({ showRatings: !preferences.showRatings })}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${preferences.showRatings ? 'bg-crimson-500' : 'bg-zinc-700'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${preferences.showRatings ? 'bg-cyan-400' : 'bg-zinc-700'}`}
                 >
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all transform ${preferences.showRatings ? 'left-7' : 'left-1'}`} />
                 </button>
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                          }}
                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold scroll-m-0 transition-colors ${
                            isSelected
-                             ? 'bg-crimson-500 text-white'
+                             ? 'bg-cyan-400 text-white'
                              : 'bg-void-950 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700'
                          }`}
                        >

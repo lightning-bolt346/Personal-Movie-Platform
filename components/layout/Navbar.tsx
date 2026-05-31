@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Search, User, Home, Film, Tv, Compass, Rocket } from 'lucide-react';
+import { Search, User, Home, Film, Tv, Compass } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -37,15 +37,6 @@ export function Navbar() {
 
   return (
     <>
-      {/* ── SVG Filter for Water/Glass Distortion (Fallback/Support varies by browser) ── */}
-      <svg className="hidden" xmlns="http://www.w3.org/2000/svg">
-        <filter id="water-glass">
-          <feTurbulence type="fractalNoise" baseFrequency="0.01 0.1" numOctaves="1" result="noise" />
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 15 -7" in="noise" result="coloredNoise" />
-          <feDisplacementMap in="SourceGraphic" in2="coloredNoise" scale="10" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-
       {/* ── DESKTOP FLOATING PILL NAV ── */}
       <nav
         className={`hidden md:flex fixed z-[200] left-0 right-0 justify-center px-4 transition-all duration-500 ${scrolled ? 'top-3' : 'top-6'}`}
@@ -53,18 +44,14 @@ export function Navbar() {
         <div
           className="group relative flex items-center px-5 py-2.5 gap-5 rounded-full transition-all duration-300"
           style={{
-            /* The base dark translucent background */
             backgroundColor: 'rgba(10, 8, 12, 0.45)',
-            /* The intense blur to simulate thick glass */
             backdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
-            /* Subtle warm orange/brown border glow */
             border: '1px solid rgba(255, 165, 80, 0.15)',
-            /* Gentle outer shadow for depth, soft inner shadow for the glass edge */
             boxShadow: '0 20px 40px -10px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(255, 165, 80, 0.1)',
           }}
         >
-          {/* ── Inner Reflections (The "Water Bottle" Effect) ── */}
+          {/* ── Inner Reflections ── */}
           <div 
             className="absolute inset-0 rounded-full pointer-events-none overflow-hidden opacity-50 mix-blend-overlay transition-opacity duration-300 group-hover:opacity-70"
             style={{
@@ -74,22 +61,53 @@ export function Navbar() {
               `
             }}
           />
-          
-          {/* Subtle noise texture for realism */}
-          <div 
-            className="absolute inset-0 rounded-full pointer-events-none opacity-[0.04] mix-blend-color-dodge"
-            style={{ 
-              backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' 
-            }}
-          />
 
-          {/* Rocket Icon (Left) */}
+          {/* ── ZIVOX Logo ── */}
           <Link
             href="/"
             onClick={clearIframes}
-            className="flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 z-10"
+            className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none"
+            aria-label="ZIVOX Home"
           >
-            <Rocket size={18} className="text-white fill-white drop-shadow-md" />
+            <span
+              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
+              style={{
+                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.04em',
+              }}
+            >
+              ZIV
+            </span>
+            <span
+              className="font-display font-black text-[18px] leading-none mx-[1px]"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                border: '2px solid rgba(229, 9, 20, 0.9)',
+                boxShadow: '0 0 10px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.2)',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+            </span>
+            <span
+              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
+              style={{
+                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.04em',
+              }}
+            >
+              X
+            </span>
           </Link>
 
           {/* Nav Links */}
@@ -108,6 +126,12 @@ export function Navbar() {
                   }`}
                 >
                   {label}
+                  {active && (
+                    <span
+                      className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full"
+                      style={{ background: 'linear-gradient(to right, #e50914, transparent)' }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -139,7 +163,7 @@ export function Navbar() {
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-[200]"
         style={{
-          background: 'rgba(5, 5, 5, 0.95)',
+          background: 'rgba(5, 5, 5, 0.97)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderTop: '1px solid rgba(255,255,255,0.07)',
@@ -158,7 +182,15 @@ export function Navbar() {
                   active ? 'text-white' : 'text-white/35 hover:text-white/70'
                 }`}
               >
-                <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+                <div className="relative">
+                  <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+                  {active && (
+                    <span
+                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-crimson-500"
+                      style={{ boxShadow: '0 0 6px rgba(229,9,20,0.8)' }}
+                    />
+                  )}
+                </div>
                 <span className="text-[10px] font-semibold tracking-wide">{label}</span>
               </Link>
             );

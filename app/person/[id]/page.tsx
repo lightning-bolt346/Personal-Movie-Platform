@@ -26,7 +26,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
     <div className="container mx-auto px-4 pt-28 md:pt-32 pb-28 md:pb-20 max-w-7xl">
       <div className="flex flex-col md:flex-row gap-8 mb-12">
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-crimson-sm group">
+          <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-cyan-sm group">
             {person.profile_path ? (
               <Image 
                 src={getImageUrl(person.profile_path, 'w500')} 

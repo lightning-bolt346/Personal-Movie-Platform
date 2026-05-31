@@ -255,7 +255,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
             onClick={() => setShowSettingsModal(true)}
             className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-4 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-xs shadow-md"
           >
-            <Server size={14} className="text-crimson-500" />
+            <Server size={14} className="text-cyan-400" />
             <span className="hidden sm:inline">Servers & Settings</span>
             <span className="sm:hidden">Servers</span>
           </button>
@@ -278,7 +278,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
           <button 
             onClick={toggleAutoPlay}
             title="Toggle Auto-Play Next Episode"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all active:scale-95 ${autoPlayNext ? 'bg-crimson-500/10 text-crimson-500 border-crimson-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all active:scale-95 ${autoPlayNext ? 'bg-cyan-400/10 text-cyan-400 border-cyan-400/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'}`}
           >
             <span className="text-xs font-bold uppercase tracking-wider">Auto-Play</span>
             {autoPlayNext ? <Check size={14} /> : <X size={14} />}
@@ -308,7 +308,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       <div className={`relative w-full flex-1 bg-black rounded-xl overflow-hidden border border-zinc-800 shadow-2xl group ${!isTheaterMode ? 'aspect-video' : ''}`}>
         {testingSources ? (
           <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-auto custom-scrollbar">
-            <div className="w-10 h-10 sm:w-16 sm:h-16 border-4 border-zinc-800 border-t-crimson-500 rounded-full animate-spin mb-4 sm:mb-6" />
+            <div className="w-10 h-10 sm:w-16 sm:h-16 border-4 border-zinc-800 border-t-cyan-400 rounded-full animate-spin mb-4 sm:mb-6" />
             <h3 className="text-sm sm:text-xl font-bold font-display uppercase tracking-widest text-white mb-1 sm:mb-2">Automated Source Testing</h3>
             <p className="text-zinc-400 text-xs sm:text-sm mb-4 sm:mb-8 animate-pulse text-center max-w-sm px-4">
               Finding the fastest, highest-quality stream with zero ads...
@@ -321,7 +321,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
               </div>
               <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-crimson-500 glow-crimson transition-all duration-300 ease-out"
+                  className="h-full bg-cyan-400 glow-cyan transition-all duration-300 ease-out"
                   style={{ width: `${testProgress}%` }}
                 />
               </div>
@@ -346,7 +346,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
               exit={{ opacity: 0, scale: 0.9 }}
               className="absolute right-4 bottom-20 md:right-8 md:bottom-24 z-50 bg-black/90 backdrop-blur-xl border border-zinc-800 rounded-2xl p-6 shadow-2xl pointer-events-auto text-white max-w-sm w-[calc(100%-2rem)]"
             >
-              <h4 className="text-[10px] uppercase tracking-widest font-bold text-crimson-500 mb-2">Up Next</h4>
+              <h4 className="text-[10px] uppercase tracking-widest font-bold text-cyan-400 mb-2">Up Next</h4>
               <p className="text-lg md:text-xl font-bold mb-4 font-display leading-tight">Playing in {countdown}s...</p>
               <div className="flex gap-3 items-center">
                 <button 
@@ -357,7 +357,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); if (onPlayNext) onPlayNext(); }}
-                  className="flex-1 px-4 py-2.5 bg-crimson-500 hover:bg-crimson-600 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg shadow-crimson-500/20"
+                  className="flex-1 px-4 py-2.5 bg-cyan-400 hover:bg-cyan-500 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg shadow-cyan-400/20"
                 >
                   <Play size={14} fill="currentColor" /> Play Now
                 </button>
@@ -386,7 +386,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
             >
               <div className="p-5 border-b border-zinc-800 flex items-center justify-between bg-void-900/50">
                 <h3 className="text-lg font-bold font-display tracking-tight text-white flex items-center gap-2">
-                  <Settings size={18} className="text-crimson-500" /> Player Settings
+                  <Settings size={18} className="text-cyan-400" /> Player Settings
                 </h3>
                 <button 
                   onClick={() => setShowSettingsModal(false)}
@@ -417,15 +417,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                           }}
                           className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all border ${
                             isActive 
-                              ? 'bg-crimson-500/10 border-crimson-500/30 text-white' 
+                              ? 'bg-cyan-400/10 border-cyan-400/30 text-white' 
                               : 'bg-void-900 border-zinc-800 text-zinc-300 hover:bg-void-800 hover:border-zinc-700'
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <Server size={16} className={isActive ? 'text-crimson-500' : 'text-zinc-500'} />
+                            <Server size={16} className={isActive ? 'text-cyan-400' : 'text-zinc-500'} />
                             <span className="text-sm font-semibold">{s.name}</span>
                           </div>
-                          {isActive && <Check size={16} className="text-crimson-500" />}
+                          {isActive && <Check size={16} className="text-cyan-400" />}
                         </button>
                       );
                     })}

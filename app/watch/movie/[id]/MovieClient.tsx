@@ -104,7 +104,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                     onClick={() => setIsPlaying(true)}
                     className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all font-bold uppercase tracking-wider text-sm shadow-xl active:scale-95 ${
                       continueWatching 
-                        ? 'bg-crimson-500 hover:bg-crimson-600 text-white shadow-crimson-500/20' 
+                        ? 'bg-cyan-400 hover:bg-cyan-500 text-white shadow-cyan-400/20' 
                         : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                     }`}
                   >
@@ -123,9 +123,9 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                   )}
                   <button
                     onClick={() => toggleWatchlist({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path })}
-                    className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
+                    className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-cyan-400/10 border-cyan-400/20 text-cyan-400' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                   >
-                    <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
+                    <Bookmark size={14} className={onWatchlist ? 'fill-cyan-400' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                   </button>
                   <button
                     onClick={() => toggleFavorite({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path })}

@@ -14,36 +14,62 @@ export function TrailerModal({ isOpen, onClose, videoKey }: { isOpen: boolean, o
       return;
     }
 
+    setLoading(true);
+    setIsPlayable(null);
+
     let isMounted = true;
-    const checkAvailability = async () => {
-      setLoading(true);
-      try {
-        // Direct client-side oEmbed query using the user's browser residential IP (bypasses serverless IP blocking)
-        const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoKey}`);
-        if (isMounted) {
-          if (res.status === 200) {
-            setIsPlayable(true);
-          } else if (res.status === 401 || res.status === 403) {
-            // Age-restricted mature trailers return 401/403
-            setIsPlayable(false);
-          } else {
-            // Other non-CORS response issues: failsafe to iframe playback
-            setIsPlayable(true);
-          }
-          setLoading(false);
-        }
-      } catch (e) {
-        console.warn('Hacker check failed, falling back to iframe playback:', e);
-        if (isMounted) {
-          setIsPlayable(true); // Fail-safe to iframe
-          setLoading(false);
-        }
+    
+    // Failsafe timeout: if it doesn't confirm playability in 2.2 seconds, assume it is age-restricted
+    const timeoutId = setTimeout(() => {
+      if (isMounted && isPlayable === null) {
+        console.log(`Trailer modal playability timeout for video: ${videoKey}. Falling back to YouTube redirect.`);
+        setIsPlayable(false);
+        setLoading(false);
       }
+    }, 2200);
+
+    const handleMessage = (e: MessageEvent) => {
+      if (!isMounted) return;
+      if (!e.origin.includes('youtube.com') && !e.origin.includes('youtube-nocookie.com')) return;
+
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        
+        if (data.event === 'infoDelivery' && data.info) {
+          if (data.info.playerState === 1) {
+            setIsPlayable(true);
+            setLoading(false);
+            clearTimeout(timeoutId);
+          }
+          if (data.info.errorCode) {
+            setIsPlayable(false);
+            setLoading(false);
+            clearTimeout(timeoutId);
+          }
+        }
+        
+        if (data.event === 'onStateChange' && data.info === 1) {
+          setIsPlayable(true);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        }
+
+        if (data.event === 'onError') {
+          setIsPlayable(false);
+          setLoading(false);
+          clearTimeout(timeoutId);
+        }
+      } catch (err) {}
     };
 
-    checkAvailability();
-    return () => { isMounted = false; };
-  }, [isOpen, videoKey]);
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('message', handleMessage);
+      clearTimeout(timeoutId);
+    };
+  }, [isOpen, videoKey, isPlayable]);
 
   return (
     <AnimatePresence>
@@ -75,15 +101,17 @@ export function TrailerModal({ isOpen, onClose, videoKey }: { isOpen: boolean, o
               <X size={18} />
             </button>
 
-            {loading ? (
-              /* ── 1. LOADING STATE ── */
-              <div className="flex flex-col items-center justify-center text-center">
+            {/* 1. LOADING SPINNER */}
+            {loading && (
+              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center">
                 <div className="w-10 h-10 border-4 border-zinc-850 border-t-crimson-500 rounded-full animate-spin mb-4" />
                 <span className="text-zinc-500 text-xs uppercase tracking-widest font-bold">Verifying Trailer Stream...</span>
               </div>
-            ) : isPlayable === false ? (
-              /* ── 2. HACKER AGE-RESTRICTED FALLBACK STATE (Poster + Premium UI) ── */
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center relative">
+            )}
+
+            {/* 2. AGE-RESTRICTED WARNING SCREEN (Rendered if checked as unplayable) */}
+            {isPlayable === false && (
+              <div className="absolute inset-0 w-full h-full flex items-center justify-center z-20 bg-black">
                 {/* High quality YouTube video thumbnail poster backdrop */}
                 <div 
                   className="absolute inset-0 w-full h-full bg-cover bg-center filter blur-sm scale-105 opacity-40 z-0"
@@ -112,12 +140,14 @@ export function TrailerModal({ isOpen, onClose, videoKey }: { isOpen: boolean, o
                   </a>
                 </div>
               </div>
-            ) : (
-              /* ── 3. STANDARD PLAYABLE EMBED STATE ── */
+            )}
+
+            {/* 3. STANDARD PLAYABLE EMBED PLAYER (Rendered initially hidden, fades in if playable) */}
+            {isPlayable !== false && (
               <iframe
-                src={`https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0`}
+                src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&rel=0&enablejsapi=1`}
                 title="Trailer"
-                className="w-full h-full border-0 relative z-10"
+                className={`w-full h-full border-0 transition-opacity duration-500 relative z-10 ${isPlayable ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>

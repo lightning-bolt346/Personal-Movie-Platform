@@ -18,6 +18,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { Bookmark, Heart, Video } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
+import { YoutubeBackgroundPlayer } from '@/components/media/YoutubeBackgroundPlayer';
 
 function TvPlayerContent({ show }: { show: MediaDetails }) {
   const searchParams = useSearchParams();
@@ -30,40 +31,6 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const trailer = show.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
-  const [isTrailerPlayable, setIsTrailerPlayable] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (!trailer?.key) {
-      setIsTrailerPlayable(false);
-      return;
-    }
-    
-    let isMounted = true;
-    const checkAvailability = async () => {
-      try {
-        // Direct client-side oEmbed query using the user's browser residential IP (bypasses serverless IP blocking)
-        const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${trailer.key}`);
-        if (isMounted) {
-          if (res.status === 200) {
-            setIsTrailerPlayable(true);
-          } else if (res.status === 401 || res.status === 403) {
-            // Age-restricted mature trailers return 401/403
-            setIsTrailerPlayable(false);
-          } else {
-            setIsTrailerPlayable(true); // Failsafe to true to try embedding it
-          }
-        }
-      } catch (e) {
-        console.warn('Hacker TV background check failed, falling back to iframe:', e);
-        if (isMounted) {
-          setIsTrailerPlayable(true); // Failsafe to true to try embedding it
-        }
-      }
-    };
-    
-    checkAvailability();
-    return () => { isMounted = false; };
-  }, [trailer?.key]);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -172,18 +139,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             <div className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group h-full ${!isPlaying ? 'aspect-video md:aspect-[21/9]' : ''}`}>
             {!isPlaying ? (
               <div className="absolute inset-0 z-10">
-                {trailer && isTrailerPlayable === true ? (
-                  <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-60 bg-black flex items-center justify-center">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&disablekb=1&loop=1&playlist=${trailer.key}&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3`}
-                      className="w-full h-full md:w-[150%] md:h-[150%] max-w-none border-0 pointer-events-none"
-                      allow="autoplay; encrypted-media"
-                      style={{ border: 0 }}
-                    />
-                  </div>
-                ) : (
-                  <Image src={getImageUrl(show.backdrop_path || show.poster_path, 'original')} alt={show.name || ''} fill sizes="100vw" className="object-cover opacity-60" priority />
-                )}
+                <YoutubeBackgroundPlayer 
+                  videoKey={trailer?.key || null} 
+                  backdropPath={show.backdrop_path || show.poster_path} 
+                  title={show.name || ''} 
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
               </div>
             ) : (

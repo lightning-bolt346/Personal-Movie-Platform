@@ -1,67 +1,117 @@
 <div align="center">
-  <img src="public/icon.png" width="120" alt="ZIVOX Logo" />
-  <h1>ZIVOX</h1>
-  <p><strong>A Premium Cinematic Streaming Platform</strong></p>
+  <a href="https://zivox-streaming.vercel.app">
+    <img src="public/icon.png" alt="ZIVOX Logo" width="120" height="120">
+  </a>
+
+  <h1 align="center">ZIVOX — Premium Streaming Platform</h1>
+
+  <p align="center">
+    <strong>Watch Movies, TV Shows, and Anime Free in HD</strong>
+    <br />
+    <a href="https://zivox-streaming.vercel.app">Visit Website</a>
+    ·
+    <a href="https://github.com/lightning-bolt346/Personal-Movie-Platform/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/lightning-bolt346/Personal-Movie-Platform/issues">Request Feature</a>
+  </p>
 </div>
 
-<p align="center">
-  ZIVOX is a modern, high-performance streaming web application built for watching movies, TV shows, and anime. It features a stunning Netflix-tier dark UI, completely ad-free viewing (via built-in Sandbox Shields), and automatic server switching.
-</p>
+<br />
 
-## ✨ Features
+<div align="center">
+  <a href="https://zivox-streaming.vercel.app">
+    <img src="public/og-image.png" alt="ZIVOX Hero Banner" width="100%" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+  </a>
+</div>
 
-- **Premium UI/UX:** Stunning cinematic dark mode, smooth micro-animations, glassmorphism, and responsive design across all devices.
-- **Zero Ads / No Popups:** Built-in iframe proxies, Sandbox Shields, and Click Interceptors block intrusive ads and popups from third-party streaming providers.
-- **Auto-Source Testing:** Automatically cycles through 15+ independent streaming servers to find the best quality and fastest load time.
-- **No Account Required:** Watch history, favorites, and playback progress are stored locally on your device for absolute privacy.
-- **Binge-Friendly:** Auto-play next episode for TV shows and anime.
-- **Advanced SEO:** Fully optimized for 2026 search engines and AI crawlers (ChatGPT, Perplexity). Includes programmatic sitemaps, `llms.txt`, FAQPage JSON-LD schemas, and dynamic metadata.
-- **PWA Ready:** Installable as a Progressive Web App directly to your home screen.
+## 🎬 About ZIVOX
+
+**[ZIVOX](https://zivox-streaming.vercel.app)** is an open-source, highly optimized streaming platform built with Next.js 16. It offers a cinematic, ad-free experience to stream thousands of movies, TV shows, and anime series in HD quality. 
+
+Designed for speed, SEO, and user experience, ZIVOX rivals premium streaming services with its dynamic dark UI and robust feature set.
+
+### 🌟 Key Features
+
+- **📺 Vast Library:** Stream the latest and greatest movies, trending TV shows, and top-rated anime.
+- **⚡ 15+ Streaming Servers:** Automatic source testing ensures you always get the best quality stream without buffering.
+- **🛡️ Sandbox Protection:** Built-in pop-up interceptors and click shields keep your viewing experience clean, safe, and ad-free.
+- **📱 PWA & Mobile Optimized:** Fully responsive design. Install it directly to your home screen as a Progressive Web App.
+- **🎬 Auto-Play Next:** Seamlessly binge-watch TV shows.
+- **⭐ Watchlist & History:** Saves your viewing progress and favorites locally in your browser—no account required.
+- **🔎 Advanced Search & Filters:** Search for actors, genres, years, or titles to find exactly what you want.
+
+---
 
 ## 🚀 Tech Stack
 
-- **Framework:** Next.js 16 (App Router)
-- **Styling:** Tailwind CSS + custom CSS variables
-- **Data Source:** TMDB API (The Movie Database)
-- **Icons:** Lucide React
-- **Fonts:** Inter, Space Grotesk, JetBrains Mono
-- **Deployment:** Vercel
+ZIVOX is engineered for high performance and top-tier SEO:
+
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Data/API:** [TMDB API](https://www.themoviedb.org/) for metadata, posters, and cast.
+- **Media Sources:** CineSrc and various multi-server streaming proxies.
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Deployment:** [Vercel](https://vercel.com/)
+
+---
 
 ## 🛠️ Run Locally
 
-1. **Clone the repository:**
+Want to host your own instance or contribute? Here is how to get started:
+
+### Prerequisites
+- Node.js 18.x or later
+- A free TMDB API Key
+
+### Installation
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/lightning-bolt346/Personal-Movie-Platform.git
    cd Personal-Movie-Platform
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Configure environment variables:**
-   Copy the example file and add your TMDB API Key. You can get one for free at [themoviedb.org](https://www.themoviedb.org/).
-   ```bash
-   cp .env.example .env.local
-   ```
-   Edit `.env.local`:
+3. **Environment Variables**
+   Create a `.env.local` file in the root directory and add your API keys:
    ```env
-   TMDB_API_KEY="your_tmdb_api_key_here"
    NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   TMDB_API_KEY="your_tmdb_api_key_here"
    ```
 
-4. **Start the development server:**
+4. **Run the development server**
    ```bash
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. **Open the app**
+   Visit `http://localhost:3000` in your browser.
 
-## 🛡️ Disclaimer
+---
 
-ZIVOX is a UI/UX project created for educational purposes. It does not host any media content on its own servers. All streams are scraped/embedded from third-party independent providers. This project uses the TMDB API but is not endorsed or certified by TMDB.
+## 📈 SEO & Architecture
 
-## 📄 License
+ZIVOX implements aggressive 2026 SEO best practices to rank high on Google and AI search engines (ChatGPT, Perplexity):
+- **Server-Side Rendering (SSR)** for all media pages.
+- **Programmatic SEO** with dynamic `/genre`, `/year`, and `/search` routes.
+- **JSON-LD Schema Markup** (`VideoObject`, `WebSite`, `FAQPage`, `CollectionPage`).
+- **`llms.txt` integration** for AI crawler optimization.
+- Auto-generated `sitemap.xml` scaling to 80+ critical routes.
 
-MIT License
+---
+
+## 📜 Disclaimer
+
+ZIVOX does not host any media files on its own servers. All content is provided by non-affiliated third parties. This project is intended for educational purposes.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/lightning-bolt346/Personal-Movie-Platform/issues).
+
+<div align="center">
+  <p>Built with ❤️ by the ZIVOX Team.</p>
+</div>

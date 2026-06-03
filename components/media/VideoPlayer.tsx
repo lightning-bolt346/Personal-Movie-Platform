@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSource, sources } from '@/lib/sources';
 import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, Minimize, ExternalLink, RotateCcw } from 'lucide-react';
@@ -326,7 +326,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="flex flex-col w-full h-full relative bg-void-950 rounded-2xl overflow-hidden"
+      className="flex flex-col w-full relative bg-void-950 rounded-2xl overflow-hidden border border-zinc-800/60"
     >
       <PlayerToasts key={id} serverName={source.name} serverIsNoAds={source.noAds} />
 
@@ -651,71 +651,98 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
         document.body
       )}
 
-      {/* â”€â”€ PLAYER TOP BAR â”€â”€ */}
+      {/* ── PLAYER TOP BAR ── */}
       {!isFullscreen && (
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
-        {/* Left: servers button + current server name */}
-        <div className="flex items-center gap-2 min-w-0">
-          <button 
-            onClick={() => setShowSettingsModal(true)}
-            className="flex items-center gap-1.5 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-3 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-[11px] shadow-md shrink-0"
-          >
-            <Server size={13} className="text-crimson-500" />
-            <span>Servers</span>
-          </button>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest leading-none mb-0.5">Now on</span>
-            <span className="text-[11px] font-semibold text-zinc-300 leading-none truncate max-w-[90px] sm:max-w-[160px]">{source.name}</span>
+        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
+          {/* Left: servers button + server name + sandbox */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button 
+              onClick={() => setShowSettingsModal(true)}
+              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-4 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-xs shadow-md shrink-0"
+            >
+              <Server size={14} className="text-crimson-500" />
+              <span className="hidden sm:inline">Servers &amp; Settings</span>
+              <span className="sm:hidden">Servers</span>
+            </button>
+
+            <div className="hidden sm:flex items-center gap-2 min-w-0">
+              <div className="h-5 w-px bg-zinc-800" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest leading-none mb-0.5">Now streaming on</span>
+                <span className="text-xs font-semibold text-zinc-200 leading-none truncate max-w-[180px]">{source.name}</span>
+              </div>
+              {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">✓ No Ads</span>}
+              {source.tier === 1 && <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded shrink-0 hidden lg:inline">Tier 1</span>}
+            </div>
+          </div>
+
+          {/* Right: controls */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Sandbox toggle */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                const n = !useSandbox;
+                setUseSandbox(n);
+                localStorage.setItem('sandbox_pref_' + currentSourceId, n.toString());
+                showToast(`Sandbox ${n ? 'ON' : 'OFF'}`);
+              }}
+              title={useSandbox ? 'Sandbox Protection ON' : 'Sandbox OFF — Risky'}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+                useSandbox ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20'
+              }`}
+            >
+              {useSandbox ? <Shield size={13} /> : <ShieldOff size={13} />}
+              <span className="hidden md:inline">{useSandbox ? 'Sandbox ON' : 'Sandbox OFF'}</span>
+            </button>
+
+            {/* Favorite */}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleFavorite({ id, type, title: title || '', poster }); }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+                isFav ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-void-800'
+              }`}
+              title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+            >
+              <Heart size={13} className={isFav ? 'fill-pink-500' : ''} />
+              <span className="hidden lg:inline">{isFav ? 'Favorited' : 'Favorite'}</span>
+            </button>
+
+            {/* Auto-play (TV only) */}
+            {type === 'tv' && (
+              <button 
+                onClick={toggleAutoPlay}
+                title="Toggle Auto-Play Next Episode"
+                className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+                  autoPlayNext ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'
+                }`}
+              >
+                <span>Auto-Play</span>
+                {autoPlayNext ? <Check size={13} /> : <X size={13} />}
+              </button>
+            )}
+
+            <div className="h-5 w-px bg-zinc-800 hidden sm:block" />
+
+            {/* Fullscreen */}
+            <button 
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+                isFullscreen 
+                  ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20 hover:bg-crimson-500/20' 
+                  : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800 hover:text-white'
+              }`}
+            >
+              <Maximize size={14} />
+              <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
+            </button>
           </div>
         </div>
-        
-        {/* Right: sandbox toggle, fav, autoplay, fullscreen */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              const n = !useSandbox;
-              setUseSandbox(n);
-              localStorage.setItem('sandbox_pref_' + currentSourceId, n.toString());
-              showToast(`Sandbox ${n ? 'ON' : 'OFF'}`);
-            }}
-            title={useSandbox ? 'Sandbox ON' : 'Sandbox OFF'}
-            className={`flex items-center gap-1 px-2.5 py-2 rounded-lg border transition-all active:scale-95 text-[11px] font-bold ${
-              useSandbox ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-            }`}
-          >
-            {useSandbox ? <Shield size={13} /> : <ShieldOff size={13} />}
-            <span className="hidden sm:inline">{useSandbox ? 'ON' : 'OFF'}</span>
-          </button>
-
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleFavorite({ id, type, title: title || '', poster }); }}
-            className={`p-2 rounded-lg border transition-all active:scale-95 ${
-              isFav ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:text-white'
-            }`}
-            title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
-          >
-            <Heart size={13} className={isFav ? 'fill-pink-500' : ''} />
-          </button>
-
-          <button 
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen (F)'}
-            className={`flex items-center gap-1 px-2.5 py-2 rounded-lg border transition-all active:scale-95 text-[11px] font-bold ${
-              isFullscreen 
-                ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20' 
-                : 'bg-void-900 border-zinc-800 text-zinc-400 hover:text-white'
-            }`}
-          >
-            <Maximize size={13} />
-            <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Full'}</span>
-          </button>
-        </div>
-      </div>
       )}
 
-      {/* Video Container â€” fills remaining space, no scroll */}
-      <div className="relative w-full flex-1 overflow-hidden bg-black rounded-b-2xl" style={{ minHeight: 0 }}>
+      {/* Video Container — proper 16:9 aspect ratio, works on all screens */}
+      <div className="relative w-full aspect-video bg-black">
 
         {testingSources ? (
           <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-auto custom-scrollbar">

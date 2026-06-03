@@ -133,7 +133,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
         {/* Fixed Back Button */}
         <button 
           onClick={() => isPlaying ? setIsPlaying(false) : router.back()} 
-          className="fixed top-20 left-4 md:top-24 md:left-6 z-[200] flex items-center gap-2 px-4 py-2 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border backdrop-blur-md"
+          className="fixed top-14 left-4 md:left-6 z-[200] flex items-center gap-2 px-4 py-2 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border backdrop-blur-md"
           style={{
             backgroundColor: `color-mix(in srgb, ${bgColor} 15%, rgba(5,5,5,0.85))`,
             borderColor: `color-mix(in srgb, ${bgColor} 40%, transparent)`,

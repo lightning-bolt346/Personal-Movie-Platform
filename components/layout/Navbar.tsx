@@ -40,8 +40,10 @@ export function Navbar() {
 
   if (pathname?.startsWith('/watch')) {
     return (
-      <nav className="fixed top-4 left-4 md:top-6 md:left-6 z-[200] pointer-events-none transition-opacity duration-500 opacity-50 hover:opacity-100">
-        <div className="flex items-center gap-4 bg-void-950/40 backdrop-blur-md border border-white/10 rounded-full px-4 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-900/60 hover:border-white/20">
+      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center px-4 py-3 md:px-6 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)' }}
+      >
+        <div className="flex items-center gap-3 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 pointer-events-auto shadow-xl">
            <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
              <span
                className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
@@ -65,7 +67,7 @@ export function Navbar() {
                  height: '16px',
                  borderRadius: '50%',
                  border: '2px solid rgba(229, 9, 20, 0.9)',
-                 boxShadow: '0 0 10px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.2)',
+                 boxShadow: '0 0 10px rgba(229,9,20,0.5)',
                  WebkitTextFillColor: 'transparent',
                }}
              >
@@ -83,9 +85,9 @@ export function Navbar() {
                X
              </span>
            </Link>
-           <div className="w-[1px] h-5 bg-white/20" />
-           <Link href="/search" onClick={clearIframes} className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><Search size={16} strokeWidth={2.5} /></Link>
-           <Link href="/profile" onClick={clearIframes} className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><User size={16} strokeWidth={2.5} /></Link>
+           <div className="w-[1px] h-4 bg-white/15" />
+           <Link href="/search" onClick={clearIframes} className="text-white/55 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><Search size={15} strokeWidth={2.5} /></Link>
+           <Link href="/profile" onClick={clearIframes} className="text-white/55 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><User size={15} strokeWidth={2.5} /></Link>
         </div>
       </nav>
     );

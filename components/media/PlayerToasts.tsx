@@ -12,9 +12,10 @@ interface ToastData {
 
 interface PlayerToastsProps {
   serverName?: string;
+  serverIsNoAds?: boolean;
 }
 
-export function PlayerToasts({ serverName }: PlayerToastsProps) {
+export function PlayerToasts({ serverName, serverIsNoAds }: PlayerToastsProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [mounted, setMounted] = useState(false);
   const initialToastsTriggered = useRef(false);
@@ -33,35 +34,52 @@ export function PlayerToasts({ serverName }: PlayerToastsProps) {
     // Set initial prevServerName without triggering server switch toast
     prevServerName.current = serverName;
 
-    const messages: ToastData[] = [
-      {
-        id: `init-1-${Date.now()}`,
-        icon: 'info',
-        message: 'Some servers may trigger redirects from 3rd-party sources — not from ZIVOX. Sandbox Shield protects you!'
-      },
-      {
-        id: `init-2-${Date.now() + 1}`,
-        icon: 'alert',
-        message: 'If a video fails to load, try disabling Sandbox mode in the Settings. Some sources require it off.'
-      },
-      {
-        id: `init-3-${Date.now() + 2}`,
-        icon: 'info',
-        message: 'Slow stream? Switch servers anytime — we have 20+ sources to choose from!'
-      }
-    ];
-
-    const timeouts = messages.map((msg, idx) =>
+    if (serverIsNoAds) {
+      // For no-ads servers: just one simple helpful toast
+      const msgs: ToastData[] = [
+        {
+          id: `init-1-${Date.now()}`,
+          icon: 'info',
+          message: 'Content unavailable on this server? Switch to another from the Servers & Settings menu.'
+        }
+      ];
       setTimeout(() => {
         setToasts(prev => {
-          if (prev.some(t => t.id === msg.id)) return prev;
-          return [...prev, msg];
+          if (prev.some(t => t.id === msgs[0].id)) return prev;
+          return [...prev, msgs[0]];
         });
-      }, 800 + idx * 2000) // 0.8s, 2.8s, 4.8s
-    );
+      }, 1000);
+    } else {
+      // For other servers: show all informational toasts
+      const messages: ToastData[] = [
+        {
+          id: `init-1-${Date.now()}`,
+          icon: 'info',
+          message: 'Some servers may trigger redirects from 3rd-party sources — not from ZIVOX. Sandbox Shield protects you!'
+        },
+        {
+          id: `init-2-${Date.now() + 1}`,
+          icon: 'alert',
+          message: 'If a video fails to load, try disabling Sandbox in Settings. Some sources require it off.'
+        },
+        {
+          id: `init-3-${Date.now() + 2}`,
+          icon: 'info',
+          message: 'Too many ads? Switch servers from the Servers & Settings menu for a cleaner experience.'
+        }
+      ];
 
-    return () => timeouts.forEach(clearTimeout);
-  }, [mounted, serverName]);
+      const timeouts = messages.map((msg, idx) =>
+        setTimeout(() => {
+          setToasts(prev => {
+            if (prev.some(t => t.id === msg.id)) return prev;
+            return [...prev, msg];
+          });
+        }, 800 + idx * 2200)
+      );
+      return () => timeouts.forEach(clearTimeout);
+    }
+  }, [mounted, serverName, serverIsNoAds]);
 
   // Watch for Server Name changes (skip the very first assignment)
   useEffect(() => {
@@ -75,22 +93,21 @@ export function PlayerToasts({ serverName }: PlayerToastsProps) {
       const serverToast: ToastData = {
         id: `server-${Date.now()}`,
         icon: 'server',
-        message: `Switched to ${serverName} server.`
+        message: `Switched to ${serverName}`
       };
       setToasts(prev => [...prev, serverToast]);
     }
     prevServerName.current = serverName;
   }, [serverName, mounted]);
 
-  // Per-toast 8s expiry using stable individual timers
+  // Per-toast 8s expiry
   useEffect(() => {
     if (toasts.length === 0) return;
-    const timers = toasts.map(toast =>
-      setTimeout(() => {
-        setToasts(prev => prev.filter(t => t.id !== toast.id));
-      }, 8000)
-    );
-    return () => timers.forEach(clearTimeout);
+    const latestToast = toasts[toasts.length - 1];
+    const timer = setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== latestToast.id));
+    }, 8000);
+    return () => clearTimeout(timer);
   }, [toasts.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const removeToast = (id: string) => {
@@ -100,26 +117,26 @@ export function PlayerToasts({ serverName }: PlayerToastsProps) {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed top-24 right-4 md:right-8 md:top-28 z-[9999] flex flex-col gap-3 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
+    <div className="fixed top-16 right-4 md:right-6 md:top-16 z-[9999] flex flex-col gap-2.5 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
       <AnimatePresence mode="popLayout">
         {toasts.map(toast => (
           <motion.div
             layout
             key={toast.id}
-            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            initial={{ opacity: 0, x: 60, scale: 0.92 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 60, scale: 0.9, transition: { duration: 0.2 } }}
-            transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-            className="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl flex items-start gap-3 pointer-events-auto relative overflow-hidden"
+            exit={{ opacity: 0, x: 40, scale: 0.92, transition: { duration: 0.18 } }}
+            transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+            className="backdrop-blur-2xl border rounded-xl px-4 py-3 shadow-2xl flex items-start gap-3 pointer-events-auto relative overflow-hidden"
             style={{
-              backgroundColor: 'rgba(8, 8, 10, 0.92)',
-              borderColor: 'color-mix(in srgb, var(--ambient-color, rgba(255,255,255,0.15)) 35%, rgba(255,255,255,0.08))',
-              boxShadow: '0 8px 32px -8px color-mix(in srgb, var(--ambient-color, rgba(0,0,0,0.8)) 25%, rgba(0,0,0,0.6))'
+              backgroundColor: 'rgba(6, 6, 8, 0.94)',
+              borderColor: 'color-mix(in srgb, var(--ambient-color, rgba(255,255,255,0.15)) 30%, rgba(255,255,255,0.07))',
+              boxShadow: '0 6px 28px -8px color-mix(in srgb, var(--ambient-color, rgba(0,0,0,0.8)) 20%, rgba(0,0,0,0.6))'
             }}
           >
-            {/* Ambient glow layer */}
+            {/* Ambient glow */}
             <div
-              className="absolute inset-0 opacity-[0.07] pointer-events-none rounded-2xl"
+              className="absolute inset-0 opacity-[0.06] pointer-events-none rounded-xl"
               style={{ background: 'radial-gradient(ellipse at top left, var(--ambient-color, transparent), transparent 70%)' }}
             />
 
@@ -127,19 +144,19 @@ export function PlayerToasts({ serverName }: PlayerToastsProps) {
               toast.icon === 'alert' ? 'text-amber-400' :
               toast.icon === 'server' ? 'text-emerald-400' : 'text-sky-400'
             }`}>
-              {toast.icon === 'alert' ? <AlertCircle size={18} /> :
-               toast.icon === 'server' ? <Server size={18} /> : <Info size={18} />}
+              {toast.icon === 'alert' ? <AlertCircle size={16} /> :
+               toast.icon === 'server' ? <Server size={16} /> : <Info size={16} />}
             </div>
 
-            <p className="text-[13px] text-white/85 leading-snug flex-1 relative z-10 font-medium pr-1">
+            <p className="text-[12px] text-white/80 leading-snug flex-1 relative z-10 font-medium">
               {toast.message}
             </p>
 
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-white/30 hover:text-white/70 transition-colors shrink-0 p-0.5 relative z-10 mt-0.5"
+              className="text-white/25 hover:text-white/60 transition-colors shrink-0 p-0.5 relative z-10 mt-0.5"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           </motion.div>
         ))}

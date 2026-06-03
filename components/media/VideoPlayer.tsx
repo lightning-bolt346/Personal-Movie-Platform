@@ -17,12 +17,13 @@ interface VideoPlayerProps {
   episode?: number;
   title?: string;
   poster?: string | null;
+  color?: string | null;
   onProgress?: (progress: number) => void;
   onPlayNext?: () => void;
   hasNextEpisode?: boolean;
 }
 
-export function VideoPlayer({ type, id, season, episode, title, poster, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
+export function VideoPlayer({ type, id, season, episode, title, poster, color, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
@@ -314,7 +315,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
   };
 
   const source = getSource(currentSourceId);
-  const embedUrl = source.url(type, id, season, episode);
+  let embedUrl = source.url(type, id, season, episode);
+
+  // Apply dynamic theme color if provided (replace the hardcoded e50914)
+  if (color) {
+    const hex = color.replace('#', '');
+    embedUrl = embedUrl.replace(/color=e50914/gi, `color=${hex}`)
+                       .replace(/color=%23e50914/gi, `color=%23${hex}`)
+                       .replace(/primaryColor=e50914/gi, `primaryColor=${hex}`);
+  }
 
   const sandboxAttrs = useSandbox 
     ? source.sandboxFlags 
@@ -460,7 +469,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                                   ) : (
                                     <span className="text-[9px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">T2</span>
                                   )}
-                                  {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">âœ“ No Ads</span>}
+                                  {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1"><Check size={10} /> No Ads</span>}
                                   {s.hasPopups && <span className="text-[9px] font-bold text-zinc-500 bg-black/50 px-1.5 py-0.5 rounded border border-white/5">Popups</span>}
                                 </div>
                               </div>
@@ -479,7 +488,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                               </div>
                             )}
                             <div>
-                              <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">âœ¦ Recommended</h5>
+                              <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2 flex items-center gap-1.5">Recommended</h5>
                               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
                                 {top6Sources.map(s => renderServerCard(s))}
                               </div>
@@ -522,7 +531,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                                           <div className="flex items-center gap-2">
                                             <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActiveCompact ? 'bg-crimson-500' : 'bg-zinc-700'}`} />
                                             <span className="text-xs font-semibold">{s.name}</span>
-                                            {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20">âœ“</span>}
+                                            {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20 flex items-center"><Check size={10} /></span>}
                                           </div>
                                           <div className="flex items-center gap-1.5">
                                             <span className="text-[9px] text-zinc-600 uppercase hidden sm:block">T{s.tier}</span>
@@ -635,12 +644,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                     )}
 
                     <a
-                      href={embedUrl}
+                      href={`/test-sources?id=${id}&type=${type}${season ? `&season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all mt-1 hover:scale-105 active:scale-95"
+                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all mt-4 mb-2 hover:scale-105 active:scale-95 justify-center"
                     >
-                      <ExternalLink size={11} className="text-crimson-500 animate-pulse" /> Open source in new tab
+                      <ExternalLink size={11} className="text-crimson-500 animate-pulse" /> Test Providers Settings
                     </a>
                   </div>
                 </div>
@@ -655,24 +664,26 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       {!isFullscreen && (
         <div className="flex items-center justify-between gap-3 px-4 py-3 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
           {/* Left: servers button + server name + sandbox */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-4 min-w-0">
             <button 
               onClick={() => setShowSettingsModal(true)}
-              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-4 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-xs shadow-md shrink-0"
+              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-700 text-white px-4 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-xs shadow-md shrink-0"
             >
               <Server size={14} className="text-crimson-500" />
-              <span className="hidden sm:inline">Servers &amp; Settings</span>
+              <span className="hidden sm:inline">Servers</span>
               <span className="sm:hidden">Servers</span>
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 min-w-0">
-              <div className="h-5 w-px bg-zinc-800" />
+            <div className="hidden sm:flex items-center gap-3 min-w-0">
+              <div className="h-6 w-px bg-zinc-800" />
               <div className="flex flex-col min-w-0">
-                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest leading-none mb-0.5">Now streaming on</span>
-                <span className="text-xs font-semibold text-zinc-200 leading-none truncate max-w-[180px]">{source.name}</span>
+                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none mb-1">Now Streaming On</span>
+                <span className="text-[13px] font-bold text-white leading-none truncate max-w-[200px]">{source.name}</span>
               </div>
-              {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">✓ No Ads</span>}
-              {source.tier === 1 && <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded shrink-0 hidden lg:inline">Tier 1</span>}
+              <div className="flex items-center gap-1.5 ml-2">
+                {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded flex items-center gap-1 shrink-0"><Check size={10} /> No Ads</span>}
+                {source.tier === 1 && <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded shrink-0 hidden lg:inline">Tier 1</span>}
+              </div>
             </div>
           </div>
 

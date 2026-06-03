@@ -71,7 +71,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
               style={{ backgroundColor: bgColor }} 
             />
             
-            <div className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${!isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col'}`}
+            <div className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${!isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col sticky top-24 z-40 shadow-2xl'}`}
               onClick={() => !isPlaying && setIsPlaying(true)}
             >
             {!isPlaying ? (
@@ -95,7 +95,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                 </div>
               </div>
             ) : (
-              <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} />
+              <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} color={bgColor} />
             )}
           </div>
           </div>

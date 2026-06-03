@@ -153,7 +153,9 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
               style={{ backgroundColor: bgColor }} 
             />
             
-            <div className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${!isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px]' : 'min-h-[300px] flex flex-col'}`}>
+            <div className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${!isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col'}`}
+              onClick={() => !isPlaying && setIsPlaying(true)}
+            >
             {!isPlaying ? (
               <div className="absolute inset-0 z-10">
                 <YoutubeBackgroundPlayer 
@@ -162,6 +164,17 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                   title={show.name || ''} 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl"
+                    style={{
+                      background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
+                      boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,
+                    }}
+                  >
+                    <Play size={28} fill="white" className="text-white ml-1" />
+                  </div>
+                </div>
               </div>
             ) : (
               <VideoPlayer 

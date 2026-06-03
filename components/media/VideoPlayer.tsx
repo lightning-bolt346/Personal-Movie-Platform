@@ -206,17 +206,22 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      // Don't trigger if user is typing in an input, textarea, or contenteditable
+      // Don't trigger if user is typing
       if (
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
         target.isContentEditable
-      ) {
-        return;
-      }
+      ) return;
 
+      // Only handle F for fullscreen when video container is focused/hovered
       if (e.key.toLowerCase() === 'f') {
         e.preventDefault();
         toggleFullscreen();
+      }
+
+      // Space: only prevent page scroll, let the iframe handle play/pause natively
+      if (e.key === ' ') {
+        // Prevent page scroll
+        e.preventDefault();
       }
     };
 
@@ -224,13 +229,20 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleFullscreen]);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
 
-
-  const top6ServerIds = ["cinemaos", "mappletv", "vidnest", "peachify", "smashystream", "rivestream"];
+  // Recommended = 4 best ad-free: cinemaos, mappletv, vidsrcwtf2 (multilang), smashystream
+  // More section = vidsrcwtf1 (multi server) + rest
+  const recommendedIds = ["cinemaos", "mappletv", "vidsrcwtf2", "smashystream"];
   
   const favoriteSources = sources.filter(s => favoriteServers.includes(s.id));
-  const top6Sources = sources.filter(s => top6ServerIds.includes(s.id) && !favoriteServers.includes(s.id));
-  const remainingSources = sources.filter(s => !top6ServerIds.includes(s.id) && !favoriteServers.includes(s.id));
+  const top6Sources = sources.filter(s => recommendedIds.includes(s.id) && !favoriteServers.includes(s.id));
+  const remainingSources = sources.filter(s => !recommendedIds.includes(s.id) && !favoriteServers.includes(s.id));
 
   const toggleFavServer = (e: React.MouseEvent, serverId: string) => {
     e.stopPropagation();
@@ -344,10 +356,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
           
           <button 
             onClick={toggleFullscreen}
-            title="Fullscreen (F)"
-            className="flex items-center justify-center p-2 rounded-md sm:rounded-lg bg-void-900 border border-zinc-800 text-zinc-400 hover:bg-void-800 hover:text-zinc-300 transition-all active:scale-95 flex-1 sm:flex-none"
+            title={isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'}
+            className={`flex items-center justify-center gap-1.5 p-2 sm:px-3 sm:py-2 rounded-md sm:rounded-lg border transition-all active:scale-95 flex-1 sm:flex-none ${
+              isFullscreen 
+                ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20 hover:bg-crimson-500/20' 
+                : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800 hover:text-zinc-300'
+            }`}
           >
             <Maximize size={16} />
+            {isFullscreen && <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">Exit FS</span>}
           </button>
         </div>
       </div>
@@ -517,11 +534,11 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                                   ) : (
                                     <span className="text-[10px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-400 px-2 py-1 rounded border border-amber-500/20">Tier 2</span>
                                   )}
-                                  {s.hasPopups ? (
+                                  {s.noAds ? (
+                                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20 flex items-center gap-1">✓ No Ads</span>
+                                  ) : s.hasPopups ? (
                                     <span className="text-[10px] font-bold text-zinc-500 bg-black/50 px-2 py-1 rounded border border-white/5">Popups</span>
-                                  ) : (
-                                    <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10">No Ads</span>
-                                  )}
+                                  ) : null}
                                 </div>
                               </div>
                             </button>

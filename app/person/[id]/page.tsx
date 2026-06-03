@@ -2,6 +2,7 @@ import { tmdb, getImageUrl } from '@/lib/tmdb';
 import { MediaGrid } from '@/components/media/MediaGrid';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default async function PersonPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -24,6 +25,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="container mx-auto px-4 pt-28 md:pt-32 pb-28 md:pb-20 max-w-7xl">
+      <BackButton />
       <div className="flex flex-col md:flex-row gap-8 mb-12">
         <div className="w-full md:w-64 flex-shrink-0">
           <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-crimson-sm group">

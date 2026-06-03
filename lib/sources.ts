@@ -5,6 +5,7 @@ export interface Source {
   tier: 1 | 2;
   feature: string;
   hasPopups: boolean;
+  noAds: boolean;
   sandboxFlags: string;
   url: (
     type: "movie" | "tv",
@@ -28,6 +29,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Ultra-fast premium player, high reliability",
     hasPopups: false,
+    noAds: true,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -41,6 +43,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "HD streams with consistent uptime",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -54,6 +57,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Fast global CDN, auto-selects highest quality",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -67,6 +71,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Extensive backup links & multi-language subtitles",
     hasPopups: true,
+    noAds: true,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -80,6 +85,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Powerful aggregator (Best Server mode)",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -93,6 +99,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "High-bitrate streams & lightning-fast loading",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -106,6 +113,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Clean API, rapid fetching, high uptime",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -119,6 +127,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Versatile sources, robust custom player",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -132,6 +141,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Ultra-fast direct MP4 streaming",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -145,6 +155,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Low latency, optimized for all devices",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -158,6 +169,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Active streaming API, fast, multiple sources",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -171,6 +183,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Ad-free, professional-grade, multi-server",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -184,6 +197,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Blazing fast streaming, next-gen infrastructure",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -197,6 +211,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Multilingual support, smart fallbacks",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -210,6 +225,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Stable high quality Russian backend",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -223,6 +239,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Aggregates multiple servers automatically",
     hasPopups: false,
+    noAds: true,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -236,6 +253,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Extensive multi-language subtitles/dubs",
     hasPopups: false,
+    noAds: true,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -249,6 +267,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Multiple robust embed fallback options",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -262,6 +281,7 @@ export const sources: Source[] = [
     tier: 1,
     feature: "Top-tier bandwidth with premium servers",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -277,6 +297,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Autoplay enabled, reliable premium servers",
     hasPopups: false,
+    noAds: true,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -290,6 +311,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Vast legacy library, reliable fallbacks",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -303,6 +325,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Automatic TMDB exact matching engine",
     hasPopups: false,
+    noAds: true,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -316,6 +339,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Massive library, decent speed",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -329,6 +353,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Secondary massive catalog fallback",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -342,6 +367,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Lightweight player, good fallbacks",
     hasPopups: false,
+    noAds: false,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
@@ -355,6 +381,7 @@ export const sources: Source[] = [
     tier: 2,
     feature: "Varied quality streams & alternatives",
     hasPopups: true,
+    noAds: false,
     sandboxFlags: TIER_2_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"

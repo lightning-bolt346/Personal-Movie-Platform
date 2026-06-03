@@ -18,118 +18,128 @@ export function PlayerToasts({ serverName }: PlayerToastsProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [mounted, setMounted] = useState(false);
   const initialToastsTriggered = useRef(false);
-  const prevServerName = useRef(serverName);
+  const prevServerName = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Initial mounting toasts (Staggered & StrictMode safe)
+  // Fire initial toasts only AFTER portal is ready (mounted=true)
   useEffect(() => {
+    if (!mounted) return;
     if (initialToastsTriggered.current) return;
     initialToastsTriggered.current = true;
 
-    const messages = [
+    // Set initial prevServerName without triggering server switch toast
+    prevServerName.current = serverName;
+
+    const messages: ToastData[] = [
       {
-        id: 'toast-1',
-        icon: 'info' as const,
-        message: 'Some servers may trigger popups or redirects. These are from 3rd-party sources, not ZIVOX.'
+        id: `init-1-${Date.now()}`,
+        icon: 'info',
+        message: 'Some servers may trigger redirects from 3rd-party sources — not from ZIVOX. Sandbox Shield protects you!'
       },
       {
-        id: 'toast-2',
-        icon: 'alert' as const,
-        message: 'Sandbox mode protects you, but some sources might not load. Try disabling Sandbox if a video fails.'
+        id: `init-2-${Date.now() + 1}`,
+        icon: 'alert',
+        message: 'If a video fails to load, try disabling Sandbox mode in the Settings. Some sources require it off.'
       },
       {
-        id: 'toast-3',
-        icon: 'info' as const,
-        message: 'Sorry for any inconvenience! Try switching servers if one is too slow or has too many ads.'
+        id: `init-3-${Date.now() + 2}`,
+        icon: 'info',
+        message: 'Slow stream? Switch servers anytime — we have 20+ sources to choose from!'
       }
     ];
 
-    const timeouts = messages.map((msg, idx) => {
-      return setTimeout(() => {
-        setToasts((prev) => {
-          if (prev.some((t) => t.id === msg.id)) return prev;
+    const timeouts = messages.map((msg, idx) =>
+      setTimeout(() => {
+        setToasts(prev => {
+          if (prev.some(t => t.id === msg.id)) return prev;
           return [...prev, msg];
         });
-      }, 500 + idx * 1500); // Appear at 0.5s, 2.0s, 3.5s
-    });
+      }, 800 + idx * 2000) // 0.8s, 2.8s, 4.8s
+    );
 
     return () => timeouts.forEach(clearTimeout);
-  }, []);
+  }, [mounted, serverName]);
 
-  // Watch for Server Name changes
+  // Watch for Server Name changes (skip the very first assignment)
   useEffect(() => {
+    if (!mounted) return;
+    if (!initialToastsTriggered.current) return;
+    if (prevServerName.current === undefined) {
+      prevServerName.current = serverName;
+      return;
+    }
     if (prevServerName.current && serverName && prevServerName.current !== serverName) {
-      const serverToast = {
+      const serverToast: ToastData = {
         id: `server-${Date.now()}`,
-        icon: 'server' as const,
+        icon: 'server',
         message: `Switched to ${serverName} server.`
       };
-      setToasts((prev) => [...prev, serverToast]);
+      setToasts(prev => [...prev, serverToast]);
     }
     prevServerName.current = serverName;
-  }, [serverName]);
+  }, [serverName, mounted]);
 
-  // Toast expiry logic (individual timers)
+  // Per-toast 8s expiry using stable individual timers
   useEffect(() => {
     if (toasts.length === 0) return;
-    const timers = toasts.map((toast) => {
-      return setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== toast.id));
-      }, 8000); // 8 seconds per toast
-    });
+    const timers = toasts.map(toast =>
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== toast.id));
+      }, 8000)
+    );
     return () => timers.forEach(clearTimeout);
-  }, [toasts]);
+  }, [toasts.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  if (!mounted || typeof document === 'undefined') return null;
+  if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed top-24 right-4 md:right-8 md:top-28 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-24 right-4 md:right-8 md:top-28 z-[9999] flex flex-col gap-3 w-80 max-w-[calc(100vw-2rem)] pointer-events-none">
       <AnimatePresence mode="popLayout">
-        {toasts.map((toast) => (
+        {toasts.map(toast => (
           <motion.div
             layout
             key={toast.id}
-            initial={{ opacity: 0, x: 50, scale: 0.9 }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="backdrop-blur-xl border rounded-xl p-4 shadow-2xl flex items-start gap-3 pointer-events-auto relative overflow-hidden"
+            exit={{ opacity: 0, x: 60, scale: 0.9, transition: { duration: 0.2 } }}
+            transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+            className="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl flex items-start gap-3 pointer-events-auto relative overflow-hidden"
             style={{
-              backgroundColor: 'rgba(5, 5, 5, 0.85)',
-              borderColor: 'color-mix(in srgb, var(--ambient-color, rgba(255,255,255,0.1)) 40%, transparent)',
-              boxShadow: '0 10px 40px -10px color-mix(in srgb, var(--ambient-color, rgba(0,0,0,0.5)) 20%, transparent)'
+              backgroundColor: 'rgba(8, 8, 10, 0.92)',
+              borderColor: 'color-mix(in srgb, var(--ambient-color, rgba(255,255,255,0.15)) 35%, rgba(255,255,255,0.08))',
+              boxShadow: '0 8px 32px -8px color-mix(in srgb, var(--ambient-color, rgba(0,0,0,0.8)) 25%, rgba(0,0,0,0.6))'
             }}
           >
-            {/* Ambient Background Glow inside the toast */}
-            <div 
-              className="absolute inset-0 opacity-10 pointer-events-none"
-              style={{ background: 'var(--ambient-color)' }}
+            {/* Ambient glow layer */}
+            <div
+              className="absolute inset-0 opacity-[0.07] pointer-events-none rounded-2xl"
+              style={{ background: 'radial-gradient(ellipse at top left, var(--ambient-color, transparent), transparent 70%)' }}
             />
-            
+
             <div className={`mt-0.5 shrink-0 relative z-10 ${
-              toast.icon === 'alert' ? 'text-amber-400' : 
-              toast.icon === 'server' ? 'text-emerald-400' : 'text-blue-400'
+              toast.icon === 'alert' ? 'text-amber-400' :
+              toast.icon === 'server' ? 'text-emerald-400' : 'text-sky-400'
             }`}>
-              {toast.icon === 'alert' ? <AlertCircle size={20} /> : 
-               toast.icon === 'server' ? <Server size={20} /> : <Info size={20} />}
+              {toast.icon === 'alert' ? <AlertCircle size={18} /> :
+               toast.icon === 'server' ? <Server size={18} /> : <Info size={18} />}
             </div>
-            
-            <p className="text-sm text-white/90 leading-snug flex-1 relative z-10 font-medium">
+
+            <p className="text-[13px] text-white/85 leading-snug flex-1 relative z-10 font-medium pr-1">
               {toast.message}
             </p>
 
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-white/40 hover:text-white transition-colors shrink-0 -mt-1 -mr-1 p-1 relative z-10"
+              className="text-white/30 hover:text-white/70 transition-colors shrink-0 p-0.5 relative z-10 mt-0.5"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           </motion.div>
         ))}

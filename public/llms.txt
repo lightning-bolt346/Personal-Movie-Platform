@@ -1,0 +1,35 @@
+# ZIVOX
+
+> Premium cinematic streaming platform
+
+## About
+
+ZIVOX is a free, premium streaming platform for watching movies, TV shows, and anime in HD quality. It features a cinematic dark UI, multiple streaming servers with automatic source testing, sandbox protection, watch history, favorites, and auto-play next episode.
+
+## Features
+
+- Stream movies, TV shows, and anime in HD
+- 15+ streaming servers with automatic quality testing
+- Sandbox protection for safe browsing
+- Watch history and progress tracking
+- Favorites and watchlist management
+- Auto-play next episode
+- Mobile-optimized responsive design
+- No account required
+- Genre-based discovery with 20+ categories
+- Watch Party sharing with friends
+
+## Content Categories
+
+- Movies (Action, Comedy, Drama, Horror, Sci-Fi, Thriller, and more)
+- TV Shows (Popular, Top Rated, Currently Airing)
+- Anime (Subbed and Dubbed)
+
+## URLs
+
+- Homepage: https://zivox-streaming.vercel.app/
+- Movies: https://zivox-streaming.vercel.app/movies
+- TV Shows: https://zivox-streaming.vercel.app/tv
+- Anime: https://zivox-streaming.vercel.app/anime
+- Discover: https://zivox-streaming.vercel.app/discover
+- Search: https://zivox-streaming.vercel.app/search

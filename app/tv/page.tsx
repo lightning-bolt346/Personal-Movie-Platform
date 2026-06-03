@@ -6,6 +6,15 @@ import { Top10Row } from '@/components/media/Top10Row';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Watch TV Shows & Series Free Online in HD',
+  description: 'Stream the latest and top-rated TV shows and series for free in HD quality on ZIVOX. Binge-watch popular series with auto-play next episode.',
+  openGraph: {
+    title: 'Watch TV Shows & Series Free Online in HD — ZIVOX',
+    description: 'Stream the latest and top-rated TV shows and series for free in HD quality on ZIVOX.',
+  },
+};
+
 export default async function TvPage() {
   const [trendingTv, popTv, topTv] = await Promise.all([
     tmdb.getTrending('tv'),

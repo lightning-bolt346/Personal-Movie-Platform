@@ -1,0 +1,17 @@
+{
+  "name": "ZIVOX",
+  "short_name": "ZIVOX",
+  "description": "Premium cinematic streaming. Watch movies, TV shows, and anime in stunning quality.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#e50914",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

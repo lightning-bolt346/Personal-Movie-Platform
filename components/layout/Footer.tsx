@@ -6,7 +6,9 @@ const NAV_LINKS = [
   { label: 'Movies', href: '/movies' },
   { label: 'TV Shows', href: '/tv' },
   { label: 'Anime', href: '/anime' },
+  { label: 'Discover', href: '/discover' },
   { label: 'Search', href: '/search' },
+  { label: 'About', href: '/about' },
   { label: 'Profile', href: '/profile' },
 ];
 

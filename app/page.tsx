@@ -4,6 +4,7 @@ import { ContinueWatching } from '@/components/media/ContinueWatching';
 import { HorizontalRow } from '@/components/media/HorizontalRow';
 import { Top10Row } from '@/components/media/Top10Row';
 import { RecommendedForYou } from '@/components/media/RecommendedForYou';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 export default async function Home() {
   const [trending, popMovies, popTv, topMovies, topTv, popAnime] = await Promise.all([
@@ -21,6 +22,21 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen -mt-[72px]">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'ZIVOX',
+        url: process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app',
+        description: 'Free premium streaming platform for movies, TV shows, and anime in HD quality.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/search?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      }} />
       {/* Cinematic hero — full screen, sits behind nav */}
       <HeroSlider items={heroItemsWithLogos} />
 

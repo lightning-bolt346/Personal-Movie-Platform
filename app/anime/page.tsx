@@ -4,6 +4,15 @@ import { Media } from '@/types/tmdb';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Watch Anime Free Online — Sub & Dub in HD',
+  description: 'Stream the best anime series for free in HD quality on ZIVOX. Watch trending and top-rated anime with Japanese audio, subtitles, and dubbed options.',
+  openGraph: {
+    title: 'Watch Anime Free Online — Sub & Dub in HD — ZIVOX',
+    description: 'Stream the best anime series for free in HD quality on ZIVOX.',
+  },
+};
+
 function deduplicate(items: Media[]) {
   return items.filter((item, index, self) => 
     item && item.id && index === self.findIndex((t) => t.id === item.id)

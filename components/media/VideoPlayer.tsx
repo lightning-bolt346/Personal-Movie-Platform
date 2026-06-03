@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSource, sources } from '@/lib/sources';
-import { Settings, HelpCircle, Check, X, Heart, Copy, Monitor, Server, Shield, ShieldOff, Play, Maximize, RectangleHorizontal, ExternalLink, ArrowRight } from 'lucide-react';
+import { Settings, HelpCircle, Check, X, Heart, Copy, Monitor, Server, Shield, ShieldOff, Play, Maximize, RectangleHorizontal, ExternalLink, ArrowRight, Share2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { storage } from '@/lib/storage';
@@ -24,6 +24,7 @@ interface VideoPlayerProps {
 export function VideoPlayer({ type, id, season, episode, title, poster, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
   const [autoSandboxOnSwitch, setAutoSandboxOnSwitch] = useState(true);
   const [autoPlayNext, setAutoPlayNext] = useState(true);
@@ -317,6 +318,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
           >
             <Heart size={14} className={isFav ? "fill-pink-500" : ""} />
             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider hidden sm:inline">{isFav ? 'Favorited' : 'Favorite'}</span>
+          </button>
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowShareModal(true); }}
+            className={`flex items-center justify-center gap-2 flex-1 sm:flex-none p-2 sm:px-3 sm:py-2 rounded-md sm:rounded-lg border transition-all active:scale-95 bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20 hover:text-purple-300`}
+            title="Invite Friends to Watch Party"
+          >
+            <Share2 size={14} />
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider hidden sm:inline">Party</span>
           </button>
           
           <button 
@@ -635,6 +645,76 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
                          </Link>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* Share/Party Modal Overlay */}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {showShareModal && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] bg-void-950/60 backdrop-blur-md flex items-center justify-center p-4"
+              onClick={() => setShowShareModal(false)}
+            >
+              <motion.div 
+                initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 20, opacity: 0 }}
+                className="bg-void-900 border border-purple-500/30 rounded-2xl max-w-md w-full shadow-[0_0_40px_rgba(168,85,247,0.15)] relative overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500" />
+                
+                <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
+                  <h3 className="text-xl font-bold font-display tracking-wider text-white flex items-center gap-3 uppercase">
+                    <Users size={20} className="text-fuchsia-400" /> Watch Party
+                  </h3>
+                  <button 
+                    onClick={() => setShowShareModal(false)}
+                    className="text-zinc-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-xl active:scale-95"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                
+                <div className="p-6 flex flex-col gap-6 text-center">
+                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2 shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+                    <Share2 size={28} className="text-fuchsia-400" />
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-lg font-bold text-white mb-2 font-display">Invite your friends</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto">
+                      Share this unique link with friends. When they join, they'll land right here so you can watch together.
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 bg-void-950 border border-zinc-800 rounded-xl p-2 relative group">
+                    <div className="flex-1 truncate text-xs text-zinc-300 font-mono text-left px-2 select-all">
+                      {typeof window !== 'undefined' ? `${window.location.origin}/watch/${type}/${id}${season ? `?season=${season}&episode=${episode}&` : '?'}party=${Math.random().toString(36).substring(2, 10)}` : ''}
+                    </div>
+                    <button 
+                      onClick={(e) => {
+                        const input = e.currentTarget.previousElementSibling;
+                        if (input && input.textContent) {
+                          navigator.clipboard.writeText(input.textContent);
+                          showToast('Party link copied!');
+                          setShowShareModal(false);
+                        }
+                      }}
+                      className="bg-purple-600 hover:bg-purple-500 text-white p-2 rounded-lg transition-colors flex-shrink-0 flex items-center gap-2 text-xs font-bold shadow-lg shadow-purple-500/20 active:scale-95"
+                    >
+                      <Copy size={14} /> <span className="hidden sm:inline">Copy Link</span>
+                    </button>
                   </div>
                 </div>
               </motion.div>

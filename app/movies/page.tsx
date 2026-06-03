@@ -6,6 +6,15 @@ import { Top10Row } from '@/components/media/Top10Row';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Watch Movies Free Online in HD',
+  description: 'Browse and watch the latest popular and top-rated movies for free in HD quality on ZIVOX. No ads, no sign-up required. Action, Comedy, Drama, Horror, Sci-Fi and more.',
+  openGraph: {
+    title: 'Watch Movies Free Online in HD — ZIVOX',
+    description: 'Browse and watch the latest popular and top-rated movies for free in HD quality on ZIVOX.',
+  },
+};
+
 export default async function MoviesPage() {
   const [trendingMovies, popMovies, topMovies] = await Promise.all([
     tmdb.getTrending('movie'),

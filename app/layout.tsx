@@ -8,14 +8,57 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
-export const metadata = {
-  title: 'ZIVOX — Premium Streaming',
-  description: 'Cinematic streaming experience. Watch movies, TV shows, and anime in stunning quality on ZIVOX.',
-  keywords: 'stream movies, watch tv shows, anime, free streaming, zivox',
+import type { Metadata } from 'next';
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
+    template: '%s | ZIVOX',
+  },
+  description: 'ZIVOX is a premium free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality. No ads, no sign-up, multiple servers, auto-play next episode.',
+  keywords: ['free movies', 'watch movies online', 'free streaming', 'watch tv shows free', 'anime streaming', 'HD streaming', 'zivox', 'no ads streaming', 'watch movies free 2026'],
   openGraph: {
-    title: 'ZIVOX — Premium Streaming',
-    description: 'Cinematic streaming experience. Watch movies, TV shows, and anime in stunning quality on ZIVOX.',
+    title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
+    description: 'Premium free streaming. Watch the latest movies, TV shows, and anime in stunning HD quality on ZIVOX.',
     type: 'website',
+    siteName: 'ZIVOX',
+    url: siteUrl,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'ZIVOX — Premium Streaming',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
+    description: 'Premium free streaming. Watch the latest movies, TV shows, and anime in stunning HD quality.',
+    images: ['/og-image.png'],
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
+  manifest: '/manifest.json',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
   },
 };
 
@@ -23,6 +66,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${space.variable} ${mono.variable}`}>
       <head>
+        <link rel="icon" href="/icon.png" type="image/png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

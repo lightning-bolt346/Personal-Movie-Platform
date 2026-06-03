@@ -294,11 +294,11 @@ export const sources: Source[] = [
     id: "cinesrc",
     name: "CineSrc (Premium)",
     type: "iframe",
-    tier: 2,
+    tier: 1,
     feature: "Autoplay enabled, reliable premium servers",
     hasPopups: false,
     noAds: true,
-    sandboxFlags: TIER_2_SANDBOX,
+    sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
         ? `https://cinesrc.st/embed/movie/${id}?color=%23e50914&autoplay=true`
@@ -322,11 +322,11 @@ export const sources: Source[] = [
     id: "autoembed",
     name: "AutoEmbed",
     type: "iframe",
-    tier: 2,
+    tier: 1,
     feature: "Automatic TMDB exact matching engine",
     hasPopups: false,
     noAds: true,
-    sandboxFlags: TIER_2_SANDBOX,
+    sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
         ? `https://autoembed.co/movie/tmdb/${id}?color=e50914`

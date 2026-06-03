@@ -15,12 +15,38 @@ export interface Source {
   ) => string;
 }
 
-export const NORMAL_SANDBOX = "allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-pointer-lock allow-top-navigation-by-user-activation";
+export const NORMAL_SANDBOX = "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
 export const TIER_1_SANDBOX = NORMAL_SANDBOX;
 export const TIER_2_SANDBOX = NORMAL_SANDBOX;
 
 export const sources: Source[] = [
   // TIER 1 - Sandbox-Friendly & Reliable
+  {
+    id: "cinemaos",
+    name: "CinemaOS",
+    type: "iframe",
+    tier: 1,
+    feature: "Ultra-fast premium player, high reliability",
+    hasPopups: false,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://cinemaos.tech/player/${id}`
+        : `https://cinemaos.tech/player/${id}/${season}/${episode}`
+  },
+  {
+    id: "mappletv",
+    name: "MappleTV",
+    type: "iframe",
+    tier: 1,
+    feature: "HD streams with consistent uptime",
+    hasPopups: false,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://mapple.uk/watch/movie/${id}`
+        : `https://mapple.uk/watch/tv/${id}-${season}-${episode}`
+  },
   {
     id: "111movies",
     name: "111Movies",

@@ -132,6 +132,26 @@ export default function AboutPage() {
         </div>
       </div>
 
+      {/* Legal & Contact Section */}
+      <div className="mb-16 bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+        <h2 className="text-2xl font-display font-black text-white mb-4">
+          Disclaimer ◝(ᵔᵕᵔ)◜
+        </h2>
+        <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+          Please note: ZIVOX does not host any files itself but instead only displays content from 3rd party providers. Legal issues should be taken up with them.
+          <br /><br />
+          ZIVOX does not host any media files, instead, it provides links to third-party services. Legal concerns regarding the files should be addressed directly with the respective file hosts and providers. ZIVOX bears no responsibility for the media files displayed by the providers.
+        </p>
+
+        <h2 className="text-2xl font-display font-black text-white mb-4">
+          Contact Us
+        </h2>
+        <p className="text-zinc-400 text-sm leading-relaxed">
+          For general inquiries, feature requests, or DMCA notices, please contact us at:<br/>
+          <a href="mailto:zivox.tv@proton.me" className="text-crimson-500 hover:text-crimson-400 font-bold mt-2 inline-block">zivox.tv@proton.me</a>
+        </p>
+      </div>
+
       {/* CTA */}
       <div className="text-center">
         <Link

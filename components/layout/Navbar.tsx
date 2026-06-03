@@ -38,6 +38,59 @@ export function Navbar() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
+  if (pathname?.startsWith('/watch')) {
+    return (
+      <nav className="fixed top-4 left-4 md:top-6 md:left-6 z-[200] pointer-events-none transition-opacity duration-500 opacity-50 hover:opacity-100">
+        <div className="flex items-center gap-4 bg-void-950/40 backdrop-blur-md border border-white/10 rounded-full px-4 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-900/60 hover:border-white/20">
+           <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
+             <span
+               className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
+               style={{
+                 background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                 WebkitBackgroundClip: 'text',
+                 WebkitTextFillColor: 'transparent',
+                 backgroundClip: 'text',
+                 letterSpacing: '-0.04em',
+               }}
+             >
+               ZIV
+             </span>
+             <span
+               className="font-display font-black text-[16px] leading-none mx-[1px]"
+               style={{
+                 display: 'inline-flex',
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 width: '16px',
+                 height: '16px',
+                 borderRadius: '50%',
+                 border: '2px solid rgba(229, 9, 20, 0.9)',
+                 boxShadow: '0 0 10px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.2)',
+                 WebkitTextFillColor: 'transparent',
+               }}
+             >
+             </span>
+             <span
+               className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
+               style={{
+                 background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                 WebkitBackgroundClip: 'text',
+                 WebkitTextFillColor: 'transparent',
+                 backgroundClip: 'text',
+                 letterSpacing: '-0.04em',
+               }}
+             >
+               X
+             </span>
+           </Link>
+           <div className="w-[1px] h-5 bg-white/20" />
+           <Link href="/search" onClick={clearIframes} className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><Search size={16} strokeWidth={2.5} /></Link>
+           <Link href="/profile" onClick={clearIframes} className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><User size={16} strokeWidth={2.5} /></Link>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <>
       {/* ── MOBILE TOP NAV ── */}

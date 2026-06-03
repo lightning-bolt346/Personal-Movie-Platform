@@ -1,5 +1,7 @@
+'use client';
 import Link from 'next/link';
 import { Film, Tv, Zap, Github, Twitter } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -13,13 +15,16 @@ const NAV_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { label: 'Privacy Policy', href: '#' },
-  { label: 'Terms of Use', href: '#' },
-  { label: 'DMCA', href: '#' },
-  { label: 'Contact', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Use', href: '/terms' },
+  { label: 'DMCA', href: '/dmca' },
+  { label: 'Contact', href: 'mailto:zivox.tv@proton.me' },
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/watch')) return null;
+
   return (
     <footer
       className="relative z-20 mt-auto overflow-hidden"
@@ -155,21 +160,21 @@ export function Footer() {
                 }}
               >
                 <Film size={14} className="text-[#01b4e4]" />
-                <span className="text-xs font-semibold text-white/60">
+                <span className="text-xs font-semibold text-white">
                   TMDB API
                 </span>
               </div>
-              {/* Streams */}
+              {/* Next.js & React */}
               <div
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-fit"
                 style={{
-                  background: 'rgba(229,9,20,0.08)',
-                  border: '1px solid rgba(229,9,20,0.15)',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
                 }}
               >
-                <Zap size={14} className="text-crimson-500" />
-                <span className="text-xs font-semibold text-white/60">
-                  CineSrc Streams
+                <Zap size={14} className="text-white" />
+                <span className="text-xs font-semibold text-white">
+                  Next.js 16
                 </span>
               </div>
               {/* Status */}
@@ -185,24 +190,30 @@ export function Footer() {
             </div>
 
             {/* Legal links */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-6">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6">
               {LEGAL_LINKS.map(({ label, href }) => (
-                <a
+                <Link
                   key={label}
                   href={href}
-                  className="text-[11px] text-white/25 hover:text-white/50 transition-colors"
+                  className="text-sm text-white/45 hover:text-white/90 transition-colors duration-200"
                 >
                   {label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
         </div>
 
+        {/* Disclaimer Note */}
+        <div className="pt-8 pb-6 border-t border-white/5 mt-4">
+          <p className="text-sm text-white/45 text-center max-w-3xl mx-auto leading-relaxed bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+            <strong>Please note:</strong> ZIVOX does not host any files itself but instead only displays content from 3rd party providers. Legal issues should be taken up with them.
+          </p>
+        </div>
+
         {/* Bottom bar */}
         <div
-          className="pt-6 flex flex-col md:flex-row items-center justify-between gap-2"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+          className="pt-6 flex flex-col md:flex-row items-center justify-between gap-2 border-t border-white/5"
         >
           <p className="text-[11px] font-mono text-white/20 tracking-wider">
             © {new Date().getFullYear()} ZIVOX. For educational purposes only.

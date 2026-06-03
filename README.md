@@ -1,117 +1,61 @@
 <div align="center">
-  <a href="https://zivox-streaming.vercel.app">
-    <img src="public/icon.png" alt="ZIVOX Logo" width="120" height="120">
-  </a>
+  <img src="https://raw.githubusercontent.com/sgbro/zivox/main/public/logo.png" alt="ZIVOX Logo" width="180" />
+  
+  <h1>ZIVOX</h1>
+  <p><strong>Your Ultimate Cinematic Streaming Experience.</strong></p>
 
-  <h1 align="center">ZIVOX — Premium Streaming Platform</h1>
-
-  <p align="center">
-    <strong>Watch Movies, TV Shows, and Anime Free in HD</strong>
-    <br />
-    <a href="https://zivox-streaming.vercel.app">Visit Website</a>
-    ·
-    <a href="https://github.com/lightning-bolt346/Personal-Movie-Platform/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/lightning-bolt346/Personal-Movie-Platform/issues">Request Feature</a>
+  <p>
+    <a href="https://zivox-streaming.vercel.app/"><strong>Visit ZIVOX Now &rarr;</strong></a>
   </p>
 </div>
 
-<br />
+---
+
+## 🎬 Welcome to ZIVOX
+
+ZIVOX is a premium, beautifully designed entertainment platform that brings your favorite movies and TV shows together in one cinematic experience. No accounts, no hidden fees, and zero personal data collection. Just pure, immersive entertainment.
+
+We built ZIVOX with one goal in mind: to provide the most fluid, stunning, and user-friendly interface for exploring global cinema and television.
+
+---
+
+## ✨ Why Watch on ZIVOX?
+
+### 🍿 Cinematic Design
+Say goodbye to cluttered, ugly interfaces. ZIVOX features a gorgeous, ambient-glowing dark mode that adapts to whatever you're watching, making every movie night feel like a premium experience.
+
+### ⚡ Lightning Fast & Fluid
+Built on the absolute bleeding edge of web technology, ZIVOX feels less like a website and more like a native app. Instant searches, smooth animations, and rapid loading.
+
+### 🛡️ Privacy First. Always.
+Your privacy is non-negotiable. 
+*   **No Accounts Required:** Jump straight into watching.
+*   **Zero Data Tracking:** We do not collect names, emails, or IP addresses.
+*   **Local Storage:** Your watch history, favorites, and settings are saved strictly on *your* personal device, never on our servers.
+
+### 🌐 Smart Source Switching
+If a video buffer is slow or a server goes down, you're never stuck. ZIVOX gives you instant access to a powerful "Server Switcher," letting you jump between the best available 3rd-party streams in milliseconds.
+
+### 🍿 Watch Parties
+Watching alone is boring. Generate a unique Watch Party link directly from the video player, share it with your friends, and enjoy the show together!
+
+---
+
+## ⚖️ Legal & Safety Disclaimer ◝(ᵔᵕᵔ)◜
+
+**Please note:** ZIVOX does not host any files itself but instead only displays content from 3rd party providers. 
+
+This platform serves strictly as a content aggregator and does not host any media files directly. All content is streamed through trusted third-party services. ZIVOX bears no responsibility for the media files displayed by these providers. Legal issues regarding content should be taken up with the respective file hosts.
+
+For more information on how we handle privacy and copyright, please review our platform policies:
+*   [About Us](https://zivox-streaming.vercel.app/about)
+*   [Privacy Policy](https://zivox-streaming.vercel.app/privacy)
+*   [DMCA / Copyright Policy](https://zivox-streaming.vercel.app/dmca)
+*   [Terms of Service](https://zivox-streaming.vercel.app/terms)
+
+---
 
 <div align="center">
-  <a href="https://zivox-streaming.vercel.app">
-    <img src="public/og-image.png" alt="ZIVOX Hero Banner" width="100%" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-  </a>
-</div>
-
-## 🎬 About ZIVOX
-
-**[ZIVOX](https://zivox-streaming.vercel.app)** is an open-source, highly optimized streaming platform built with Next.js 16. It offers a cinematic, ad-free experience to stream thousands of movies, TV shows, and anime series in HD quality. 
-
-Designed for speed, SEO, and user experience, ZIVOX rivals premium streaming services with its dynamic dark UI and robust feature set.
-
-### 🌟 Key Features
-
-- **📺 Vast Library:** Stream the latest and greatest movies, trending TV shows, and top-rated anime.
-- **⚡ 15+ Streaming Servers:** Automatic source testing ensures you always get the best quality stream without buffering.
-- **🛡️ Sandbox Protection:** Built-in pop-up interceptors and click shields keep your viewing experience clean, safe, and ad-free.
-- **📱 PWA & Mobile Optimized:** Fully responsive design. Install it directly to your home screen as a Progressive Web App.
-- **🎬 Auto-Play Next:** Seamlessly binge-watch TV shows.
-- **⭐ Watchlist & History:** Saves your viewing progress and favorites locally in your browser—no account required.
-- **🔎 Advanced Search & Filters:** Search for actors, genres, years, or titles to find exactly what you want.
-
----
-
-## 🚀 Tech Stack
-
-ZIVOX is engineered for high performance and top-tier SEO:
-
-- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Data/API:** [TMDB API](https://www.themoviedb.org/) for metadata, posters, and cast.
-- **Media Sources:** CineSrc and various multi-server streaming proxies.
-- **Icons:** [Lucide React](https://lucide.dev/)
-- **Deployment:** [Vercel](https://vercel.com/)
-
----
-
-## 🛠️ Run Locally
-
-Want to host your own instance or contribute? Here is how to get started:
-
-### Prerequisites
-- Node.js 18.x or later
-- A free TMDB API Key
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/lightning-bolt346/Personal-Movie-Platform.git
-   cd Personal-Movie-Platform
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Variables**
-   Create a `.env.local` file in the root directory and add your API keys:
-   ```env
-   NEXT_PUBLIC_APP_URL="http://localhost:3000"
-   TMDB_API_KEY="your_tmdb_api_key_here"
-   ```
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open the app**
-   Visit `http://localhost:3000` in your browser.
-
----
-
-## 📈 SEO & Architecture
-
-ZIVOX implements aggressive 2026 SEO best practices to rank high on Google and AI search engines (ChatGPT, Perplexity):
-- **Server-Side Rendering (SSR)** for all media pages.
-- **Programmatic SEO** with dynamic `/genre`, `/year`, and `/search` routes.
-- **JSON-LD Schema Markup** (`VideoObject`, `WebSite`, `FAQPage`, `CollectionPage`).
-- **`llms.txt` integration** for AI crawler optimization.
-- Auto-generated `sitemap.xml` scaling to 80+ critical routes.
-
----
-
-## 📜 Disclaimer
-
-ZIVOX does not host any media files on its own servers. All content is provided by non-affiliated third parties. This project is intended for educational purposes.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/lightning-bolt346/Personal-Movie-Platform/issues).
-
-<div align="center">
-  <p>Built with ❤️ by the ZIVOX Team.</p>
+  <p>Built for the love of cinema.</p>
+  <p>Enjoy the show! 🍿</p>
 </div>

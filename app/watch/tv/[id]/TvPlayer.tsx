@@ -118,12 +118,27 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
   const bgColor = useAmbientColor(getImageUrl(show.poster_path || show.backdrop_path, 'w500'));
 
+  useEffect(() => {
+    if (bgColor) {
+      document.documentElement.style.setProperty('--ambient-color', bgColor);
+    }
+    return () => {
+      document.documentElement.style.removeProperty('--ambient-color');
+    };
+  }, [bgColor]);
+
   return (
     <div className="flex flex-col gap-12 w-full max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col gap-8">
+        {/* Fixed Back Button */}
         <button 
           onClick={() => isPlaying ? setIsPlaying(false) : router.back()} 
-          className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors w-fit group font-bold tracking-wider uppercase text-xs"
+          className="fixed top-20 left-4 md:top-24 md:left-6 z-[200] flex items-center gap-2 px-4 py-2 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border backdrop-blur-md"
+          style={{
+            backgroundColor: `color-mix(in srgb, ${bgColor} 15%, rgba(5,5,5,0.85))`,
+            borderColor: `color-mix(in srgb, ${bgColor} 40%, transparent)`,
+            color: 'white'
+          }}
         >
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
           Back

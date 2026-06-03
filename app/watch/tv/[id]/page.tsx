@@ -39,7 +39,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
 export default async function WatchTv({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const show = await tmdb.getDetails('tv', id);
-  const similar = show.similar?.results?.slice(0, 6) || [];
+  const similar = show.similar?.results?.slice(0, 18) || [];
   
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -8,6 +8,7 @@ import { storage } from '@/lib/storage';
 import { useFavorites } from '@/hooks/useFavorites';
 import { motion, AnimatePresence } from 'motion/react';
 import { createPortal } from 'react-dom';
+import { PlayerToasts } from './PlayerToasts';
 
 interface VideoPlayerProps {
   type: 'movie' | 'tv';
@@ -225,7 +226,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
 
 
 
-  const top6ServerIds = ["111movies", "vidnest", "peachify", "smashystream", "rivestream", "vidcore"];
+  const top6ServerIds = ["cinemaos", "mappletv", "vidnest", "peachify", "smashystream", "rivestream"];
   
   const favoriteSources = sources.filter(s => favoriteServers.includes(s.id));
   const top6Sources = sources.filter(s => top6ServerIds.includes(s.id) && !favoriteServers.includes(s.id));
@@ -255,6 +256,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="flex flex-col transition-all duration-500 w-full h-full relative gap-4 bg-void-950 rounded-2xl"
     >
+      <PlayerToasts key={id} serverName={source.name} />
       {mounted && typeof document !== 'undefined' && createPortal(
         <AnimatePresence>
           {toastMessage && (
@@ -415,16 +417,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       </div>
 
       {/* Settings Modal Overlay */}
-      {mounted && typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {showSettingsModal && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[200] bg-void-950/40 backdrop-blur-md flex items-center justify-center sm:p-6 p-0"
-              onClick={() => setShowSettingsModal(false)}
-            >
+      <AnimatePresence>
+        {showSettingsModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[200] bg-void-950/40 backdrop-blur-md flex items-center justify-center sm:p-6 p-0"
+            onClick={() => setShowSettingsModal(false)}
+          >
               <motion.div 
                 initial={{ scale: 0.98, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -650,21 +651,17 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>,
-        document.body
-      )}
-
+        </AnimatePresence>
       {/* Share/Party Modal Overlay */}
-      {mounted && typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {showShareModal && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[200] bg-void-950/60 backdrop-blur-md flex items-center justify-center p-4"
-              onClick={() => setShowShareModal(false)}
-            >
+      <AnimatePresence>
+        {showShareModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[200] bg-void-950/60 backdrop-blur-md flex items-center justify-center p-4"
+            onClick={() => setShowShareModal(false)}
+          >
               <motion.div 
                 initial={{ scale: 0.95, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -720,9 +717,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>,
-        document.body
-      )}
+        </AnimatePresence>
     </motion.div>
   );
 }

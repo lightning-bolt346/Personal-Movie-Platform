@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Play, Plus, Check, Info, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Media } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
+import { generateSlug } from '@/lib/utils';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -205,7 +206,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
             {/* CTA Buttons */}
             <div className="flex items-center gap-3">
               <Link
-                href={`/watch/${isMovie ? 'movie' : 'tv'}/${current.id}`}
+                href={`/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(current.id.toString(), current.title || current.name)}`}
                 className="flex items-center gap-2.5 px-8 py-3 rounded-full font-bold text-[15px] text-black transition-[opacity,transform] duration-200 active:scale-95 hover:opacity-90 shadow-xl"
                 style={{
                   background: '#ffffff',
@@ -216,7 +217,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
               </Link>
               
               <Link
-                href={`/watch/${isMovie ? 'movie' : 'tv'}/${current.id}`}
+                href={`/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(current.id.toString(), current.title || current.name)}`}
                 className="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 active:scale-95 hover:bg-white/10"
                 style={{
                   background: 'rgba(0,0,0,0.5)',

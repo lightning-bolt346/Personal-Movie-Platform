@@ -52,7 +52,7 @@
 
 @keyframes page-fade-in {
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 
 @keyframes shimmer-skeleton {
@@ -196,7 +196,12 @@
     opacity: 0.025;
     pointer-events: none;
     z-index: 9999;
+    contain: strict;
+    /* Animate on desktop only — grain rAF costs ~8% GPU on low-end phones */
     animation: grain 8s steps(10) infinite;
+    @media (hover: none) {
+      animation: none;
+    }
   }
 }
 
@@ -260,9 +265,26 @@ body {
   color: #fff;
 }
 
-/* Smooth image rendering */
+/* Smooth image rendering and drag prevention */
 img {
   image-rendering: -webkit-optimize-contrast;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+svg, video, iframe, canvas {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button, [role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+a {
+  -webkit-user-drag: none;
 }
 
 /* Hide scrollbars for specific elements */
@@ -288,4 +310,20 @@ img {
   animation: page-enter 0.3s ease-out forwards;
 }
 
-
+/* ── Row reveal — replaces Framer Motion whileInView on HorizontalRow ── */
+/* Default hidden state */
+.row-hidden {
+  opacity: 0;
+  transform: translateY(18px);
+}
+/* Revealed via IntersectionObserver class swap */
+.row-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .row-hidden { opacity: 1; transform: none; }
+  .row-revealed { transition: none; }
+}

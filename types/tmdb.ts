@@ -22,6 +22,7 @@ export interface Media {
 export interface MediaDetails extends Media {
   genres: { id: number; name: string }[];
   runtime?: number;
+  belongs_to_collection?: { id: number; name: string; poster_path: string; backdrop_path: string };
   created_by?: any[];
   episode_run_time?: number[];
   status: string;

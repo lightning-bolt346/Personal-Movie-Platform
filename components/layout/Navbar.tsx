@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { Search, User, Home, Film, Tv, Compass, Sparkles, CalendarDays } from 'lucide-react';
+import { Search, User, Home, Film, Tv, Compass, Sparkles, CalendarDays, Dices, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { SettingsModal } from '@/components/ui/SettingsModal';
 import { Settings } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -20,14 +21,30 @@ const MOBILE_DOCK_ITEMS = [
   { href: '/movies', label: 'Movies', Icon: Film },
   { href: '/tv', label: 'Series', Icon: Tv },
   { href: '/discover', label: 'Discover', Icon: Compass },
+  { href: '/api/random', label: 'Random', Icon: Dices },
   { href: '/schedule', label: 'Schedule', Icon: CalendarDays },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [randomMoviePreview, setRandomMoviePreview] = useState<any>(null);
+  const [isHoveringRandom, setIsHoveringRandom] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  const handleRandomHover = async () => {
+    setIsHoveringRandom(true);
+    if (!randomMoviePreview) {
+      try {
+        const res = await fetch('/api/random?json=true');
+        if (res.ok) {
+          const data = await res.json();
+          setRandomMoviePreview(data);
+        }
+      } catch (e) {}
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -44,10 +61,10 @@ export function Navbar() {
 
   if (pathname?.startsWith('/watch')) {
     return (
-      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center px-4 py-3 md:px-6 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)' }}
+      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%)' }}
       >
-        <div className="flex items-center gap-3 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 pointer-events-auto shadow-xl">
+        <div className="flex items-center gap-4 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-950/80 hover:border-white/20">
            <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
              <span
                className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
@@ -89,9 +106,14 @@ export function Navbar() {
                X
              </span>
            </Link>
-           <div className="w-[1px] h-4 bg-white/15" />
-           <Link href="/search" onClick={clearIframes} className="text-white/55 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><Search size={15} strokeWidth={2.5} /></Link>
-           <Link href="/profile" onClick={clearIframes} className="text-white/55 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><User size={15} strokeWidth={2.5} /></Link>
+           <div className="w-[1px] h-5 bg-white/15 hidden sm:block" />
+           <Link href="/" onClick={clearIframes} className="hidden sm:flex items-center gap-1.5 text-white/70 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 font-bold text-xs uppercase tracking-widest">
+             <Home size={15} strokeWidth={2.5} /> 
+             <span>Home</span>
+           </Link>
+           <div className="w-[1px] h-5 bg-white/15 hidden sm:block" />
+           <Link href="/search" onClick={clearIframes} className="text-white/70 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><Search size={16} strokeWidth={2.5} /></Link>
+           <Link href="/profile" onClick={clearIframes} className="text-white/70 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"><User size={16} strokeWidth={2.5} /></Link>
         </div>
       </nav>
     );
@@ -252,6 +274,46 @@ export function Navbar() {
 
           {/* Action Icons (Right) */}
           <div className="flex items-center gap-4 z-10 ml-2">
+            <div 
+              className="relative group flex items-center"
+              onMouseEnter={handleRandomHover}
+              onMouseLeave={() => setIsHoveringRandom(false)}
+            >
+              <Link
+                href={randomMoviePreview ? `/watch/movie/${randomMoviePreview.slug}` : "/api/random"}
+                onClick={() => {
+                  clearIframes();
+                  setRandomMoviePreview(null);
+                }}
+                className="text-white/60 hover:text-crimson-400 transition-all duration-300 hover:scale-110 active:scale-95 group relative"
+                aria-label="Random Movie"
+              >
+                <Dices size={17} strokeWidth={2} className="group-hover:animate-spin" />
+              </Link>
+              
+              <AnimatePresence>
+                {isHoveringRandom && randomMoviePreview && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full mt-4 right-0 w-48 bg-void-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 flex flex-col pointer-events-none"
+                  >
+                    <div className="relative w-full aspect-[2/3] bg-void-950">
+                       {randomMoviePreview.poster_path && (
+                         <img src={`https://image.tmdb.org/t/p/w300${randomMoviePreview.poster_path}`} className="object-cover w-full h-full" alt="Poster" />
+                       )}
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                       <div className="absolute bottom-0 left-0 right-0 p-3 flex flex-col">
+                         <span className="text-xs font-bold text-white leading-tight mb-1">{randomMoviePreview.title}</span>
+                         <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider text-crimson-400">Play Random</span>
+                       </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <Link
               href="/search"
               onClick={clearIframes}

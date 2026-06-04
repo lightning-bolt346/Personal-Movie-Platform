@@ -7,11 +7,11 @@ import { Top10Row } from '@/components/media/Top10Row';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Watch Movies Free Online in HD',
-  description: 'Browse and watch the latest popular and top-rated movies for free in HD quality on ZIVOX. No ads, no sign-up required. Action, Comedy, Drama, Horror, Sci-Fi and more.',
+  title: 'Watch Movies Free Online in HD — ZIVOX',
+  description: 'Stream zivox online movie collections in HD without ads or registration. Watch free movies online, hindi dubbed movies watch online, and top rated cinema free on Zivox.',
   openGraph: {
     title: 'Watch Movies Free Online in HD — ZIVOX',
-    description: 'Browse and watch the latest popular and top-rated movies for free in HD quality on ZIVOX.',
+    description: 'Stream zivox online movie collections in HD without ads or registration. Watch free movies online, hindi dubbed movies watch online, and top rated cinema free on Zivox.',
   },
 };
 

@@ -9,6 +9,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { usePreferences } from '@/hooks/usePreferences';
 import { Filter, Shuffle, PlayCircle, SlidersHorizontal, SearchX } from 'lucide-react';
 import { FilterDrawer } from '@/components/ui/FilterDrawer';
+import { MoodBoard } from '@/components/discover/MoodBoard';
 
 export default function DiscoverPage() {
   const [results, setResults] = useState<Media[]>([]);
@@ -129,6 +130,13 @@ export default function DiscoverPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1800px] mx-auto">
+        <MoodBoard onSelectMood={(genreId) => {
+          setGenres([genreId.toString()]);
+          setPage(1);
+        }} />
       </div>
 
       {/* Content Grid */}

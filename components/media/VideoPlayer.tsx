@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getSource, sources, TOP_7_IDS } from '@/lib/sources';
+import { getSource, sources, TOP_7_IDS, encodeServer, decodeServer } from '@/lib/sources';
 import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, ExternalLink, RotateCcw, Share2, Copy, Twitter, Facebook, MessageCircle } from 'lucide-react';
+import { ShareModal } from '@/components/ui/ShareModal';
 import Link from 'next/link';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { storage } from '@/lib/storage';
@@ -21,9 +22,11 @@ interface VideoPlayerProps {
   onProgress?: (progress: number) => void;
   onPlayNext?: () => void;
   hasNextEpisode?: boolean;
+  /** Pre-select a specific server (from URL ?server= param). Bypasses source-testing. */
+  initialServer?: string;
 }
 
-export function VideoPlayer({ type, id, season, episode, title, poster, releaseYear, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
+export function VideoPlayer({ type, id, season, episode, title, poster, releaseYear, onProgress, onPlayNext, hasNextEpisode, initialServer }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
@@ -46,6 +49,24 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       try {
         setFavoriteServers(JSON.parse(savedFavs));
       } catch (e) {}
+    }
+
+    // ── Handle ?server= URL param ──
+    // If a specific server was shared in the URL, skip testing and jump straight to it.
+    // The URL contains a codename (e.g. "alpha"), decode it to the real internal id.
+    const rawParam = initialServer || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('server') : null);
+    const serverToUse = rawParam ? decodeServer(rawParam) : null;
+    if (serverToUse && sources.find(s => s.id === serverToUse)) {
+      const s = sources.find(s => s.id === serverToUse)!;
+      setCurrentSourceId(s.id);
+      if (s.autoDisableSandbox) {
+        setUseSandbox(false);
+      } else {
+        const savedPref = localStorage.getItem('sandbox_pref_' + s.id);
+        setUseSandbox(savedPref !== null ? savedPref === 'true' : true);
+      }
+      sessionStorage.setItem(`working_source_${id}`, s.id);
+      setTestingSources(false);
     }
 
     // Portrait detection for mobile rotate hint
@@ -137,7 +158,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       hasAddedHistory.current = key;
       const existingHistory = storage.get().history || [];
       const item = existingHistory.find(h => h.id === id && h.season === season && h.episode === episode);
-      const startProgress = item?.progress || 0;
+      
+      let startProgress = item?.progress || 0;
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const tParam = params.get('t');
+        if (tParam && !isNaN(Number(tParam))) {
+          startProgress = Number(tParam);
+        }
+      }
       
       addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: startProgress, release_date: releaseYear });
       setProgress(startProgress);
@@ -149,18 +178,21 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const progressRef = useRef(progress);
   useEffect(() => { progressRef.current = progress; }, [progress]);
 
+  const lastSaveRef = useRef<number>(0);
+
   useEffect(() => {
     const saveProgress = () => {
-       if (title && id) {
-           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: progressRef.current, release_date: releaseYear });
-       }
+      if (title && id) {
+        addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: progressRef.current, release_date: releaseYear });
+      }
     };
     window.addEventListener('beforeunload', saveProgress);
     return () => {
-       window.removeEventListener('beforeunload', saveProgress);
-       saveProgress();
+      window.removeEventListener('beforeunload', saveProgress);
+      // Defer the final write so back-navigation is immediately responsive
+      queueMicrotask(saveProgress);
     };
-  }, [id, type, title, poster, season, episode, addToHistory]);
+  }, [id, type, title, poster, season, episode, addToHistory, releaseYear]);
 
   // postMessage listener: sync real progress and episode changes from iframes that broadcast them
   useEffect(() => {
@@ -207,29 +239,36 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
     window.addEventListener('message', handleIframeMessage);
     return () => window.removeEventListener('message', handleIframeMessage);
-  }, [id, type, title, poster, season, episode, addToHistory, onProgress, hasNextEpisode, showNextOverlay]);
+    // Removed showNextOverlay from deps — it changes every second from the interval
+    // causing this listener to re-register constantly. Use a ref instead.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, type, title, poster, season, episode, addToHistory, onProgress, hasNextEpisode]);
 
   useEffect(() => {
+    // Run every 10s instead of every 1s — reduces localStorage writes by 10x
+    // Progress display uses React state updated every 10s; visual accuracy is acceptable
     const interval = setInterval(() => {
       setProgress(p => {
-        const nextP = Math.min(100, p + (100 / (45 * 60)));
-        if (title && id && Math.floor(nextP) > Math.floor(p)) {
-           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: nextP, release_date: releaseYear });
-        }
-        if (onProgress && Math.floor(nextP) > Math.floor(p)) {
-          onProgress(nextP);
-        }
+        const nextP = Math.min(100, p + (100 / (45 * 6))); // 10s steps for 45min film
         
-        if (type === 'tv' && hasNextEpisode && nextP >= 95 && !showNextOverlay) {
-           setShowNextOverlay(true);
+        // Debounced history write — max once per 8 seconds
+        const now = Date.now();
+        if (title && id && now - lastSaveRef.current > 8000) {
+          lastSaveRef.current = now;
+          addToHistory({ id, type, title, poster: poster || null, timestamp: now, season, episode, progress: nextP, release_date: releaseYear });
         }
-        
+        if (onProgress) onProgress(nextP);
+        if (type === 'tv' && hasNextEpisode && nextP >= 95) {
+          setShowNextOverlay(true);
+        }
         return nextP;
       });
-    }, 1000);
+    }, 10000);
 
     return () => clearInterval(interval);
-  }, [id, type, title, poster, season, episode, addToHistory, onProgress, hasNextEpisode, showNextOverlay]);
+  // Stable deps only — showNextOverlay intentionally excluded to prevent re-registration
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, type, title, poster, season, episode, addToHistory, onProgress, hasNextEpisode]);
 
   useEffect(() => {
     let countInterval: NodeJS.Timeout;
@@ -262,6 +301,20 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     } else {
       document.exitFullscreen();
     }
+  }, []);
+
+  // Prevent iframe from stealing keyboard focus so our shortcuts (like 'f') always work
+  useEffect(() => {
+    const handleBlur = () => {
+      // Small delay allows the initial click (e.g. play/pause) to register in the iframe first
+      setTimeout(() => {
+        if (document.activeElement?.tagName === 'IFRAME') {
+          window.focus();
+        }
+      }, 50);
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
   }, []);
 
   useEffect(() => {
@@ -305,6 +358,24 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
+  // Attempt landscape orientation lock when entering fullscreen on mobile
+  // This is a best-effort — many browsers deny it, so we silently catch errors
+  useEffect(() => {
+    const handleFsChange = async () => {
+      if (document.fullscreenElement && window.innerWidth < 768) {
+        try {
+          await (screen.orientation as any).lock?.('landscape');
+        } catch (_) { /* browser denied — fine */ }
+      } else if (!document.fullscreenElement) {
+        try {
+          (screen.orientation as any).unlock?.();
+        } catch (_) {}
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
   // Top 7 servers — shown with publicName (Server 1..7), real name in settings
   const top7Sources = sources.filter(s => TOP_7_IDS.includes(s.id) && !favoriteServers.includes(s.id));
   const favoriteSources = sources.filter(s => favoriteServers.includes(s.id));
@@ -323,10 +394,17 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const handleSwitchServer = (sId: string) => {
     const s = sources.find(x => x.id === sId)!;
     setCurrentSourceId(sId);
-    if (s.autoDisableSandbox) {
+    
+    let toastMsg = `Switched to ${s.publicName}`;
+    
+    if (sId === 'peachify') {
       setUseSandbox(false);
       localStorage.setItem('sandbox_pref_' + sId, 'false');
-      showToast('Sandbox disabled — ads or redirects may appear');
+      toastMsg = 'Possible ads and redirects. Sorry we were not able to stop this server work without ads';
+    } else if (s.autoDisableSandbox) {
+      setUseSandbox(false);
+      localStorage.setItem('sandbox_pref_' + sId, 'false');
+      toastMsg = 'Sandbox disabled — ads or redirects may appear';
     } else {
       const savedPref = localStorage.getItem('sandbox_pref_' + sId);
       if (savedPref !== null) {
@@ -335,9 +413,10 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
         setUseSandbox(true);
       }
     }
+    
     sessionStorage.setItem(`working_source_${id}`, sId);
     setShowSettingsModal(false);
-    showToast(`Switched to ${s.publicName}`);
+    showToast(toastMsg);
   };
 
   const source = getSource(currentSourceId);
@@ -355,7 +434,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="flex flex-col w-full relative bg-void-950 rounded-2xl overflow-hidden border border-zinc-800/60"
     >
-      <PlayerToasts key={id} serverName={source.name} serverIsNoAds={source.noAds} />
+      <PlayerToasts key={id} serverName={source.publicName} serverIsNoAds={source.noAds} />
 
       {/* Inline toast message (server switch) via portal */}
       {mounted && typeof document !== 'undefined' && createPortal(
@@ -443,7 +522,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                           const isActive = currentSourceId === s.id;
                           const isFav = favoriteServers.includes(s.id);
                           const isTop7 = TOP_7_IDS.includes(s.id);
-                          const displayName = isTop7 ? s.publicName : s.name;
+                          const displayName = s.publicName;
                           return (
                             <button
                               key={s.id}
@@ -525,7 +604,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                                             else if (autoSandboxOnSwitch) setUseSandbox(true);
                                             sessionStorage.setItem(`working_source_${id}`, s.id);
                                             setShowSettingsModal(false);
-                                            showToast(`${s.name}`);
+                                            showToast(`${s.publicName}`);
                                           }}
                                           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 border text-left cursor-pointer active:scale-[0.99] ${
                                             isActiveCompact
@@ -535,7 +614,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                                         >
                                           <div className="flex items-center gap-2">
                                             <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActiveCompact ? 'bg-crimson-500' : 'bg-zinc-700'}`} />
-                                            <span className="text-xs font-semibold">{s.name}</span>
+                                            <span className="text-xs font-semibold">{s.publicName}</span>
                                             {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20">âœ“</span>}
                                           </div>
                                           <div className="flex items-center gap-1.5">
@@ -647,14 +726,6 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                       </div>
                     )}
 
-                    <a
-                      href={embedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all mt-1 hover:scale-105 active:scale-95"
-                    >
-                      <ExternalLink size={11} className="text-crimson-500 animate-pulse" /> Open source in new tab
-                    </a>
                   </div>
                 </div>
               </motion.div>
@@ -665,105 +736,100 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       )}
 
       {/* Share Modal */}
-      {mounted && typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {showShareModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9995] flex items-end sm:items-center justify-center"
-              onClick={() => setShowShareModal(false)}
-            >
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-              <motion.div
-                initial={{ y: 50, opacity: 0, scale: 0.97 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: 50, opacity: 0, scale: 0.97 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                className="relative bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm overflow-hidden shadow-2xl"
-                onClick={e => e.stopPropagation()}
-              >
-                {/* purple gradient top */}
-                <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-purple-900/30 to-transparent pointer-events-none" />
-                <div className="p-6 relative">
-                  <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-6 sm:hidden" />
-                  <h3 className="text-base font-bold text-white mb-0.5">Share</h3>
-                  <p className="text-xs text-white/40 mb-5 truncate">{title}</p>
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={title || ''}
+        shareUrl={(() => {
+          const u = new URL(window.location.href);
+          u.searchParams.set('play', '1');
+          u.searchParams.delete('t');
+          return u.toString();
+        })()}
+        subtitle={`Via ${source.publicName}`}
+      >
+        {/* ── Copy with Autoplay */}
+        <button
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('play', '1');
+            url.searchParams.delete('server');
+            url.searchParams.delete('t');
+            navigator.clipboard.writeText(url.toString());
+            showToast('Autoplay link copied! ▶');
+            setShowShareModal(false);
+          }}
+          className="w-full flex items-center gap-3 px-4 py-3.5 bg-crimson-500/10 hover:bg-crimson-500/15 border border-crimson-500/30 rounded-2xl transition-all active:scale-[0.98] mt-2"
+        >
+          <div className="w-9 h-9 rounded-xl bg-crimson-500/20 flex items-center justify-center shrink-0">
+            <Play size={15} className="text-crimson-400 fill-crimson-400 ml-0.5" />
+          </div>
+          <div className="flex flex-col items-start min-w-0">
+            <span className="text-sm font-bold text-white">Copy with Autoplay</span>
+            <span className="text-[11px] text-white/40">Recipient lands directly in the player</span>
+          </div>
+        </button>
 
-                  {/* Social grid */}
-                  <div className="grid grid-cols-4 gap-2.5 mb-4">
-                    {[
-                      { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', href: `https://wa.me/?text=${encodeURIComponent(`Watch "${title}" on ZIVOX: ${window.location.href}`)}`, icon: <MessageCircle size={18} /> },
-                      { label: 'Telegram', color: '#29A8EB', bg: 'rgba(41,168,235,0.12)', href: `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Watch "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
-                      { label: 'Twitter', color: '#1DA1F2', bg: 'rgba(29,161,242,0.12)', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}&url=${encodeURIComponent(window.location.href)}`, icon: <Twitter size={18} /> },
-                      { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, icon: <Facebook size={18} /> },
-                      { label: 'Reddit', color: '#FF4500', bg: 'rgba(255,69,0,0.12)', href: `https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
-                      { label: 'Threads', color: '#fff', bg: 'rgba(255,255,255,0.08)', href: `https://threads.net/intent/post?text=${encodeURIComponent(`Watching "${title}" on ZIVOX ${window.location.href}`)}`, icon: <MessageCircle size={18} /> },
-                      { label: 'Instagram', color: '#E4405F', bg: 'rgba(228,64,95,0.12)', href: `https://www.instagram.com/`, icon: <Share2 size={18} /> },
-                      { label: 'Pinterest', color: '#E60023', bg: 'rgba(230,0,35,0.12)', href: `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&description=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
-                    ].map(item => (
-                      <a
-                        key={item.label}
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all active:scale-95 hover:brightness-125"
-                        style={{ background: item.bg, color: item.color }}
-                      >
-                        {item.icon}
-                        <span className="text-[9px] font-bold" style={{ color: 'rgba(255,255,255,0.55)' }}>{item.label}</span>
-                      </a>
-                    ))}
-                  </div>
+        {/* ── Copy with Server + Autoplay */}
+        <button
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('play', '1');
+            url.searchParams.set('server', encodeServer(currentSourceId));
+            url.searchParams.delete('t');
+            navigator.clipboard.writeText(url.toString());
+            showToast(`Link with ${source.publicName} copied!`);
+            setShowShareModal(false);
+          }}
+          className="w-full flex items-center gap-3 px-4 py-3.5 bg-purple-500/10 hover:bg-purple-500/15 border border-purple-500/30 rounded-2xl transition-all active:scale-[0.98] mt-2"
+        >
+          <div className="w-9 h-9 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
+            <Server size={15} className="text-purple-400" />
+          </div>
+          <div className="flex flex-col items-start min-w-0">
+            <span className="text-sm font-bold text-white">Copy with Server</span>
+            <span className="text-[11px] text-white/40 truncate w-full">Opens on {source.publicName} automatically</span>
+          </div>
+        </button>
 
-                  {/* Copy link */}
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      showToast('Link copied!');
-                      setShowShareModal(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all active:scale-[0.98]"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                      <Copy size={16} className="text-white/70" />
-                    </div>
-                    <div className="flex flex-col items-start min-w-0">
-                      <span className="text-sm font-bold text-white">Copy Link</span>
-                      <span className="text-[11px] text-white/40 truncate w-full">{typeof window !== 'undefined' ? window.location.href : ''}</span>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setShowShareModal(false)}
-                    className="w-full mt-3 py-2.5 text-sm font-semibold text-white/35 hover:text-white/70 transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+        {/* ── Copy with Timestamp */}
+        <button
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('play', '1');
+            url.searchParams.set('server', encodeServer(currentSourceId));
+            url.searchParams.set('t', Math.floor(progress).toString());
+            navigator.clipboard.writeText(url.toString());
+            showToast(`Link at ${Math.floor(progress)}% on ${source.publicName} copied!`);
+            setShowShareModal(false);
+          }}
+          className="w-full flex items-center gap-3 px-4 py-3.5 bg-void-800 hover:bg-void-700 border border-zinc-700/50 rounded-2xl transition-all active:scale-[0.98] mt-2"
+        >
+          <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
+            <RotateCcw size={15} className="text-zinc-400" />
+          </div>
+          <div className="flex flex-col items-start min-w-0">
+            <span className="text-sm font-bold text-white">Copy with Timestamp</span>
+            <span className="text-[11px] text-white/40">Server + starts at {Math.floor(progress)}%</span>
+          </div>
+        </button>
+      </ShareModal>
 
       {/* ── PLAYER TOP BAR ── */}
       {!isFullscreen && (
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
+        <div className="flex items-center justify-between gap-2 px-2.5 py-2 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
           {/* Left: Servers & Settings button + current server info */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-3 py-2 rounded-lg transition-all active:scale-95 font-bold text-xs shadow-md shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-2.5 py-1.5 rounded-lg transition-all active:scale-95 font-bold text-xs shadow-md shrink-0 whitespace-nowrap"
             >
-              <Server size={13} className="text-crimson-500" />
-              <span className="hidden sm:inline">Servers &amp; Settings</span>
-              <span className="sm:hidden">Servers</span>
+              <Server size={12} className="text-crimson-500 shrink-0" />
+              <span className="hidden xs:hidden sm:inline">Servers &amp; Settings</span>
+              <span className="inline sm:hidden">Servers</span>
             </button>
-            {/* Current server name + no-ads badge */}
-            <div className="hidden sm:flex items-center gap-2 min-w-0">
+            {/* Current server name + no-ads badge — hidden on very small screens */}
+            <div className="hidden md:flex items-center gap-2 min-w-0">
               <div className="h-4 w-px bg-zinc-800" />
               <span className="text-xs font-semibold text-zinc-300 truncate">{source.publicName}</span>
               {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">✓ No Ads</span>}
@@ -772,12 +838,13 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
           {/* Right: icon controls */}
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* Share — purple */}
+            {/* Share */}
             <button
               onClick={() => setShowShareModal(true)}
               title="Share"
-              className="flex items-center justify-center w-9 h-9 rounded-lg border border-purple-500/30 bg-purple-600/15 hover:bg-purple-600/25 text-purple-400 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-crimson-500/50 bg-crimson-600 hover:bg-crimson-500 text-white transition-all active:scale-95 font-bold text-xs shadow-lg shadow-crimson-900/20"
             >
+              <span className="hidden sm:inline">Share</span>
               <Share2 size={14} />
             </button>
 
@@ -824,26 +891,195 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       )}
 
       {/* Video Container — proper 16:9 aspect ratio, works on all screens */}
+
+      {/* ── QUICK SERVER STRIP ─────────────────────────────────────────────────
+           Shows the current server + 3 alternatives from the Top 7 as pills.
+           Tapping switches instantly. A note below points to full settings.
+      ─────────────────────────────────────────────────────────────────────── */}
+      {!isFullscreen && (() => {
+        const top7 = sources.filter(s => TOP_7_IDS.includes(s.id));
+        // Multilingual servers — always surface these for dubbed/subbed content
+        const multilingualIds = new Set(['peachify', 'vidsrcwtf2']);
+
+        // Responsive visibility:
+        // - Mobile (<768px): show 4 servers (current first, then 3 others)
+        // - Tablet (768-1023px): show 5 servers
+        // - Desktop (≥1024px): show all 7 always
+
+        // Build ordered list: current server first, then rest in TOP_7_IDS order
+        const currentInTop7 = TOP_7_IDS.includes(currentSourceId);
+        const orderedStrip = currentInTop7
+          ? [
+              top7.find(s => s.id === currentSourceId)!,
+              ...top7.filter(s => s.id !== currentSourceId),
+            ]
+          : [...top7];
+
+        return (
+          <div className="px-3 pt-2.5 pb-1.5 bg-void-950 border-b border-zinc-800/40 shrink-0">
+            {/* Desktop: all 7 always visible */}
+            <div className="hidden lg:flex items-center gap-1.5 flex-wrap">
+              {top7.map((s) => {
+                const isActive = s.id === currentSourceId;
+                const isMultilingual = multilingualIds.has(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => !isActive && handleSwitchServer(s.id)}
+                    title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}${isMultilingual ? ' — Multi-language' : ''}`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
+                      isActive
+                        ? 'bg-crimson-500/20 border-crimson-500/60 text-crimson-400 shadow-[0_0_10px_rgba(229,9,20,0.2)] cursor-default'
+                        : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
+                    }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-crimson-500 shadow-[0_0_6px_#e50914]' : 'bg-zinc-600'}`} />
+                    {s.publicName}
+                    {isActive && <span className="text-[9px] font-bold uppercase tracking-widest text-crimson-500/80 ml-0.5">LIVE</span>}
+                    {!isActive && s.noAds && <span className="text-[9px] text-emerald-500">●</span>}
+                    {isMultilingual && <span title="Multi-language subtitles & dubs available">🌐</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tablet: first 5 */}
+            <div className="hidden md:flex lg:hidden items-center gap-1.5 flex-wrap">
+              {orderedStrip.slice(0, 5).map((s) => {
+                const isActive = s.id === currentSourceId;
+                const isMultilingual = multilingualIds.has(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => !isActive && handleSwitchServer(s.id)}
+                    title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
+                      isActive
+                        ? 'bg-crimson-500/20 border-crimson-500/60 text-crimson-400 shadow-[0_0_10px_rgba(229,9,20,0.2)] cursor-default'
+                        : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
+                    }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-crimson-500 shadow-[0_0_6px_#e50914]' : 'bg-zinc-600'}`} />
+                    {s.publicName}
+                    {isActive && <span className="text-[9px] font-bold uppercase tracking-widest text-crimson-500/80 ml-0.5">LIVE</span>}
+                    {!isActive && s.noAds && <span className="text-[9px] text-emerald-500">●</span>}
+                    {isMultilingual && <span title="Multi-language">🌐</span>}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="text-[10px] text-zinc-500 hover:text-white transition-colors px-2 py-1 rounded-full border border-zinc-800 hover:border-zinc-600"
+              >
+                +{top7.length - 5} more
+              </button>
+            </div>
+
+            {/* Mobile: first 4 */}
+            <div className="flex md:hidden items-center gap-1.5 flex-wrap">
+              {orderedStrip.slice(0, 4).map((s) => {
+                const isActive = s.id === currentSourceId;
+                const isMultilingual = multilingualIds.has(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => !isActive && handleSwitchServer(s.id)}
+                    title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
+                      isActive
+                        ? 'bg-crimson-500/20 border-crimson-500/60 text-crimson-400 cursor-default'
+                        : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
+                    }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-crimson-500' : 'bg-zinc-600'}`} />
+                    {s.publicName}
+                    {isActive && <span className="text-[8px] font-bold uppercase tracking-widest text-crimson-500/80 ml-0.5">●</span>}
+                    {isMultilingual && <span title="Multi-language">🌐</span>}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="text-[10px] text-zinc-500 hover:text-white transition-colors px-2 py-1 rounded-full border border-zinc-800 hover:border-zinc-600"
+              >
+                +{top7.length - 4}
+              </button>
+            </div>
+
+            <p className="text-[10px] text-zinc-600 mt-1.5 leading-snug">
+              🌐 = Multi-language subtitles &amp; dubs &nbsp;·&nbsp; ● = No ads &nbsp;·&nbsp;{' '}
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="text-zinc-400 hover:text-white underline underline-offset-2 transition-colors"
+              >
+                All {sources.length} servers ↑
+              </button>
+            </p>
+          </div>
+        );
+      })()}
+
+
       <div className="relative w-full aspect-video bg-black">
 
         {testingSources ? (
-          <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-auto custom-scrollbar">
-            <div className="w-10 h-10 sm:w-16 sm:h-16 border-4 border-zinc-800 border-t-crimson-500 rounded-full animate-spin mb-4 sm:mb-6" />
-            <h3 className="text-sm sm:text-xl font-bold font-display uppercase tracking-widest text-white mb-1 sm:mb-2">Automated Source Testing</h3>
-            <p className="text-zinc-400 text-xs sm:text-sm mb-4 sm:mb-8 animate-pulse text-center max-w-sm px-4">
-              Finding the fastest, highest-quality stream with zero ads...
-            </p>
+          <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-hidden">
+            {/* Blurred poster background for context */}
+            {poster && (
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none"
+                style={{
+                  backgroundImage: `url(https://image.tmdb.org/t/p/w500${poster})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  filter: 'blur(40px) saturate(1.5)',
+                  transform: 'scale(1.1)',
+                }}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/70 to-void-950/50 pointer-events-none" />
             
-            <div className="w-full max-w-xs sm:w-64">
-              <div className="flex justify-between text-[10px] sm:text-xs font-mono text-zinc-500 mb-2 uppercase tracking-wider">
-                <span className="truncate pr-2">Testing: <span className="text-white">{testingCurrentName}</span></span>
-                <span>{Math.round(testProgress)}%</span>
-              </div>
-              <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-crimson-500 glow-crimson transition-all duration-300 ease-out"
-                  style={{ width: `${testProgress}%` }}
+            <div className="relative z-10 flex flex-col items-center gap-5 max-w-xs w-full">
+              {/* Crimson pulse ring */}
+              <div className="relative">
+                <div
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-crimson-500/30 border-t-crimson-500 animate-spin"
+                  style={{ animationDuration: '1s' }}
                 />
+                <div
+                  className="absolute inset-2 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(229,9,20,0.15) 0%, transparent 70%)',
+                    animation: 'pulse-glow 2s ease-in-out infinite',
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col items-center gap-1.5">
+                <h3 className="text-sm sm:text-base font-bold font-display uppercase tracking-widest text-white">
+                  Finding Best Stream
+                </h3>
+                <p className="text-zinc-500 text-[11px] sm:text-xs text-center max-w-[200px] leading-relaxed">
+                  Testing{' '}
+                  <span className="text-white font-semibold">{testingCurrentName}</span>
+                </p>
+              </div>
+              
+              {/* Scanning bar */}
+              <div className="w-full max-w-[200px]">
+                <div className="flex justify-between text-[9px] sm:text-[10px] font-mono text-zinc-600 mb-1.5 uppercase tracking-widest">
+                  <span>Scanning</span>
+                  <span className="text-crimson-500">{Math.round(testProgress)}%</span>
+                </div>
+                <div className="w-full h-[2px] bg-zinc-900 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-crimson-600 to-crimson-500 rounded-full transition-all duration-300 ease-out"
+                    style={{ 
+                      width: `${testProgress}%`,
+                      boxShadow: '0 0 8px rgba(229,9,20,0.6)',
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -852,9 +1088,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             key={`iframe-${currentSourceId}-${useSandbox ? 'sandbox' : 'nosandbox'}`}
             src={embedUrl}
             className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
-            allowFullScreen={true}
-            {...{ webkitallowfullscreen: "true", mozallowfullscreen: "true" }}
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            allow="autoplay; encrypted-media; picture-in-picture"
             sandbox={sandboxAttrs}
           />
         )}

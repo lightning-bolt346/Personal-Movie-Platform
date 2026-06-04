@@ -6,12 +6,14 @@ import { TrailerModal } from '@/components/media/TrailerModal';
 import { CastSection } from '@/components/media/CastSection';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useRouter } from 'next/navigation';
-import { Bookmark, Heart, Play, Video, ArrowLeft } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Bookmark, Heart, Play, Video, ArrowLeft, Share2, Check } from 'lucide-react';
+import { ShareModal } from '@/components/ui/ShareModal';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/tmdb';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
-import { getLanguageName } from '@/lib/utils';
+import { getLanguageName, generateSlug } from '@/lib/utils';
+import Link from 'next/link';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
 import { YoutubeBackgroundPlayer } from '@/components/media/YoutubeBackgroundPlayer';
 import { UpcomingBanner, type UpcomingMeta } from '@/components/media/UpcomingBanner';
@@ -49,8 +51,12 @@ function detectMovieState(movie: MediaDetails): {
 
 export function MovieClient({ movie }: { movie: MediaDetails }) {
   const router = useRouter();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const searchParams = useSearchParams();
+  const autoPlay = searchParams.get('play') === '1';
+  const serverParam = searchParams.get('server') || undefined;
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [trailerOpen, setTrailerOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const trailer = movie.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -76,67 +82,85 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
   }, [bgColor]);
 
   return (
-    <div className="flex flex-col gap-12 w-full max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col gap-8">
-        {/* Back Button */}
-        <button
-          onClick={() => isPlaying ? setIsPlaying(false) : router.back()}
-          className="fixed top-14 left-4 md:left-6 z-[200] flex items-center gap-2 px-4 py-2 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border backdrop-blur-md"
-          style={{
-            backgroundColor: `color-mix(in srgb, ${bgColor} 15%, rgba(5,5,5,0.85))`,
-            borderColor: `color-mix(in srgb, ${bgColor} 40%, transparent)`,
-            color: 'white',
-          }}
-        >
-          <ArrowLeft size={16} />
-          Back
-        </button>
+    <div className="flex flex-col gap-8 md:gap-12 w-full max-w-7xl mx-auto px-4 py-6 md:py-8">
+      {/* Back button — 44px tap target on mobile */}
+      <button
+        onClick={() => {
+          if (isPlaying) setIsPlaying(false);
+          else router.back();
+        }}
+        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors w-fit -mb-2 md:-mb-6 min-h-[44px] px-1 md:px-0 rounded-xl active:bg-white/5 md:active:bg-transparent"
+      >
+        <ArrowLeft size={20} /> <span className="font-bold text-sm">Back</span>
+      </button>
 
+      <div className="flex flex-col gap-8">
         {/* ── UPCOMING: show UpcomingBanner ── */}
         {isUpcoming ? (
           <UpcomingBanner media={movie} meta={meta} />
         ) : (
           /* ── RELEASED: normal player UI ── */
           <div className="flex-1 flex flex-col gap-6">
-            <div className="relative w-full max-w-5xl mx-auto">
-              {/* Ambient Backlight */}
-              <div
-                className="absolute inset-[-5%] blur-[80px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none"
-                style={{ backgroundColor: bgColor }}
-              />
-              <div
-                className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${
-                  !isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col'
-                }`}
-                onClick={() => !isPlaying && setIsPlaying(true)}
-              >
-                {!isPlaying ? (
-                  <div className="absolute inset-0 z-10">
-                    <YoutubeBackgroundPlayer
-                      videoKey={trailer?.key || null}
-                      backdropPath={movie.backdrop_path || movie.poster_path}
-                      title={movie.title || ''}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
-                    <div className="absolute inset-0 flex items-center justify-center z-20">
-                      <div
-                        className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl"
-                        style={{
-                          background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
-                          boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,
+            {/* Sticky player on mobile — stays visible while scrolling info */}
+            <div className="sticky top-[56px] md:static z-30 md:z-auto">
+              <div className="relative w-full max-w-5xl mx-auto">
+                {/* Ambient Backlight */}
+                <div
+                  className="absolute inset-[-5%] blur-[80px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none"
+                  style={{ backgroundColor: bgColor }}
+                />
+                <div
+                  className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${
+                    !isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col'
+                  }`}
+                  onClick={() => !isPlaying && setIsPlaying(true)}
+                >
+                  {!isPlaying ? (
+                    <div className="absolute inset-0 z-10">
+                      <YoutubeBackgroundPlayer
+                        videoKey={trailer?.key || null}
+                        backdropPath={movie.backdrop_path || movie.poster_path}
+                        title={movie.title || ''}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowShareModal(true);
                         }}
+                        className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/20 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white transition-all active:scale-95 font-bold text-sm shadow-xl"
                       >
-                        <Play size={28} fill="white" className="text-white ml-1" />
+                        <span className="hidden sm:inline">Share</span>
+                        <Share2 size={16} />
+                      </button>
+                      <div className="absolute inset-0 flex items-center justify-center z-20">
+                        <div
+                          className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl"
+                          style={{
+                            background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
+                            boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,
+                          }}
+                        >
+                          <Play size={28} fill="white" className="text-white ml-1" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} releaseYear={movie.release_date} />
-                )}
+                  ) : (
+                    <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} releaseYear={movie.release_date} initialServer={serverParam} />
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className={`flex flex-col gap-6 transition-all duration-500 ease-in-out origin-top ${isPlaying ? 'scale-y-0 h-0 opacity-0 overflow-hidden mt-0' : 'scale-y-100 opacity-100'}`}>
+            {/* Info panel — collapses cleanly with max-height transition (no layout glitch) */}
+            <div
+              style={{
+                overflow: 'hidden',
+                maxHeight: isPlaying ? '0px' : '2000px',
+                opacity: isPlaying ? 0 : 1,
+                transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+              }}
+            >
               <div className="flex flex-col md:flex-row md:items-start justify-between flex-wrap gap-6">
                 <div className="flex-1">
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-black leading-tight mb-2">
@@ -199,17 +223,38 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                 </div>
               </div>
 
-              <p className="text-zinc-300 text-lg leading-relaxed max-w-4xl">{movie.overview}</p>
+              {movie.belongs_to_collection && (
+                <Link
+                  href={`/collection/${generateSlug(movie.belongs_to_collection.id.toString(), movie.belongs_to_collection.name)}`}
+                  className="inline-flex items-center gap-2 text-sm font-bold bg-crimson-500/10 hover:bg-crimson-500/15 border border-crimson-500/25 px-4 py-2 rounded-full text-crimson-400 hover:text-crimson-300 transition-all w-fit shadow-md mt-2 active:scale-95"
+                >
+                  <span>🎬</span>
+                  <span>Part of <span className="text-white">{movie.belongs_to_collection.name}</span></span>
+                  <span className="text-crimson-500/60 text-xs">→</span>
+                </Link>
+              )}
+
+              <p className="text-zinc-300 text-lg leading-relaxed max-w-4xl mt-4">{movie.overview}</p>
+
             </div>
           </div>
         )}
       </div>
 
-      <div className={`w-full transition-all duration-500 origin-top ${isPlaying ? 'scale-y-0 h-0 opacity-0 overflow-hidden' : 'scale-y-100 opacity-100'}`}>
+      {/* Cast section — also collapses when playing */}
+      <div
+        style={{
+          overflow: 'hidden',
+          maxHeight: isPlaying ? '0px' : '4000px',
+          opacity: isPlaying ? 0 : 1,
+          transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+        }}
+      >
         <CastSection cast={movie.credits?.cast} crew={movie.credits?.crew} />
       </div>
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
+      <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${movie.title} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/movie/${generateSlug(movie.id.toString(), movie.title)}` : undefined} />
     </div>
   );
 }

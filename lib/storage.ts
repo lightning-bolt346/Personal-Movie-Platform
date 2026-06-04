@@ -3,6 +3,7 @@ export interface VoidStorage {
   watchlist: any[];
   favorites: any[];
   notifications: any[];
+  shownNotifications?: string[];
   searchHistory: string[];
   settings: {
     lastSourceId?: string;
@@ -18,6 +19,7 @@ const defaultState: VoidStorage = {
   watchlist: [],
   favorites: [],
   notifications: [],
+  shownNotifications: [],
   searchHistory: [],
   settings: {
     autoPlayNext: true
@@ -37,7 +39,10 @@ export const storage = {
         return cachedState!;
       }
     } catch (e) {
-      console.warn('Failed to parse local storage, resetting to default', e);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[storage] Failed to parse local storage, resetting to default', e);
+      }
     }
     cachedState = defaultState;
     return defaultState;
@@ -67,7 +72,10 @@ export const storage = {
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated, getCircularReplacer()));
     } catch (e) {
-      console.warn('Failed to save to local storage', e);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[storage] Failed to save to local storage', e);
+      }
     }
   },
   clear: () => {

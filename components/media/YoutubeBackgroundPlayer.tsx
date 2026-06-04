@@ -28,7 +28,11 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title }: Youtu
     // Generous 12-second failsafe timeout to prevent premature cutoffs on slow connections
     const timeoutId = setTimeout(() => {
       if (isMounted) {
-        console.log(`Playback failsafe triggered for video: ${videoKey}, falling back to static poster.`);
+        // Dev-only: track failsafe triggers without leaking video keys to production
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.debug('[YoutubeBackgroundPlayer] Failsafe triggered, falling back to poster.');
+        }
         setFailed(true);
       }
     }, 12000);

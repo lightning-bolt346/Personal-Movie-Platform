@@ -13,3 +13,12 @@ export function getLanguageName(code: string): string {
     return code;
   }
 }
+
+export function generateSlug(id: number | string, title?: string): string {
+  if (!title) return id.toString();
+  const cleanTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+  return `${id}-${cleanTitle}`;
+}

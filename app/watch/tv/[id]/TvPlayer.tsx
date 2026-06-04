@@ -4,12 +4,13 @@ import { MediaDetails } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
 import { getSeasonDetailsAction } from '@/app/actions';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
-import { ChevronDown, Play, Star, CheckCircle2, Circle, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Play, Star, CheckCircle2, Circle, ArrowLeft, Share2, Check } from 'lucide-react';
+import { ShareModal } from '@/components/ui/ShareModal';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { storage } from '@/lib/storage';
-import { getLanguageName } from '@/lib/utils';
+import { getLanguageName, generateSlug } from '@/lib/utils';
 import { TrailerModal } from '@/components/media/TrailerModal';
 import { CastSection } from '@/components/media/CastSection';
 import { useWatchlist } from '@/hooks/useWatchlist';
@@ -142,8 +143,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
   const [episode, setEpisode] = useState(parseInt(searchParams.get('episode') || '1'));
   const [episodes, setEpisodes] = useState<any[]>([]);
   const { history, addToHistory } = useWatchHistory();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const autoPlay = searchParams.get('play') === '1';
+  const serverParam = searchParams.get('server') || undefined;
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [trailerOpen, setTrailerOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const trailer = show.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -231,21 +235,16 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
     : episodes;
 
   return (
-    <div className="flex flex-col gap-12 w-full max-w-7xl mx-auto px-4 py-8">
-      {/* Back Button */}
+    <div className="flex flex-col gap-8 md:gap-12 w-full max-w-7xl mx-auto px-4 py-6 md:py-8">
       <button
-        onClick={() => isPlaying ? setIsPlaying(false) : router.back()}
-        className="fixed top-14 left-4 md:left-6 z-[200] flex items-center gap-2 px-4 py-2 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border backdrop-blur-md"
-        style={{
-          backgroundColor: `color-mix(in srgb, ${bgColor} 15%, rgba(5,5,5,0.85))`,
-          borderColor: `color-mix(in srgb, ${bgColor} 40%, transparent)`,
-          color: 'white',
+        onClick={() => {
+          if (isPlaying) setIsPlaying(false);
+          else router.back();
         }}
+        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors w-fit -mb-2 md:-mb-6 min-h-[44px] px-1 md:px-0 rounded-xl active:bg-white/5 md:active:bg-transparent"
       >
-        <ArrowLeft size={16} />
-        Back
+        <ArrowLeft size={20} /> <span className="font-bold text-sm">Back</span>
       </button>
-
       {/* ── FULLY UPCOMING: UpcomingBanner only ── */}
       {tvState === 'fully_upcoming' && (
         <UpcomingBanner media={show} meta={meta} />
@@ -268,6 +267,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
           {/* ── Player section ── */}
           <div className={`flex gap-8 transition-all duration-500 ${isPlaying ? 'flex-col items-center' : 'flex-col xl:flex-row'}`}>
             <div className={`flex flex-col gap-6 w-full ${isPlaying ? 'xl:w-full' : 'flex-1'}`}>
+              {/* Sticky player on mobile */}
+              <div className="sticky top-[56px] md:static z-30 md:z-auto">
               <div className="relative w-full max-w-5xl mx-auto">
                 {/* Ambient Backlight */}
                 <div
@@ -289,6 +290,16 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         title={show.name || ''}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowShareModal(true);
+                        }}
+                        className="absolute top-4 right-4 md:top-6 md:right-6 z-30 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/20 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white transition-all active:scale-95 font-bold text-sm shadow-xl"
+                      >
+                        <span className="hidden sm:inline">Share</span>
+                        <Share2 size={16} />
+                      </button>
                       <div className="absolute inset-0 flex items-center justify-center z-20">
                         <div
                           className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl"
@@ -313,13 +324,22 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       onPlayNext={playNextEpisode}
                       hasNextEpisode={hasNextEpisode()}
                       releaseYear={show.first_air_date}
+                      initialServer={serverParam}
                     />
                   )}
                 </div>
               </div>
+              </div>
 
-              {/* Info panel */}
-              <div className={`flex flex-col gap-6 transition-all duration-500 origin-top ${isPlaying ? 'scale-y-0 h-0 opacity-0 overflow-hidden m-0' : 'scale-y-100 opacity-100'}`}>
+              {/* Info panel — smooth max-height collapse, no layout glitch */}
+              <div
+                style={{
+                  overflow: 'hidden',
+                  maxHeight: isPlaying ? '0px' : '2000px',
+                  opacity: isPlaying ? 0 : 1,
+                  transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+                }}
+              >
                 <div className="flex flex-col md:flex-row md:items-start justify-between flex-wrap gap-6">
                   <div className="flex-1">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-black leading-tight mb-2">
@@ -476,7 +496,14 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             )}
           </div>
 
-          <div className={`w-full transition-all duration-500 origin-top ${isPlaying ? 'scale-y-0 h-0 opacity-0 overflow-hidden' : 'scale-y-100 opacity-100'}`}>
+          <div
+            style={{
+              overflow: 'hidden',
+              maxHeight: isPlaying ? '0px' : '4000px',
+              opacity: isPlaying ? 0 : 1,
+              transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+            }}
+          >
             <CastSection cast={show.credits?.cast} crew={show.credits?.crew} createdBy={show.created_by} />
           </div>
         </>
@@ -488,6 +515,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
       )}
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
+      <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${show.name} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/tv/${generateSlug(show.id.toString(), show.name)}` : undefined} />
     </div>
   );
 }

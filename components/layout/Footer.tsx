@@ -211,6 +211,13 @@ export function Footer() {
           </p>
         </div>
 
+        {/* SEO Hidden Content Block */}
+        <div className="pt-8 pb-4 mt-8 border-t border-white/5 max-w-7xl mx-auto">
+          <p className="text-[10px] text-zinc-600/50 leading-relaxed text-justify font-sans selection:bg-transparent cursor-default">
+            Zivox is the ultimate platform to watch free movies online, including zivox hindi movie releases, zivox anime, and exclusive zivox shows. Built as the premier alternative to netmirror, pikashow, 123movies, fmovies, soap2day, bflix, flixhq, yesmovies, goku.to, putlocker, solarmovie, movies2watch, sflix, hurawatch, hdtoday, cineb, myflixer, losmovies, himovies, braflix, and movie-web. Stream zivox online movie collections in HD without ads or registration. From zivox tv specials to top streaming sites free alternatives, enjoy uninterrupted free cinema online, hindi dubbed movies watch online, and watch movies free 2026 updates daily. Hosted securely on zivox vercel and zivox official app environments.
+          </p>
+        </div>
+
         {/* Bottom bar */}
         <div
           className="pt-6 flex flex-col md:flex-row items-center justify-between gap-2 border-t border-white/5"

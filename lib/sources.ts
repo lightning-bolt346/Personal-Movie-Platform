@@ -424,3 +424,52 @@ export const TOP_7_IDS = ["cinemaos", "cinesrc", "vidsrcwtf1", "peachify", "auto
 
 export const getSource = (id?: string): Source =>
   sources.find((s) => s.id === id) || sources[0];
+
+// ── Server codenames for URL sharing ─────────────────────────────────────────
+// Real server IDs are NEVER exposed in shared links.
+// ?server=alpha, ?server=beta etc. are what users see.
+const SERVER_CODENAMES: Record<string, string> = {
+  // Top 7 — greek alphabet
+  'cinemaos':     'alpha',
+  'cinesrc':      'beta',
+  'vidsrcwtf1':   'nova',
+  'peachify':     'delta',
+  'autoembed':    'echo',
+  'vidsrcwtf2':   'sigma',
+  'smashystream': 'omega',
+  // Additional servers — planet names
+  'mappletv':     'mars',
+  '111movies':    'saturn',
+  'rivestream':   'venus',
+  'vidking':      'titan',
+  'vixsrc':       'pluto',
+  'embedmaster':  'orbit',
+  'vidzee':       'comet',
+  'vidfast':      'pulsar',
+  'nontongo':     'quasar',
+  'vidnest':      'nebula',
+  'vidcore':      'zenith',
+  'vidsrcwtf3':   'nexus',
+  'vidsrcwtf4':   'apex',
+  'vidrock':      'forge',
+  'vidlink':      'relay',
+  'vidsrcme':     'vault',
+  'vidsrcto':     'prism',
+  'videasy':      'pixel',
+  '2embed':       'surge',
+};
+
+// Reverse lookup: codename → real id
+const CODENAME_TO_SERVER: Record<string, string> = Object.fromEntries(
+  Object.entries(SERVER_CODENAMES).map(([realId, code]) => [code, realId])
+);
+
+/** Convert a real server id → URL-safe codename */
+export function encodeServer(realId: string): string {
+  return SERVER_CODENAMES[realId] ?? realId;
+}
+
+/** Convert a URL codename → real server id */
+export function decodeServer(code: string): string {
+  return CODENAME_TO_SERVER[code] ?? code;
+}

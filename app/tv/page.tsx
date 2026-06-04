@@ -7,11 +7,11 @@ import { Top10Row } from '@/components/media/Top10Row';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Watch TV Shows & Series Free Online in HD',
-  description: 'Stream the latest and top-rated TV shows and series for free in HD quality on ZIVOX. Binge-watch popular series with auto-play next episode.',
+  title: 'Watch TV Shows & Series Free Online in HD — ZIVOX',
+  description: 'Stream zivox tv shows and the latest top-rated series for free in HD quality on Zivox. Watch shows online free, no ads, and no sign-up.',
   openGraph: {
     title: 'Watch TV Shows & Series Free Online in HD — ZIVOX',
-    description: 'Stream the latest and top-rated TV shows and series for free in HD quality on ZIVOX.',
+    description: 'Stream zivox tv shows and the latest top-rated series for free in HD quality on Zivox. Watch shows online free, no ads, and no sign-up.',
   },
 };
 

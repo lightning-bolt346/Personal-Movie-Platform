@@ -204,6 +204,8 @@ export const tmdb = {
     }).catch(() => null),
   getImages: async (type: "movie" | "tv", id: string) =>
     fetchTMDB<any>(`/${type}/${id}/images`, { include_image_language: "en,null" }).catch(() => null),
+  getCollection: async (id: string) =>
+    fetchTMDB<any>(`/collection/${id}`).catch(() => null),
 };
 
 export const getImageUrl = (

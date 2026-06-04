@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/sgbro/zivox/main/public/logo.png" alt="ZIVOX Logo" width="180" />
+  <img src="public/logo.svg" alt="ZIVOX Logo" width="180" />
   
   <h1>ZIVOX</h1>
   <p><strong>Your Ultimate Cinematic Streaming Experience.</strong></p>

@@ -1,10 +1,10 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState, memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Media } from "@/types/tmdb";
 import { getImageUrl } from "@/lib/tmdb";
-import { cn } from "@/lib/utils";
+import { cn, generateSlug } from "@/lib/utils";
 import { Bookmark, Trash2, Heart, Play, Star, Plus, Check, ArrowRight, Bell, BellOff } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -12,7 +12,7 @@ import { usePreferences } from "@/hooks/usePreferences";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useRouter } from "next/navigation";
 
-export function MediaCard({
+export const MediaCard = memo(function MediaCard({
   media,
   className,
   onRemove,
@@ -36,7 +36,7 @@ export function MediaCard({
   const type = media.media_type || (media.name ? "tv" : "movie");
   const isMovie = type === "movie";
   const year = (media.release_date || media.first_air_date || "").substring(0, 4);
-  const href = `/watch/${isMovie ? "movie" : "tv"}/${media.id}${
+  const href = `/watch/${isMovie ? "movie" : "tv"}/${generateSlug(media.id.toString(), title)}${
     !isMovie && media.season && media.episode ? `?season=${media.season}&episode=${media.episode}` : ""
   }`;
   const onWatchlist = isInWatchlist(media.id.toString());
@@ -86,8 +86,19 @@ export function MediaCard({
       <Link href={href} className={cn("relative block", className)} onClick={handleCardClick}>
         <div
           className="relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer will-change-transform"
-          style={{ background: '#111111' }}
+          style={{
+            background: 'linear-gradient(135deg, #0d0d0f 0%, #141418 40%, #0d0d0f 100%)',
+          }}
         >
+          {/* Shimmer skeleton shown while poster loads */}
+          <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 2s infinite linear',
+            }}
+          />
           {/* Poster */}
           <Image
             src={getImageUrl(media.poster_path, "w500")}
@@ -101,6 +112,8 @@ export function MediaCard({
                 : "group-hover:scale-[1.05]"
             )}
             referrerPolicy="no-referrer"
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQI12NgYGD4z8BQDwAEgAF/QualIQAAAABJRU5ErkJggg=="
           />
 
           {/* Top Left Badges */}
@@ -250,6 +263,6 @@ export function MediaCard({
         </button>
       )}
 
-    </div>
+  </div>
   );
-}
+});

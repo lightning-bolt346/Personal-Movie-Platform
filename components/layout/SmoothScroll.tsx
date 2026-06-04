@@ -23,11 +23,13 @@ function ScrollResetter() {
 export function SmoothScroll({ children }: { children: ReactNode }) {
   return (
     <ReactLenis root options={{
-      lerp: 0.08,
+      lerp: 0.1,
       smoothWheel: true,
-      syncTouch: false,
+      syncTouch: false,         // native touch momentum on mobile — Lenis handles wheel only
       wheelMultiplier: 1,
-      gestureOrientation: 'vertical'
+      gestureOrientation: 'vertical',
+      // Prevent lenis from stealing scroll from nested horizontal scrollers
+      prevent: (node: Element) => node.hasAttribute('data-lenis-prevent'),
     }}>
       <ScrollResetter />
       {children}

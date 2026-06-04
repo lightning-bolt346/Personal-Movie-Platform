@@ -1,10 +1,9 @@
 'use client';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Media } from '@/types/tmdb';
 import { MediaCard } from './MediaCard';
-import { motion } from 'motion/react';
 
 interface HorizontalRowProps {
   title: string;
@@ -15,9 +14,28 @@ interface HorizontalRowProps {
 
 export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }: HorizontalRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  // ── CSS-based reveal (no Framer Motion IntersectionObserver overhead) ────────
+  // One shared IntersectionObserver class-swap instead of per-row Framer Motion
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('row-revealed');
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.05, rootMargin: '-60px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -33,16 +51,12 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
     setTimeout(checkScroll, 400);
   };
 
-
   if (!items || items.length === 0) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="relative group/row"
+    <section
+      ref={sectionRef}
+      className="relative group/row row-hidden"
     >
       {/* Header */}
       <div className="w-full max-w-[1800px] mx-auto px-4 md:px-14 mb-3 flex items-center justify-between">
@@ -88,12 +102,7 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
       <div className="absolute right-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
         style={{ background: 'linear-gradient(to left, #05010a, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
-      {/*
-        ── Scroll track ───────────────────────────────────────────────────────────
-        With Lenis restored, it natively listens at the window level and intercepts
-        vertical wheel events before the browser can swallow them. We no longer
-        need any custom JavaScript wheel handlers here.
-      */}
+      {/* Scroll track */}
       <div
         ref={scrollRef}
         onScroll={checkScroll}
@@ -104,8 +113,7 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
           paddingRight: 'max(1rem, calc((100vw - 1800px) / 2 + 3.5rem))',
           paddingTop: '8px',
           paddingBottom: '24px',
-          overscrollBehavior: 'contain',
-          touchAction: 'pan-x', // allow horizontal swipe on mobile
+          touchAction: 'pan-x pan-y',
           WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
         }}
       >
@@ -133,6 +141,6 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
         ))}
         <div className="flex-shrink-0 w-4 md:w-8" aria-hidden="true" />
       </div>
-    </motion.section>
+    </section>
   );
 }

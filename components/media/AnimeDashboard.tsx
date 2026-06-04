@@ -8,6 +8,7 @@ import { Top10Row } from './Top10Row';
 import { Sparkles, Flame, Heart, HelpCircle, RefreshCw, Volume2, Play, Gift, Award, HelpCircle as HelpIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
+import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 
 interface AnimeDashboardProps {
   trendingAnime: Media[];
@@ -28,36 +29,49 @@ function SakuraCanvas({ active }: { active: boolean }) {
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
+    let isScrolling = false;
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+    let frameCount = 0;
 
     const handleResize = () => {
       if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', handleResize);
+    const handleScroll = () => {
+      isScrolling = true;
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => { isScrolling = false; }, 300);
+    };
+    const handleVisibility = () => {
+      if (document.hidden) cancelAnimationFrame(animationFrameId);
+      else if (!isScrolling) render();
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('visibilitychange', handleVisibility);
 
     class Petal {
       x = Math.random() * width;
       y = Math.random() * height - height;
-      r = Math.random() * 8 + 4;
-      d = Math.random() * 50 + 20;
-      s = Math.random() * 1.5 + 0.5;
-      w = Math.random() * 0.02;
+      r = Math.random() * 7 + 3;
+      s = Math.random() * 1.2 + 0.4;
+      w = Math.random() * 0.018;
       sway = Math.random() * 100;
       angle = Math.random() * 360;
-      rotationSpeed = Math.random() * 0.8 - 0.4;
-      color = `rgba(255, ${180 + Math.floor(Math.random() * 50)}, ${200 + Math.floor(Math.random() * 55)}, ${0.4 + Math.random() * 0.45})`;
+      rotationSpeed = Math.random() * 0.6 - 0.3;
+      color = `rgba(255, ${180 + Math.floor(Math.random() * 50)}, ${200 + Math.floor(Math.random() * 55)}, ${0.35 + Math.random() * 0.4})`;
 
       update() {
         this.y += this.s;
         this.sway += this.w;
-        this.x += Math.sin(this.sway) * 0.4;
+        this.x += Math.sin(this.sway) * 0.35;
         this.angle += this.rotationSpeed;
-
         if (this.y > height + 20) {
           this.y = -20;
           this.x = Math.random() * width;
-          this.s = Math.random() * 1.5 + 0.5;
+          this.s = Math.random() * 1.2 + 0.4;
         }
       }
 
@@ -73,29 +87,35 @@ function SakuraCanvas({ active }: { active: boolean }) {
       }
     }
 
-    const petalCount = Math.min(60, Math.floor((width * height) / 25000));
+    // Cap at 25 petals (was 60) — massive savings on mobile
+    const petalCount = Math.min(25, Math.floor((width * height) / 40000));
     const petals: Petal[] = Array.from({ length: petalCount }, () => new Petal());
 
     const render = () => {
-      ctx.clearRect(0, 0, width, height);
-      petals.forEach((p) => {
-        p.update();
-        p.draw(ctx);
-      });
+      frameCount++;
       animationFrameId = requestAnimationFrame(render);
+      if (frameCount % 2 !== 0) return; // ~30fps instead of 60fps
+      if (isScrolling || document.hidden) return; // pause during scroll
+      ctx.clearRect(0, 0, width, height);
+      petals.forEach((p) => { p.update(); p.draw(ctx); });
     };
 
     render();
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      clearTimeout(scrollTimeout);
       cancelAnimationFrame(animationFrameId);
     };
   }, [active]);
 
   if (!active) return null;
-  return <canvas ref={canvasRef} className="fixed inset-0 z-10 pointer-events-none w-full h-full" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 z-10 pointer-events-none w-full h-full" style={{ willChange: 'transform' }} />;
 }
+
+
 
 // 💬 Dynamic Character Quotes List
 const ANIME_QUOTES = [
@@ -157,6 +177,7 @@ export function AnimeDashboard({ trendingAnime, topRatedAnime }: AnimeDashboardP
   // Filtering & Pagination State
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
   const [visibleMasterpieces, setVisibleMasterpieces] = useState(18);
+  const [isGenreTransitioning, setIsGenreTransitioning] = useState(false);
 
   // Widget Mode tabs: Quiz vs Gacha Pull
   const [activeWidgetTab, setActiveWidgetTab] = useState<'quiz' | 'gacha'>('quiz');
@@ -342,9 +363,15 @@ export function AnimeDashboard({ trendingAnime, topRatedAnime }: AnimeDashboardP
   }, [topRatedAnime, selectedGenre]);
 
   const handleGenreChange = (genreId: number | null) => {
-    setSelectedGenre(genreId);
-    setVisibleMasterpieces(18);
-    setMascotStatus(`Browsing ${genreId ? ANIME_GENRES.find(g => g.id === genreId)?.name : 'All Vaults'}!`);
+    if (genreId === selectedGenre) return; // no-op if same genre
+    setIsGenreTransitioning(true);
+    // Brief delay to allow fade-out before content changes
+    setTimeout(() => {
+      setSelectedGenre(genreId);
+      setVisibleMasterpieces(18);
+      setMascotStatus(`Browsing ${genreId ? ANIME_GENRES.find(g => g.id === genreId)?.name : 'All Vaults'}!`);
+      setIsGenreTransitioning(false);
+    }, 150);
   };
 
   return (
@@ -355,6 +382,7 @@ export function AnimeDashboard({ trendingAnime, topRatedAnime }: AnimeDashboardP
           : 'text-white'
       }`}
     >
+      <AnimatedBackground />
       <SakuraCanvas active={otakuMode} />
 
       {otakuMode && (
@@ -826,7 +854,7 @@ export function AnimeDashboard({ trendingAnime, topRatedAnime }: AnimeDashboardP
             })}
           </div>
 
-          <div className="flex flex-col gap-10 mt-2">
+          <div className="flex flex-col gap-10 mt-2" style={{ opacity: isGenreTransitioning ? 0 : 1, transition: 'opacity 0.15s ease' }}>
             
             {filteredTrending.length > 0 ? (
               <HorizontalRow

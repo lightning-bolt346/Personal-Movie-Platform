@@ -36,15 +36,17 @@ export function usePreferences() {
   }, []);
 
   const updatePreferences = (newPrefs: Partial<Preferences>) => {
-    setPreferences(prev => {
-      const updated = { ...prev, ...newPrefs };
-      const data = storage.get();
-      data.preferences = updated;
-      storage.set(data);
-      // Dispatch global event so other components using this hook update immediately
+    const prev = storage.get().preferences || defaultPreferences;
+    const updated = { ...prev, ...newPrefs };
+    const data = storage.get();
+    data.preferences = updated;
+    storage.set(data);
+    setPreferences(updated);
+    
+    // Dispatch global event so other components using this hook update immediately
+    setTimeout(() => {
       window.dispatchEvent(new Event('preferences-changed'));
-      return updated;
-    });
+    }, 0);
   };
 
   return { preferences, updatePreferences };

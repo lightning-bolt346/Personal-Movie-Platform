@@ -7,6 +7,7 @@ import { SmoothScroll } from '@/components/layout/SmoothScroll';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { WelcomeModal } from '@/components/ui/WelcomeModal';
+import { NotificationToaster } from '@/components/ui/NotificationToaster';
 import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -21,11 +22,11 @@ export const metadata: Metadata = {
     default: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
     template: '%s | ZIVOX',
   },
-  description: 'ZIVOX is a premium free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality. No ads, no sign-up, multiple servers, auto-play next episode.',
-  keywords: ['free movies', 'watch movies online', 'free streaming', 'watch tv shows free', 'anime streaming', 'HD streaming', 'zivox', 'no ads streaming', 'watch movies free 2026'],
+  description: 'ZIVOX is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online. The best alternative to Pikashow, Fmovies, Netmirror and 123movies without ads.',
+  keywords: ['Zivox', 'Zivox tv', 'zivox anime', 'zivox shows', 'zivox vercel', 'zivox online movie', 'zivox hindi movie', 'Zivox movies', 'Zivox official', 'zivox app', 'watch free movies online', 'free HD movies', 'watch shows online free', 'watch anime free', 'free streaming sites', 'movies to watch free', 'online tv shows free', 'hindi dubbed movies watch online', 'watch movies free 2026', 'no ads streaming', 'free movies online no sign up', 'watch latest movies', 'free cinema online', 'netmirror', 'pikashow', '123movies', 'fmovies', 'soap2day', 'bflix', 'flixhq', 'yesmovies', 'goku.to', 'putlocker', 'solarmovie', 'movies2watch', 'sflix', 'hurawatch', 'hdtoday', 'cineb', 'myflixer', 'losmovies', 'himovies', 'braflix', 'movie-web'],
   openGraph: {
     title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
-    description: 'Premium free streaming. Watch the latest movies, TV shows, and anime in stunning HD quality on ZIVOX.',
+    description: 'ZIVOX is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online.',
     type: 'website',
     siteName: 'ZIVOX',
     url: siteUrl,
@@ -63,6 +64,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  verification: {
+    google: 'vrbomKYzEEs6XZErAY-s0kDR1hYHzBbmS0iHK3WVxTg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -94,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-black text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
       <SmoothScroll>
+        <>
           {/* Ambient Background — Zivox Dark Violet */}
           <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden bg-black" style={{ contain: 'strict' }}>
             {/* Primary top-center deep violet core */}
@@ -157,6 +162,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <ScrollToTop />
           <WelcomeModal />
+          <NotificationToaster />
+        </>
         </SmoothScroll>
         <Analytics />
       </body>

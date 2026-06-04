@@ -5,11 +5,11 @@ import { Media } from '@/types/tmdb';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Watch Anime Free Online — Sub & Dub in HD',
-  description: 'Stream the best anime series for free in HD quality on ZIVOX. Watch trending and top-rated anime with Japanese audio, subtitles, and dubbed options.',
+  title: 'Watch Anime Free Online — Sub & Dub in HD — ZIVOX',
+  description: 'Stream zivox anime series for free in HD quality on Zivox. Watch free anime online with Japanese audio, subtitles, and dubbed options without ads.',
   openGraph: {
     title: 'Watch Anime Free Online — Sub & Dub in HD — ZIVOX',
-    description: 'Stream the best anime series for free in HD quality on ZIVOX.',
+    description: 'Stream zivox anime series for free in HD quality on Zivox. Watch free anime online with Japanese audio, subtitles, and dubbed options without ads.',
   },
 };
 

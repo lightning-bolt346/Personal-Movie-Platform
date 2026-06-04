@@ -5,9 +5,11 @@ import React, {
 import { CalendarDays, Radio, Film, Tv, LayoutGrid, Globe, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MediaCard } from '@/components/media/MediaCard';
+import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { fetchScheduleAction, ScheduleParams } from '@/app/actions';
 import { Media } from '@/types/tmdb';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { BackButton } from '@/components/ui/BackButton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -521,57 +523,44 @@ function SchedulePageContent() {
     </div>
   );
 
-  // Country section — compact scrollable card for upcoming, full list for released
+  // Country section — full list that scrolls within its flex container
   const CountrySection = (
-    <div className="flex flex-col gap-2.5">
-      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1.5 px-1">
+    <div className="flex flex-col gap-2.5 min-h-0 flex-1">
+      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1.5 px-1 shrink-0">
         <Globe size={11} /> Countries
       </span>
-      {sidebarTab === 'upcoming' ? (
-        // Compact scrollable container for upcoming
-        <div
-          data-lenis-prevent="true"
-          className="flex flex-col gap-1 max-h-52 overflow-y-auto pr-1 no-scrollbar"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {COUNTRY_CHIPS.map(c => (
-            <CountryChip
-              key={c.id}
-              country={c}
-              isActive={activeCountries.includes(c.id)}
-              isLoading={loadingCountries.has(c.id)}
-              onClick={() => handleCountryToggle(c.id)}
-            />
-          ))}
-        </div>
-      ) : (
-        // Full list for released
-        <div className="flex flex-col gap-1.5">
-          {COUNTRY_CHIPS.map(c => (
-            <CountryChip
-              key={c.id}
-              country={c}
-              isActive={activeCountries.includes(c.id)}
-              isLoading={loadingCountries.has(c.id)}
-              onClick={() => handleCountryToggle(c.id)}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        data-lenis-prevent="true"
+        className="flex flex-col gap-1 overflow-y-auto pr-1 no-scrollbar pb-8"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {COUNTRY_CHIPS.map(c => (
+          <CountryChip
+            key={c.id}
+            country={c}
+            isActive={activeCountries.includes(c.id)}
+            isLoading={loadingCountries.has(c.id)}
+            onClick={() => handleCountryToggle(c.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 
   return (
     <div className="relative min-h-screen pb-28 md:pb-20 w-full">
-      {/* Fixed background — never scrolls */}
-      <div className="fixed inset-0 bg-void-950 -z-20 pointer-events-none" />
-      <div className="fixed top-0 left-0 right-0 h-screen bg-gradient-to-br from-indigo-900/20 via-purple-900/10 to-transparent -z-10 pointer-events-none" />
+      {/* Fixed animated background — never scrolls */}
+      <AnimatedBackground />
+
+      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
+        <BackButton />
+      </div>
 
       <div className="relative z-10 max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-[10vh] md:pt-[12vh] w-full">
         <div className="flex flex-col md:flex-row items-start gap-8 w-full">
 
           {/* ── Desktop Sidebar ─────────────────────────────────────────── */}
-          <aside className="hidden md:flex w-[185px] shrink-0 flex-col gap-6 sticky top-24 pb-4 self-start z-50 max-h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar">
+          <aside className="hidden md:flex w-[185px] shrink-0 flex-col gap-6 sticky top-24 pb-4 self-start z-50 h-[calc(100vh-7rem)] overflow-hidden">
             {SidebarTabs}
             {YearMonthFilters}
             {CountrySection}

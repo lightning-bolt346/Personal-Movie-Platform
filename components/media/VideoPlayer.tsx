@@ -17,12 +17,13 @@ interface VideoPlayerProps {
   episode?: number;
   title?: string;
   poster?: string | null;
+  releaseYear?: string;
   onProgress?: (progress: number) => void;
   onPlayNext?: () => void;
   hasNextEpisode?: boolean;
 }
 
-export function VideoPlayer({ type, id, season, episode, title, poster, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
+export function VideoPlayer({ type, id, season, episode, title, poster, releaseYear, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
@@ -138,7 +139,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       const item = existingHistory.find(h => h.id === id && h.season === season && h.episode === episode);
       const startProgress = item?.progress || 0;
       
-      addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: startProgress });
+      addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: startProgress, release_date: releaseYear });
       setProgress(startProgress);
       setShowNextOverlay(false);
       setCountdown(10);
@@ -151,7 +152,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
   useEffect(() => {
     const saveProgress = () => {
        if (title && id) {
-           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: progressRef.current });
+           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: progressRef.current, release_date: releaseYear });
        }
     };
     window.addEventListener('beforeunload', saveProgress);
@@ -173,7 +174,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
           const realProgress = Math.min(100, (data.currentTime / data.duration) * 100);
           setProgress(realProgress);
           if (title && id) {
-            addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: realProgress });
+            addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: realProgress, release_date: releaseYear });
           }
           if (onProgress) onProgress(realProgress);
           if (type === 'tv' && hasNextEpisode && realProgress >= 90 && !showNextOverlay) {
@@ -197,7 +198,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
             window.history.replaceState({}, '', url.toString());
             // Log it to history
             if (title) {
-              addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season: newSeason, episode: newEpisode, progress: 0 });
+              addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season: newSeason, episode: newEpisode, progress: 0, release_date: releaseYear });
             }
           }
         }
@@ -213,7 +214,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
       setProgress(p => {
         const nextP = Math.min(100, p + (100 / (45 * 60)));
         if (title && id && Math.floor(nextP) > Math.floor(p)) {
-           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: nextP });
+           addToHistory({ id, type, title, poster: poster || null, timestamp: Date.now(), season, episode, progress: nextP, release_date: releaseYear });
         }
         if (onProgress && Math.floor(nextP) > Math.floor(p)) {
           onProgress(nextP);
@@ -799,7 +800,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, onProgre
 
             {/* Favorite — icon only */}
             <button
-              onClick={(e) => { e.stopPropagation(); toggleFavorite({ id, type, title: title || '', poster }); }}
+              onClick={(e) => { e.stopPropagation(); toggleFavorite({ id, type, title: title || '', poster, release_date: releaseYear }); }}
               className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all active:scale-95 ${
                 isFav ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-void-800'
               }`}

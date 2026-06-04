@@ -131,7 +131,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                     </div>
                   </div>
                 ) : (
-                  <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} />
+                  <VideoPlayer type="movie" id={movie.id.toString()} title={movie.title} poster={movie.poster_path} releaseYear={movie.release_date} />
                 )}
               </div>
             </div>
@@ -184,13 +184,13 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                       </button>
                     )}
                     <button
-                      onClick={() => toggleWatchlist({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path })}
+                      onClick={() => toggleWatchlist({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path, release_date: movie.release_date })}
                       className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                     >
                       <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                     </button>
                     <button
-                      onClick={() => toggleFavorite({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path })}
+                      onClick={() => toggleFavorite({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path, release_date: movie.release_date })}
                       className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onFavorites ? 'bg-pink-500/10 border-pink-500/20 text-pink-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                     >
                       <Heart size={14} className={onFavorites ? 'fill-pink-500' : ''} /> {onFavorites ? 'Favorited' : 'Favorite'}

@@ -21,10 +21,18 @@ export function usePreferences() {
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
 
   useEffect(() => {
-    const data = storage.get();
-    if (data.preferences) {
-      setPreferences({ ...defaultPreferences, ...data.preferences });
-    }
+    const loadPrefs = () => {
+      const data = storage.get();
+      if (data.preferences) {
+        setPreferences({ ...defaultPreferences, ...data.preferences });
+      }
+    };
+    
+    loadPrefs();
+    
+    // Listen for cross-component preference updates
+    window.addEventListener('preferences-changed', loadPrefs);
+    return () => window.removeEventListener('preferences-changed', loadPrefs);
   }, []);
 
   const updatePreferences = (newPrefs: Partial<Preferences>) => {
@@ -33,6 +41,8 @@ export function usePreferences() {
       const data = storage.get();
       data.preferences = updated;
       storage.set(data);
+      // Dispatch global event so other components using this hook update immediately
+      window.dispatchEvent(new Event('preferences-changed'));
       return updated;
     });
   };

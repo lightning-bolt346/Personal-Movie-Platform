@@ -69,12 +69,10 @@ export function HeroSlider({ items }: { items: Media[] }) {
 
   return (
     <div
-      className="relative w-full bg-black overflow-hidden h-[85vh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px]"
+      className="relative w-full bg-black overflow-hidden h-[85vh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px] group"
       style={{ contain: 'layout' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
     >
       {/* ── BACKGROUND IMAGE ── */}
       <AnimatePresence initial={false}>
@@ -114,26 +112,26 @@ export function HeroSlider({ items }: { items: Media[] }) {
       <button
         onClick={goPrev}
         aria-label="Previous"
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 opacity-0 hover:opacity-100 group-hover:opacity-100"
+        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 opacity-30 hover:opacity-100 group-hover:opacity-100"
         style={{
-          background: 'rgba(0,0,0,0.5)',
+          background: 'rgba(0,0,0,0.6)',
           border: '1px solid rgba(255,255,255,0.15)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronLeft size={20} className="text-white" />
+        <ChevronLeft size={24} className="text-white" />
       </button>
       <button
         onClick={goNext}
         aria-label="Next"
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 opacity-0 hover:opacity-100"
+        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 opacity-30 hover:opacity-100 group-hover:opacity-100"
         style={{
-          background: 'rgba(0,0,0,0.5)',
+          background: 'rgba(0,0,0,0.6)',
           border: '1px solid rgba(255,255,255,0.15)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-white" />
+        <ChevronRight size={24} className="text-white" />
       </button>
 
       {/* ── CONTENT — Always Visible ── */}

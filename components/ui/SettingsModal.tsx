@@ -1,8 +1,9 @@
 'use client';
+
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Settings } from 'lucide-react';
+import { X, Settings, Download, Upload, MonitorPlay, Shield, Database, ChevronRight } from 'lucide-react';
 import { usePreferences } from '@/hooks/usePreferences';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const GENRES = [
   { id: 28, name: "Action" },
@@ -28,8 +29,11 @@ const LANGUAGES = [
   { id: 'ru', name: 'Russian' }
 ];
 
+type TabId = 'content' | 'playback' | 'data';
+
 export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { preferences, updatePreferences } = usePreferences();
+  const [activeTab, setActiveTab] = useState<TabId>('content');
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -51,6 +55,228 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
     updatePreferences({ originalLanguage: current });
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const data = localStorage.getItem('voidstream_app_state_v2');
+    if (!data) return alert("No data found to export.");
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zivox_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (json && typeof json === 'object') {
+           localStorage.setItem('voidstream_app_state_v2', JSON.stringify(json));
+           alert("Data imported successfully! Reloading...");
+           window.location.reload();
+        }
+      } catch(err) {
+        alert("Invalid backup file. Please upload a valid Zivox backup JSON.");
+      }
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Content for each tab
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'content':
+        return (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-8"
+          >
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                Favorite Genres
+              </h3>
+              <p className="text-xs text-zinc-500 mb-4">Select genres to personalize your Discover feed.</p>
+              <div className="flex flex-wrap gap-2.5">
+                {GENRES.map(genre => {
+                  const isSelected = preferences.preferredGenres.includes(genre.id);
+                  return (
+                    <button
+                      key={genre.id}
+                      onClick={() => handleToggleGenre(genre.id)}
+                      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
+                          : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
+                      }`}
+                    >
+                      {genre.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                Preferred Languages
+              </h3>
+              <p className="text-xs text-zinc-500 mb-4">Prioritize content originally produced in these languages.</p>
+              <div className="flex flex-wrap gap-2.5">
+                {LANGUAGES.map(lang => {
+                  const isSelected = preferences.originalLanguage.includes(lang.id);
+                  return (
+                    <button
+                      key={lang.id}
+                      onClick={() => handleToggleLang(lang.id)}
+                      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
+                          : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
+                      }`}
+                    >
+                      {lang.name}
+                    </button>
+                  );
+                })}
+              </div>
+              {preferences.originalLanguage.length === 0 && (
+                <p className="text-xs text-zinc-500 mt-3 italic">Showing all global content by default.</p>
+              )}
+            </section>
+          </motion.div>
+        );
+
+      case 'playback':
+        return (
+          <motion.div
+            key="playback"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-6"
+          >
+            <section className="space-y-3">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                Display & Playback
+              </h3>
+              
+              <button 
+                onClick={() => updatePreferences({ adultContent: !preferences.adultContent })}
+                className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-left"
+              >
+                <div>
+                  <h4 className="font-semibold text-white">Include Mature Content</h4>
+                  <p className="text-zinc-400 text-xs mt-0.5">Show 18+ and restricted content in recommendations</p>
+                </div>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.adultContent ? 'translate-x-7' : 'translate-x-1'}`} />
+                </div>
+              </button>
+
+              <button 
+                onClick={() => updatePreferences({ showRatings: !preferences.showRatings })}
+                className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-left"
+              >
+                <div>
+                  <h4 className="font-semibold text-white">Show Content Ratings</h4>
+                  <p className="text-zinc-400 text-xs mt-0.5">Display IMDb/TMDB star ratings on movie cards</p>
+                </div>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.showRatings ? 'translate-x-7' : 'translate-x-1'}`} />
+                </div>
+              </button>
+            </section>
+          </motion.div>
+        );
+
+      case 'data':
+        return (
+          <motion.div
+            key="data"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-6"
+          >
+            <section className="space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                  Data Management
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed max-w-md">
+                  Zivox stores all your Watch History, Favorites, and Preferences locally on your device. Export your data to back it up or transfer it to another browser.
+                </p>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={handleExport}
+                  className="w-full flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-colors text-left group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <Download size={18} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-emerald-400">Export Backup</h4>
+                      <p className="text-emerald-400/60 text-xs mt-0.5">Download your profile as a JSON file</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-emerald-400/50" />
+                </button>
+                
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full flex items-center justify-between p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl hover:bg-purple-500/20 transition-colors text-left group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <Upload size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-purple-400">Import Backup</h4>
+                      <p className="text-purple-400/60 text-xs mt-0.5">Restore your profile from a JSON file</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-purple-400/50" />
+                </button>
+                <input 
+                  type="file" 
+                  accept=".json" 
+                  ref={fileInputRef} 
+                  onChange={handleImport} 
+                  className="hidden" 
+                />
+              </div>
+
+              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mt-6">
+                <h4 className="text-red-400 font-bold text-sm mb-1 flex items-center gap-2">
+                  <Shield size={16} /> Danger Zone
+                </h4>
+                <p className="text-red-400/70 text-xs mb-3">Clearing your browser cache will permanently delete your Watch History if you haven't exported a backup.</p>
+              </div>
+            </section>
+          </motion.div>
+        );
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -68,119 +294,77 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[301] w-[90%] max-w-2xl bg-void-950 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[301] w-[95%] max-w-4xl h-[80vh] max-h-[800px] bg-void-950 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 md:p-6 border-b border-zinc-800 bg-black/20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-crimson-500/20 flex items-center justify-center">
-                  <Settings size={20} className="text-crimson-500" />
+            {/* Left Sidebar Navigation */}
+            <div className="w-full md:w-[280px] shrink-0 bg-black/40 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
+              <div className="p-6 pb-4 flex items-center justify-between md:block">
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-8 h-8 rounded-full bg-crimson-500/20 flex items-center justify-center">
+                    <Settings size={16} className="text-crimson-500" />
+                  </div>
+                  <h2 className="text-lg font-bold text-white leading-tight">Settings</h2>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white leading-tight">Preferences</h2>
-                  <p className="text-xs text-zinc-400">Customize your Voidstream experience</p>
-                </div>
+                <button
+                  onClick={onClose}
+                  className="md:hidden w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/70"
+                >
+                  <X size={16} />
+                </button>
               </div>
+              
+              <div className="flex md:flex-col gap-1 p-2 md:p-4 overflow-x-auto md:overflow-visible no-scrollbar">
+                <button 
+                  onClick={() => setActiveTab('content')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                    activeTab === 'content' 
+                      ? 'bg-white/10 text-white shadow-lg border border-white/5' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <Settings size={18} className={activeTab === 'content' ? 'text-white' : 'text-zinc-500'} />
+                  Content Preferences
+                </button>
+                <button 
+                  onClick={() => setActiveTab('playback')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                    activeTab === 'playback' 
+                      ? 'bg-white/10 text-white shadow-lg border border-white/5' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <MonitorPlay size={18} className={activeTab === 'playback' ? 'text-white' : 'text-zinc-500'} />
+                  Playback & UI
+                </button>
+                <button 
+                  onClick={() => setActiveTab('data')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                    activeTab === 'data' 
+                      ? 'bg-white/10 text-white shadow-lg border border-white/5' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <Database size={18} className={activeTab === 'data' ? 'text-white' : 'text-zinc-500'} />
+                  Data & Privacy
+                </button>
+              </div>
+            </div>
+
+            {/* Right Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 bg-void-950 relative h-[calc(100%-80px)] md:h-full">
+              {/* Close button for desktop */}
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                className="hidden md:flex absolute top-6 right-6 z-20 w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 items-center justify-center text-white/70 hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
-            </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-8 no-scrollbar">
-              
-              {/* Genres */}
-              <section>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
-                  Favorite Genres
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
-                  {GENRES.map(genre => {
-                    const isSelected = preferences.preferredGenres.includes(genre.id);
-                    return (
-                      <button
-                        key={genre.id}
-                        onClick={() => handleToggleGenre(genre.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                          isSelected 
-                            ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
-                            : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
-                        }`}
-                      >
-                        {genre.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* Languages */}
-              <section>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
-                  Preferred Languages
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
-                  {LANGUAGES.map(lang => {
-                    const isSelected = preferences.originalLanguage.includes(lang.id);
-                    return (
-                      <button
-                        key={lang.id}
-                        onClick={() => handleToggleLang(lang.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                          isSelected 
-                            ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
-                            : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
-                        }`}
-                      >
-                        {lang.name}
-                      </button>
-                    );
-                  })}
-                </div>
-                {preferences.originalLanguage.length === 0 && (
-                  <p className="text-xs text-zinc-500 mt-3 italic">Showing all global content by default.</p>
-                )}
-              </section>
-
-              {/* Toggles */}
-              <section className="space-y-3">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
-                  Display Settings
-                </h3>
-                
-                <button 
-                  onClick={() => updatePreferences({ adultContent: !preferences.adultContent })}
-                  className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-left"
-                >
-                  <div>
-                    <h4 className="font-semibold text-white">Include Mature Content</h4>
-                    <p className="text-zinc-400 text-xs mt-0.5">Show 18+ and restricted content in recommendations</p>
-                  </div>
-                  <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
-                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.adultContent ? 'translate-x-7' : 'translate-x-1'}`} />
-                  </div>
-                </button>
-
-                <button 
-                  onClick={() => updatePreferences({ showRatings: !preferences.showRatings })}
-                  className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-left"
-                >
-                  <div>
-                    <h4 className="font-semibold text-white">Show Content Ratings</h4>
-                    <p className="text-zinc-400 text-xs mt-0.5">Display IMDb/TMDB star ratings on movie cards</p>
-                  </div>
-                  <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
-                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.showRatings ? 'translate-x-7' : 'translate-x-1'}`} />
-                  </div>
-                </button>
-              </section>
-
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 no-scrollbar">
+                <AnimatePresence mode="wait">
+                  {renderTabContent()}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         </>

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { storage, VoidStorage } from '@/lib/storage';
 
 export interface HistoryItem {
-  id: string; type: 'movie'|'tv'; title: string; poster?: string|null; timestamp: number; season?: number; episode?: number; progress?: number;
+  id: string; type: 'movie'|'tv'; title: string; poster?: string|null; timestamp: number; season?: number; episode?: number; progress?: number; release_date?: string; first_air_date?: string;
 }
 
 export function useWatchHistory() {

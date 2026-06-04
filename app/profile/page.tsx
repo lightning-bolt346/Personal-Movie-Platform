@@ -4,8 +4,9 @@ import { useWatchlist } from "@/hooks/useWatchlist";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useNotifications } from "@/hooks/useNotifications";
 import { MediaGrid } from "@/components/media/MediaGrid";
-import { Trash2, User, Heart, Bell } from "lucide-react";
+import { Trash2, User, Heart, Bell, Download, Upload } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 import { Media } from "@/types/tmdb";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 
@@ -59,21 +60,82 @@ export default function ProfilePage() {
     contextType: 'notifications',
   })) as unknown as Media[];
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const data = localStorage.getItem('voidstream_app_state_v2');
+    if (!data) return alert("No data found to export.");
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zivox_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (json && typeof json === 'object') {
+           localStorage.setItem('voidstream_app_state_v2', JSON.stringify(json));
+           alert("Data imported successfully! Reloading...");
+           window.location.reload();
+        }
+      } catch(err) {
+        alert("Invalid backup file. Please upload a valid Zivox backup JSON.");
+      }
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
     <div className="relative min-h-screen">
       <AnimatedBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-12 py-32 space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 pb-8 border-b border-zinc-800">
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-crimson-500 to-crimson-900 flex items-center justify-center shadow-2xl">
+        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-crimson-500 to-crimson-900 flex items-center justify-center shadow-2xl shrink-0">
           <User size={40} className="text-white" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight text-white mb-2">
             My Profile
           </h1>
           <p className="text-zinc-400 font-medium">
             Manage your watch history and saved list
           </p>
+        </div>
+        
+        {/* Export/Import Actions */}
+        <div className="flex items-center gap-3 mt-2 sm:mt-0">
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors text-sm font-bold text-white shadow-xl"
+          >
+            <Download size={16} className="text-emerald-400" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors text-sm font-bold text-white shadow-xl"
+          >
+            <Upload size={16} className="text-purple-400" />
+            <span className="hidden sm:inline">Import</span>
+          </button>
+          <input 
+            type="file" 
+            accept=".json" 
+            ref={fileInputRef} 
+            onChange={handleImport} 
+            className="hidden" 
+          />
         </div>
       </div>
 

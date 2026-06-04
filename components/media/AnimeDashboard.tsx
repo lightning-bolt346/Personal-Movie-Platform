@@ -800,7 +800,8 @@ export function AnimeDashboard({ trendingAnime, topRatedAnime }: AnimeDashboardP
 
           <div 
             data-lenis-prevent="true" 
-            className="flex items-center gap-3 overflow-x-auto pb-4 pt-1 no-scrollbar select-none"
+            className="flex items-center gap-3 overflow-x-auto pb-4 pt-1 no-scrollbar select-none overscroll-contain"
+            style={{ touchAction: 'pan-x' }}
           >
             {ANIME_GENRES.map((genre) => {
               const active = selectedGenre === genre.id;

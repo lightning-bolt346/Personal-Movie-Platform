@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { storage } from '@/lib/storage';
 
 export interface FavoriteItem {
-  id: string; type: 'movie'|'tv'; title: string; poster?: string|null; addedAt: number;
+  id: string; type: 'movie'|'tv'; title: string; poster?: string|null; addedAt: number; release_date?: string; first_air_date?: string;
 }
 
 export function useFavorites() {

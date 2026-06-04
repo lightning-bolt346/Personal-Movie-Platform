@@ -17,7 +17,7 @@ export function ScrollToTop() {
     <button
       onClick={scrollUp}
       aria-label="Scroll to top"
-      className={`fixed bottom-24 md:bottom-8 right-5 md:right-8 z-[9999] flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 shadow-2xl ${
+      className={`fixed bottom-24 md:bottom-8 right-5 md:right-8 z-[190] flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 shadow-2xl ${
         visible
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-4 pointer-events-none'

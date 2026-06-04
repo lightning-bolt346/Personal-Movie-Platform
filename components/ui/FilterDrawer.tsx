@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Filter, Check } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 interface FilterDrawerProps {
   isOpen: boolean;
@@ -53,8 +54,10 @@ export function FilterDrawer({
   const [localGenres, setLocalGenres] = useState(genres);
   const [localYear, setLocalYear] = useState(year);
   const [localSort, setLocalSort] = useState(sort);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (isOpen) {
       setLocalType(type);
       setLocalGenres(genres);
@@ -97,7 +100,9 @@ export function FilterDrawer({
     setLocalSort('popularity.desc');
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -107,7 +112,7 @@ export function FilterDrawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[300]"
           />
           
           {/* Drawer */}
@@ -119,7 +124,7 @@ export function FilterDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-950 border-l border-zinc-800 z-[210] flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-void-950 border-l border-zinc-800 z-[310] flex flex-col shadow-2xl"
           >
             <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
               <h2 className="text-xl font-display font-bold flex items-center gap-2">
@@ -219,6 +224,7 @@ export function FilterDrawer({
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

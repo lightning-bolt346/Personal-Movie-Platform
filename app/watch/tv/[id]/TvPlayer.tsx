@@ -204,6 +204,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
     addToHistory({
       id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path,
       timestamp: Date.now(), season, episode: ep.episode_number, progress: isWatched ? 0 : 100,
+      first_air_date: show.first_air_date
     });
   };
 
@@ -311,6 +312,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       onProgress={() => {}}
                       onPlayNext={playNextEpisode}
                       hasNextEpisode={hasNextEpisode()}
+                      releaseYear={show.first_air_date}
                     />
                   )}
                 </div>
@@ -371,13 +373,13 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         </button>
                       )}
                       <button
-                        onClick={() => toggleWatchlist({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path })}
+                        onClick={() => toggleWatchlist({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, first_air_date: show.first_air_date })}
                         className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                       >
                         <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                       </button>
                       <button
-                        onClick={() => toggleFavorite({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path })}
+                        onClick={() => toggleFavorite({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, first_air_date: show.first_air_date })}
                         className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onFavorites ? 'bg-pink-500/10 border-pink-500/20 text-pink-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                       >
                         <Heart size={14} className={onFavorites ? 'fill-pink-500' : ''} /> {onFavorites ? 'Favorited' : 'Favorite'}
@@ -414,7 +416,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       )}
                     </h3>
                   </div>
-                  <div data-lenis-prevent="true" className="overflow-y-auto flex-1 custom-scrollbar">
+                  <div data-lenis-prevent="true" className="overflow-y-auto flex-1 custom-scrollbar overscroll-contain">
                     {airedEpisodes.length === 0 ? (
                       <div className="flex flex-col items-center justify-center p-8 text-center opacity-50">
                         <p className="text-sm font-semibold text-white/60 mb-1">No episodes available yet</p>

@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { SmoothScroll } from '@/components/layout/SmoothScroll';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { WelcomeModal } from '@/components/ui/WelcomeModal';
 import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -155,10 +156,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <ScrollToTop />
-      </SmoothScroll>
+          <WelcomeModal />
+        </SmoothScroll>
         <Analytics />
       </body>
     </html>
   );
 }
-

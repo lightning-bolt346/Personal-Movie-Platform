@@ -2,6 +2,7 @@ export interface VoidStorage {
   history: any[];
   watchlist: any[];
   favorites: any[];
+  notifications: any[];
   searchHistory: string[];
   settings: {
     lastSourceId?: string;
@@ -16,6 +17,7 @@ const defaultState: VoidStorage = {
   history: [],
   watchlist: [],
   favorites: [],
+  notifications: [],
   searchHistory: [],
   settings: {
     autoPlayNext: true

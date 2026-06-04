@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getSource, sources } from '@/lib/sources';
-import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, Minimize, ExternalLink, RotateCcw } from 'lucide-react';
+import { getSource, sources, TOP_7_IDS } from '@/lib/sources';
+import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, ExternalLink, RotateCcw, Share2, Copy, Twitter, Facebook, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { storage } from '@/lib/storage';
@@ -17,13 +17,12 @@ interface VideoPlayerProps {
   episode?: number;
   title?: string;
   poster?: string | null;
-  color?: string | null;
   onProgress?: (progress: number) => void;
   onPlayNext?: () => void;
   hasNextEpisode?: boolean;
 }
 
-export function VideoPlayer({ type, id, season, episode, title, poster, color, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
+export function VideoPlayer({ type, id, season, episode, title, poster, onProgress, onPlayNext, hasNextEpisode }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
@@ -37,6 +36,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
   const [showAllServers, setShowAllServers] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const [showRotateHint, setShowRotateHint] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -86,7 +86,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
       for (let i = 0; i < sources.length; i++) {
         if (!isMounted) return;
         const s = sources[i];
-        setTestingCurrentName(s.name);
+        setTestingCurrentName(s.publicName); // Use publicName (Server 1, Server 2...)
         setTestProgress(((i) / sources.length) * 100);
         
         const checkTime = Math.random() * 800 + 400;
@@ -97,12 +97,18 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
         if (works || i === sources.length - 1) {
           if (isMounted) {
             setCurrentSourceId(s.id);
-            const savedPref = localStorage.getItem('sandbox_pref_' + s.id);
-            setUseSandbox(savedPref !== null ? savedPref === 'true' : true);
+            // Auto-disable sandbox for peachify
+            if (s.autoDisableSandbox) {
+              setUseSandbox(false);
+              localStorage.setItem('sandbox_pref_' + s.id, 'false');
+            } else {
+              const savedPref = localStorage.getItem('sandbox_pref_' + s.id);
+              setUseSandbox(savedPref !== null ? savedPref === 'true' : true);
+            }
             sessionStorage.setItem(`working_source_${id}`, s.id);
             setTestingSources(false);
             setTestProgress(100);
-            showToast(`Connected to ${s.name}`);
+            showToast(`Connected to ${s.publicName}`);
           }
           break;
         }
@@ -298,12 +304,10 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  // Top 7 Recommended servers â€” ad-free priority
-  const recommendedIds = ["cinemaos", "cinesrc", "vidsrcwtf2", "autoembed", "vidsrcwtf1", "peachify", "smashystream"];
-  
+  // Top 7 servers — shown with publicName (Server 1..7), real name in settings
+  const top7Sources = sources.filter(s => TOP_7_IDS.includes(s.id) && !favoriteServers.includes(s.id));
   const favoriteSources = sources.filter(s => favoriteServers.includes(s.id));
-  const top6Sources = sources.filter(s => recommendedIds.includes(s.id) && !favoriteServers.includes(s.id));
-  const remainingSources = sources.filter(s => !recommendedIds.includes(s.id) && !favoriteServers.includes(s.id));
+  const remainingSources = sources.filter(s => !TOP_7_IDS.includes(s.id) && !favoriteServers.includes(s.id));
 
   const toggleFavServer = (e: React.MouseEvent, serverId: string) => {
     e.stopPropagation();
@@ -314,16 +318,29 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
     localStorage.setItem('favorite_servers', JSON.stringify(newFavs));
   };
 
-  const source = getSource(currentSourceId);
-  let embedUrl = source.url(type, id, season, episode);
+  // When switching server: handle peachify auto-disable sandbox
+  const handleSwitchServer = (sId: string) => {
+    const s = sources.find(x => x.id === sId)!;
+    setCurrentSourceId(sId);
+    if (s.autoDisableSandbox) {
+      setUseSandbox(false);
+      localStorage.setItem('sandbox_pref_' + sId, 'false');
+      showToast('Sandbox disabled — ads or redirects may appear');
+    } else {
+      const savedPref = localStorage.getItem('sandbox_pref_' + sId);
+      if (savedPref !== null) {
+        setUseSandbox(savedPref === 'true');
+      } else if (autoSandboxOnSwitch) {
+        setUseSandbox(true);
+      }
+    }
+    sessionStorage.setItem(`working_source_${id}`, sId);
+    setShowSettingsModal(false);
+    showToast(`Switched to ${s.publicName}`);
+  };
 
-  // Apply dynamic theme color if provided (replace the hardcoded e50914)
-  if (color) {
-    const hex = color.replace('#', '');
-    embedUrl = embedUrl.replace(/color=e50914/gi, `color=${hex}`)
-                       .replace(/color=%23e50914/gi, `color=%23${hex}`)
-                       .replace(/primaryColor=e50914/gi, `primaryColor=${hex}`);
-  }
+  const source = getSource(currentSourceId);
+  const embedUrl = source.url(type, id, season, episode);
 
   const sandboxAttrs = useSandbox 
     ? source.sandboxFlags 
@@ -424,21 +441,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                         const renderServerCard = (s: typeof sources[0]) => {
                           const isActive = currentSourceId === s.id;
                           const isFav = favoriteServers.includes(s.id);
+                          const isTop7 = TOP_7_IDS.includes(s.id);
+                          const displayName = isTop7 ? s.publicName : s.name;
                           return (
                             <button
                               key={s.id}
-                              onClick={() => {
-                                setCurrentSourceId(s.id);
-                                const savedPref = localStorage.getItem('sandbox_pref_' + s.id);
-                                if (savedPref !== null) {
-                                  setUseSandbox(savedPref === 'true');
-                                } else if (autoSandboxOnSwitch) {
-                                  setUseSandbox(true);
-                                }
-                                sessionStorage.setItem(`working_source_${id}`, s.id);
-                                setShowSettingsModal(false);
-                                showToast(`${s.name}`);
-                              }}
+                              onClick={() => handleSwitchServer(s.id)}
                               className={`group flex flex-col justify-between p-4 rounded-2xl transition-all duration-300 border text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
                                 isActive 
                                   ? 'bg-gradient-to-br from-crimson-500/20 via-crimson-500/10 to-transparent border-crimson-500/50 text-white shadow-[0_0_20px_rgba(229,9,20,0.15)]' 
@@ -451,7 +459,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                               <div className="flex items-start justify-between w-full gap-2 z-10">
                                 <div className="flex items-center gap-2">
                                   <Server size={13} className={isActive ? 'text-crimson-500' : 'text-zinc-500'} />
-                                  <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest">{s.name}</span>
+                                  <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase tracking-widest">{displayName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <div onClick={(e) => toggleFavServer(e, s.id)} className="hover:scale-110 active:scale-95 transition-transform">
@@ -461,16 +469,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                                 </div>
                               </div>
                               <div className="mt-3 z-10 flex-1 flex flex-col">
-                                <span className="text-sm font-bold leading-tight block mb-1 font-display">{s.name}</span>
-                                {s.feature && <span className="text-[10px] text-zinc-400 leading-snug mb-3 line-clamp-2">{s.feature}</span>}
+                                <span className="text-sm font-bold leading-tight block mb-1 font-display">{displayName}</span>
+                                {s.feature && <span className="text-[10px] text-zinc-400 leading-snug mb-3">{s.feature}</span>}
                                 <div className="flex items-center gap-1.5 mt-auto flex-wrap">
-                                  {s.tier === 1 ? (
-                                    <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20">T1</span>
-                                  ) : (
-                                    <span className="text-[9px] font-black uppercase tracking-widest bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">T2</span>
-                                  )}
-                                  {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1"><Check size={10} /> No Ads</span>}
+                                  {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">✓ No Ads</span>}
                                   {s.hasPopups && <span className="text-[9px] font-bold text-zinc-500 bg-black/50 px-1.5 py-0.5 rounded border border-white/5">Popups</span>}
+                                  {s.autoDisableSandbox && <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">⚠ Ads possible</span>}
                                 </div>
                               </div>
                             </button>
@@ -488,9 +492,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                               </div>
                             )}
                             <div>
-                              <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2 flex items-center gap-1.5">Recommended</h5>
+                              <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">âœ¦ Recommended</h5>
                               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
-                                {top6Sources.map(s => renderServerCard(s))}
+                                {top7Sources.map(s => renderServerCard(s))}
                               </div>
                             </div>
                             {remainingSources.length > 0 && (
@@ -531,10 +535,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                                           <div className="flex items-center gap-2">
                                             <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActiveCompact ? 'bg-crimson-500' : 'bg-zinc-700'}`} />
                                             <span className="text-xs font-semibold">{s.name}</span>
-                                            {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20 flex items-center"><Check size={10} /></span>}
+                                            {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20">âœ“</span>}
                                           </div>
                                           <div className="flex items-center gap-1.5">
-                                            <span className="text-[9px] text-zinc-600 uppercase hidden sm:block">T{s.tier}</span>
                                             <div onClick={(e) => toggleFavServer(e, s.id)} className="hover:scale-110 active:scale-95 transition-transform p-0.5">
                                               <Heart size={11} className={isFavCompact ? "fill-pink-500 text-pink-500" : "text-zinc-600 hover:text-pink-400"} />
                                             </div>
@@ -644,12 +647,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                     )}
 
                     <a
-                      href={`/test-sources?id=${id}&type=${type}${season ? `&season=${season}` : ''}${episode ? `&episode=${episode}` : ''}`}
+                      href={embedUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all mt-4 mb-2 hover:scale-105 active:scale-95 justify-center"
+                      className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-all mt-1 hover:scale-105 active:scale-95"
                     >
-                      <ExternalLink size={11} className="text-crimson-500 animate-pulse" /> Test Providers Settings
+                      <ExternalLink size={11} className="text-crimson-500 animate-pulse" /> Open source in new tab
                     </a>
                   </div>
                 </div>
@@ -660,37 +663,125 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
         document.body
       )}
 
+      {/* Share Modal */}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {showShareModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9995] flex items-end sm:items-center justify-center"
+              onClick={() => setShowShareModal(false)}
+            >
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+              <motion.div
+                initial={{ y: 50, opacity: 0, scale: 0.97 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                exit={{ y: 50, opacity: 0, scale: 0.97 }}
+                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                className="relative bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm overflow-hidden shadow-2xl"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* purple gradient top */}
+                <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-purple-900/30 to-transparent pointer-events-none" />
+                <div className="p-6 relative">
+                  <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-6 sm:hidden" />
+                  <h3 className="text-base font-bold text-white mb-0.5">Share</h3>
+                  <p className="text-xs text-white/40 mb-5 truncate">{title}</p>
+
+                  {/* Social grid */}
+                  <div className="grid grid-cols-4 gap-2.5 mb-4">
+                    {[
+                      { label: 'WhatsApp', color: '#25D366', bg: 'rgba(37,211,102,0.12)', href: `https://wa.me/?text=${encodeURIComponent(`Watch "${title}" on ZIVOX: ${window.location.href}`)}`, icon: <MessageCircle size={18} /> },
+                      { label: 'Telegram', color: '#29A8EB', bg: 'rgba(41,168,235,0.12)', href: `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Watch "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
+                      { label: 'Twitter', color: '#1DA1F2', bg: 'rgba(29,161,242,0.12)', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}&url=${encodeURIComponent(window.location.href)}`, icon: <Twitter size={18} /> },
+                      { label: 'Facebook', color: '#1877F2', bg: 'rgba(24,119,242,0.12)', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, icon: <Facebook size={18} /> },
+                      { label: 'Reddit', color: '#FF4500', bg: 'rgba(255,69,0,0.12)', href: `https://reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
+                      { label: 'Threads', color: '#fff', bg: 'rgba(255,255,255,0.08)', href: `https://threads.net/intent/post?text=${encodeURIComponent(`Watching "${title}" on ZIVOX ${window.location.href}`)}`, icon: <MessageCircle size={18} /> },
+                      { label: 'Instagram', color: '#E4405F', bg: 'rgba(228,64,95,0.12)', href: `https://www.instagram.com/`, icon: <Share2 size={18} /> },
+                      { label: 'Pinterest', color: '#E60023', bg: 'rgba(230,0,35,0.12)', href: `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&description=${encodeURIComponent(`Watching "${title}" on ZIVOX`)}`, icon: <Share2 size={18} /> },
+                    ].map(item => (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-2xl transition-all active:scale-95 hover:brightness-125"
+                        style={{ background: item.bg, color: item.color }}
+                      >
+                        {item.icon}
+                        <span className="text-[9px] font-bold" style={{ color: 'rgba(255,255,255,0.55)' }}>{item.label}</span>
+                      </a>
+                    ))}
+                  </div>
+
+                  {/* Copy link */}
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      showToast('Link copied!');
+                      setShowShareModal(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all active:scale-[0.98]"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                      <Copy size={16} className="text-white/70" />
+                    </div>
+                    <div className="flex flex-col items-start min-w-0">
+                      <span className="text-sm font-bold text-white">Copy Link</span>
+                      <span className="text-[11px] text-white/40 truncate w-full">{typeof window !== 'undefined' ? window.location.href : ''}</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setShowShareModal(false)}
+                    className="w-full mt-3 py-2.5 text-sm font-semibold text-white/35 hover:text-white/70 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
       {/* ── PLAYER TOP BAR ── */}
       {!isFullscreen && (
-        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
-          {/* Left: servers button + server name + sandbox */}
-          <div className="flex items-center gap-4 min-w-0">
-            <button 
+        <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
+          {/* Left: Servers & Settings button + current server info */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <button
               onClick={() => setShowSettingsModal(true)}
-              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-700 text-white px-4 py-2 rounded-lg transition-all active:scale-95 font-bold uppercase tracking-wider text-xs shadow-md shrink-0"
+              className="flex items-center gap-2 bg-void-900 hover:bg-void-800 border border-zinc-800 text-white px-3 py-2 rounded-lg transition-all active:scale-95 font-bold text-xs shadow-md shrink-0 whitespace-nowrap"
             >
-              <Server size={14} className="text-crimson-500" />
-              <span className="hidden sm:inline">Servers</span>
+              <Server size={13} className="text-crimson-500" />
+              <span className="hidden sm:inline">Servers &amp; Settings</span>
               <span className="sm:hidden">Servers</span>
             </button>
-
-            <div className="hidden sm:flex items-center gap-3 min-w-0">
-              <div className="h-6 w-px bg-zinc-800" />
-              <div className="flex flex-col min-w-0">
-                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none mb-1">Now Streaming On</span>
-                <span className="text-[13px] font-bold text-white leading-none truncate max-w-[200px]">{source.name}</span>
-              </div>
-              <div className="flex items-center gap-1.5 ml-2">
-                {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded flex items-center gap-1 shrink-0"><Check size={10} /> No Ads</span>}
-                {source.tier === 1 && <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded shrink-0 hidden lg:inline">Tier 1</span>}
-              </div>
+            {/* Current server name + no-ads badge */}
+            <div className="hidden sm:flex items-center gap-2 min-w-0">
+              <div className="h-4 w-px bg-zinc-800" />
+              <span className="text-xs font-semibold text-zinc-300 truncate">{source.publicName}</span>
+              {source.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shrink-0">✓ No Ads</span>}
             </div>
           </div>
 
-          {/* Right: controls */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Sandbox toggle */}
-            <button 
+          {/* Right: icon controls */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Share — purple */}
+            <button
+              onClick={() => setShowShareModal(true)}
+              title="Share"
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-purple-500/30 bg-purple-600/15 hover:bg-purple-600/25 text-purple-400 transition-all active:scale-95"
+            >
+              <Share2 size={14} />
+            </button>
+
+            {/* Sandbox toggle — icon only */}
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 const n = !useSandbox;
@@ -698,55 +789,34 @@ export function VideoPlayer({ type, id, season, episode, title, poster, color, o
                 localStorage.setItem('sandbox_pref_' + currentSourceId, n.toString());
                 showToast(`Sandbox ${n ? 'ON' : 'OFF'}`);
               }}
-              title={useSandbox ? 'Sandbox Protection ON' : 'Sandbox OFF — Risky'}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+              title={useSandbox ? 'Sandbox ON — Protected' : 'Sandbox OFF — Risky'}
+              className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all active:scale-95 ${
                 useSandbox ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20'
               }`}
             >
-              {useSandbox ? <Shield size={13} /> : <ShieldOff size={13} />}
-              <span className="hidden md:inline">{useSandbox ? 'Sandbox ON' : 'Sandbox OFF'}</span>
+              {useSandbox ? <Shield size={14} /> : <ShieldOff size={14} />}
             </button>
 
-            {/* Favorite */}
+            {/* Favorite — icon only */}
             <button
               onClick={(e) => { e.stopPropagation(); toggleFavorite({ id, type, title: title || '', poster }); }}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
+              className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-all active:scale-95 ${
                 isFav ? 'bg-pink-500/10 text-pink-500 border-pink-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-void-800'
               }`}
               title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
             >
-              <Heart size={13} className={isFav ? 'fill-pink-500' : ''} />
-              <span className="hidden lg:inline">{isFav ? 'Favorited' : 'Favorite'}</span>
+              <Heart size={14} className={isFav ? 'fill-pink-500' : ''} />
             </button>
-
-            {/* Auto-play (TV only) */}
-            {type === 'tv' && (
-              <button 
-                onClick={toggleAutoPlay}
-                title="Toggle Auto-Play Next Episode"
-                className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
-                  autoPlayNext ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'
-                }`}
-              >
-                <span>Auto-Play</span>
-                {autoPlayNext ? <Check size={13} /> : <X size={13} />}
-              </button>
-            )}
 
             <div className="h-5 w-px bg-zinc-800 hidden sm:block" />
 
             {/* Fullscreen */}
-            <button 
+            <button
               onClick={toggleFullscreen}
-              title={isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all active:scale-95 text-xs font-bold ${
-                isFullscreen 
-                  ? 'bg-crimson-500/10 text-crimson-400 border-crimson-500/20 hover:bg-crimson-500/20' 
-                  : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800 hover:text-white'
-              }`}
+              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen (F)'}
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-800 bg-void-900 hover:bg-void-800 text-zinc-400 hover:text-white transition-all active:scale-95"
             >
               <Maximize size={14} />
-              <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
             </button>
           </div>
         </div>

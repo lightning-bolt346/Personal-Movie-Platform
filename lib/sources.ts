@@ -1,11 +1,13 @@
 export interface Source {
   id: string;
-  name: string;
+  name: string;         // Display name shown in Settings modal
+  publicName: string;   // Name shown on player top bar (hides real URL-based name for top 7)
   type: "iframe" | "api";
   tier: 1 | 2;
   feature: string;
   hasPopups: boolean;
   noAds: boolean;
+  autoDisableSandbox?: boolean; // e.g. peachify needs sandbox off
   sandboxFlags: string;
   url: (
     type: "movie" | "tv",
@@ -20,14 +22,16 @@ export const NORMAL_SANDBOX = "allow-scripts allow-same-origin allow-forms allow
 export const TIER_1_SANDBOX = NORMAL_SANDBOX;
 export const TIER_2_SANDBOX = NORMAL_SANDBOX;
 
+// TOP 7 — shown as "Server 1" through "Server 7" on the player top bar
+// Their real names are only revealed inside the Settings modal
 export const sources: Source[] = [
-  // TIER 1 - Sandbox-Friendly & Reliable
   {
     id: "cinemaos",
     name: "CinemaOS",
+    publicName: "Server 1",
     type: "iframe",
     tier: 1,
-    feature: "Ultra-fast premium player, high reliability",
+    feature: "Ultra-fast premium streams · Zero ads · Crisp 1080p · No popups · Best for movies",
     hasPopups: false,
     noAds: true,
     sandboxFlags: TIER_1_SANDBOX,
@@ -37,8 +41,102 @@ export const sources: Source[] = [
         : `https://cinemaos.tech/player/${id}/${season}/${episode}`
   },
   {
+    id: "cinesrc",
+    name: "CineSrc",
+    publicName: "Server 2",
+    type: "iframe",
+    tier: 1,
+    feature: "Auto-play enabled · Premium servers · Ad-free · Reliable uptime · Great for TV shows",
+    hasPopups: false,
+    noAds: true,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://cinesrc.st/embed/movie/${id}?color=%23e50914&autoplay=true`
+        : `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}&color=%23e50914&autoplay=true`
+  },
+  {
+    id: "vidsrcwtf1",
+    name: "VidSrc Multi-Server",
+    publicName: "Server 3",
+    type: "iframe",
+    tier: 1,
+    feature: "Aggregates multiple servers automatically · Switches to best source · Zero ads",
+    hasPopups: false,
+    noAds: true,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://vidsrc.wtf/1/movie/${id}?color=e50914`
+        : `https://vidsrc.wtf/1/tv/${id}/${season}/${episode}?color=e50914`
+  },
+  {
+    id: "peachify",
+    name: "Peachify",
+    publicName: "Server 4",
+    type: "iframe",
+    tier: 1,
+    feature: "Multilingual subtitles & dubs · Smart fallbacks · Works well on mobile — Note: may show ads/redirects",
+    hasPopups: true,
+    noAds: false,
+    autoDisableSandbox: true, // Sandbox auto-disabled for this server
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://peachify.top/embed/movie/${id}?accent=e50914`
+        : `https://peachify.top/embed/tv/${id}/${season}/${episode}?accent=e50914`
+  },
+  {
+    id: "autoembed",
+    name: "AutoEmbed",
+    publicName: "Server 5",
+    type: "iframe",
+    tier: 1,
+    feature: "TMDB exact-match engine · Zero ads · Instant source selection · Wide library coverage",
+    hasPopups: false,
+    noAds: true,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://autoembed.co/movie/tmdb/${id}?color=e50914`
+        : `https://autoembed.co/tv/tmdb/${id}-${season}-${episode}?color=e50914`
+  },
+  {
+    id: "vidsrcwtf2",
+    name: "VidSrc Multi-Lang",
+    publicName: "Server 6",
+    type: "iframe",
+    tier: 1,
+    feature: "Extensive multi-language subtitles & dubs · Great for international content · Zero ads",
+    hasPopups: false,
+    noAds: true,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://vidsrc.wtf/2/movie/${id}?color=e50914`
+        : `https://vidsrc.wtf/2/tv/${id}/${season}/${episode}?color=e50914`
+  },
+  {
+    id: "smashystream",
+    name: "SmashyStream",
+    publicName: "Server 7",
+    type: "iframe",
+    tier: 1,
+    feature: "Extensive backup links · Multi-language subtitles · High uptime · Good fallback option",
+    hasPopups: true,
+    noAds: true,
+    sandboxFlags: TIER_1_SANDBOX,
+    url: (type, id, season, episode) =>
+      type === "movie"
+        ? `https://embed.smashystream.com/playere.php?tmdb=${id}&color=e50914`
+        : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}&color=e50914`
+  },
+
+  // ── Additional Servers (shown with real names) ───────────────────────────
+  {
     id: "mappletv",
     name: "MappleTV",
+    publicName: "MappleTV",
     type: "iframe",
     tier: 1,
     feature: "HD streams with consistent uptime",
@@ -53,6 +151,7 @@ export const sources: Source[] = [
   {
     id: "111movies",
     name: "111Movies",
+    publicName: "111Movies",
     type: "iframe",
     tier: 1,
     feature: "Fast global CDN, auto-selects highest quality",
@@ -65,25 +164,12 @@ export const sources: Source[] = [
         : `https://111movies.net/tv/${id}/${season}/${episode}?color=e50914`
   },
   {
-    id: "smashystream",
-    name: "SmashyStream",
-    type: "iframe",
-    tier: 1,
-    feature: "Extensive backup links & multi-language subtitles",
-    hasPopups: true,
-    noAds: true,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://embed.smashystream.com/playere.php?tmdb=${id}&color=e50914`
-        : `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}&color=e50914`
-  },
-  {
     id: "rivestream",
     name: "RiveStream",
+    publicName: "RiveStream",
     type: "iframe",
     tier: 1,
-    feature: "Powerful aggregator (Best Server mode)",
+    feature: "Powerful aggregator with Best Server mode",
     hasPopups: false,
     noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
@@ -95,6 +181,7 @@ export const sources: Source[] = [
   {
     id: "vidking",
     name: "VidKing",
+    publicName: "VidKing",
     type: "iframe",
     tier: 1,
     feature: "High-bitrate streams & lightning-fast loading",
@@ -109,6 +196,7 @@ export const sources: Source[] = [
   {
     id: "vixsrc",
     name: "VixSrc",
+    publicName: "VixSrc",
     type: "iframe",
     tier: 1,
     feature: "Clean API, rapid fetching, high uptime",
@@ -123,6 +211,7 @@ export const sources: Source[] = [
   {
     id: "embedmaster",
     name: "EmbedMaster",
+    publicName: "EmbedMaster",
     type: "iframe",
     tier: 1,
     feature: "Versatile sources, robust custom player",
@@ -137,6 +226,7 @@ export const sources: Source[] = [
   {
     id: "vidzee",
     name: "Vidzee",
+    publicName: "Vidzee",
     type: "iframe",
     tier: 1,
     feature: "Ultra-fast direct MP4 streaming",
@@ -151,6 +241,7 @@ export const sources: Source[] = [
   {
     id: "vidfast",
     name: "Vidfast",
+    publicName: "Vidfast",
     type: "iframe",
     tier: 1,
     feature: "Low latency, optimized for all devices",
@@ -165,6 +256,7 @@ export const sources: Source[] = [
   {
     id: "nontongo",
     name: "NontonGo",
+    publicName: "NontonGo",
     type: "iframe",
     tier: 1,
     feature: "Active streaming API, fast, multiple sources",
@@ -179,6 +271,7 @@ export const sources: Source[] = [
   {
     id: "vidnest",
     name: "VidNest",
+    publicName: "VidNest",
     type: "iframe",
     tier: 1,
     feature: "Ad-free, professional-grade, multi-server",
@@ -193,6 +286,7 @@ export const sources: Source[] = [
   {
     id: "vidcore",
     name: "VidCore",
+    publicName: "VidCore",
     type: "iframe",
     tier: 1,
     feature: "Blazing fast streaming, next-gen infrastructure",
@@ -205,64 +299,9 @@ export const sources: Source[] = [
         : `https://vidcore.net/embed/tv/${id}/${season}/${episode}`
   },
   {
-    id: "peachify",
-    name: "Peachify",
-    type: "iframe",
-    tier: 1,
-    feature: "Multilingual support, smart fallbacks",
-    hasPopups: false,
-    noAds: false,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://peachify.top/embed/movie/${id}?accent=e50914`
-        : `https://peachify.top/embed/tv/${id}/${season}/${episode}?accent=e50914`
-  },
-  {
-    id: "vidrock",
-    name: "VidRock",
-    type: "iframe",
-    tier: 1,
-    feature: "Stable high quality Russian backend",
-    hasPopups: false,
-    noAds: false,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://vidrock.ru/embed/movie/${id}`
-        : `https://vidrock.ru/embed/tv/${id}/${season}/${episode}`
-  },
-  {
-    id: "vidsrcwtf1",
-    name: "VidSrc.wtf (Multi Server)",
-    type: "iframe",
-    tier: 1,
-    feature: "Aggregates multiple servers automatically",
-    hasPopups: false,
-    noAds: true,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://vidsrc.wtf/1/movie/${id}?color=e50914`
-        : `https://vidsrc.wtf/1/tv/${id}/${season}/${episode}?color=e50914`
-  },
-  {
-    id: "vidsrcwtf2",
-    name: "VidSrc.wtf (Multi Lang)",
-    type: "iframe",
-    tier: 1,
-    feature: "Extensive multi-language subtitles/dubs",
-    hasPopups: false,
-    noAds: true,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://vidsrc.wtf/2/movie/${id}?color=e50914`
-        : `https://vidsrc.wtf/2/tv/${id}/${season}/${episode}?color=e50914`
-  },
-  {
     id: "vidsrcwtf3",
-    name: "VidSrc.wtf (Multi Embeds)",
+    name: "VidSrc Multi-Embeds",
+    publicName: "VidSrc Multi-Embeds",
     type: "iframe",
     tier: 1,
     feature: "Multiple robust embed fallback options",
@@ -276,7 +315,8 @@ export const sources: Source[] = [
   },
   {
     id: "vidsrcwtf4",
-    name: "VidSrc.wtf (Premium)",
+    name: "VidSrc Premium",
+    publicName: "VidSrc Premium",
     type: "iframe",
     tier: 1,
     feature: "Top-tier bandwidth with premium servers",
@@ -288,25 +328,25 @@ export const sources: Source[] = [
         ? `https://vidsrc.wtf/4/movie/${id}?color=e50914`
         : `https://vidsrc.wtf/4/tv/${id}/${season}/${episode}?color=e50914`
   },
-
-  // TIER 2 - Slower, More Ads, or Fallbacks
   {
-    id: "cinesrc",
-    name: "CineSrc (Premium)",
+    id: "vidrock",
+    name: "VidRock",
+    publicName: "VidRock",
     type: "iframe",
     tier: 1,
-    feature: "Autoplay enabled, reliable premium servers",
+    feature: "Stable high quality Russian backend",
     hasPopups: false,
-    noAds: true,
+    noAds: false,
     sandboxFlags: TIER_1_SANDBOX,
     url: (type, id, season, episode) =>
       type === "movie"
-        ? `https://cinesrc.st/embed/movie/${id}?color=%23e50914&autoplay=true`
-        : `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}&color=%23e50914&autoplay=true`
+        ? `https://vidrock.ru/embed/movie/${id}`
+        : `https://vidrock.ru/embed/tv/${id}/${season}/${episode}`
   },
   {
     id: "vidlink",
     name: "VidLink",
+    publicName: "VidLink",
     type: "iframe",
     tier: 2,
     feature: "Vast legacy library, reliable fallbacks",
@@ -319,22 +359,9 @@ export const sources: Source[] = [
         : `https://vidlink.pro/tv/${id}/${season}/${episode}?autoplay=false&primaryColor=e50914`
   },
   {
-    id: "autoembed",
-    name: "AutoEmbed",
-    type: "iframe",
-    tier: 1,
-    feature: "Automatic TMDB exact matching engine",
-    hasPopups: false,
-    noAds: true,
-    sandboxFlags: TIER_1_SANDBOX,
-    url: (type, id, season, episode) =>
-      type === "movie"
-        ? `https://autoembed.co/movie/tmdb/${id}?color=e50914`
-        : `https://autoembed.co/tv/tmdb/${id}-${season}-${episode}?color=e50914`
-  },
-  {
     id: "vidsrcme",
     name: "VidSrc.me",
+    publicName: "VidSrc.me",
     type: "iframe",
     tier: 2,
     feature: "Massive library, decent speed",
@@ -349,6 +376,7 @@ export const sources: Source[] = [
   {
     id: "vidsrcto",
     name: "VidSrc.to",
+    publicName: "VidSrc.to",
     type: "iframe",
     tier: 2,
     feature: "Secondary massive catalog fallback",
@@ -363,6 +391,7 @@ export const sources: Source[] = [
   {
     id: "videasy",
     name: "VidEasy",
+    publicName: "VidEasy",
     type: "iframe",
     tier: 2,
     feature: "Lightweight player, good fallbacks",
@@ -377,6 +406,7 @@ export const sources: Source[] = [
   {
     id: "2embed",
     name: "2Embed",
+    publicName: "2Embed",
     type: "iframe",
     tier: 2,
     feature: "Varied quality streams & alternatives",
@@ -389,6 +419,8 @@ export const sources: Source[] = [
         : `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}&color=e50914`
   }
 ];
+
+export const TOP_7_IDS = ["cinemaos", "cinesrc", "vidsrcwtf1", "peachify", "autoembed", "vidsrcwtf2", "smashystream"];
 
 export const getSource = (id?: string): Source =>
   sources.find((s) => s.id === id) || sources[0];

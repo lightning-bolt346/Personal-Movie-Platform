@@ -13,9 +13,10 @@ interface SelectProps {
   onChange: (value: string | number) => void;
   options: SelectOption[];
   placeholder?: string;
+  placement?: 'bottom' | 'top';
 }
 
-export function Select({ value, onChange, options, placeholder = 'Select...' }: SelectProps) {
+export function Select({ value, onChange, options, placeholder = 'Select...', placement = 'bottom' }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +43,7 @@ export function Select({ value, onChange, options, placeholder = 'Select...' }: 
       </button>
       
       {isOpen && (
-        <div data-lenis-prevent="true" className="absolute top-full left-0 right-0 mt-2 bg-void-950 border border-zinc-800 rounded-xl overflow-hidden z-50 max-h-96 overflow-y-auto shadow-2xl origin-top animate-in fade-in zoom-in-95 duration-200">
+        <div data-lenis-prevent="true" className={`absolute ${placement === 'top' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} left-0 right-0 bg-void-950 border border-zinc-800 rounded-xl overflow-hidden z-[9999] max-h-72 overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200`}>
           {options.map(opt => (
             <button
               key={opt.value}

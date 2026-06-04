@@ -105,8 +105,8 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
           paddingTop: '8px',
           paddingBottom: '24px',
           overscrollBehavior: 'contain',
-          touchAction: 'pan-y',
-          willChange: 'transform',
+          touchAction: 'pan-x', // allow horizontal swipe on mobile
+          WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
         }}
       >
         {items.map((item, idx) => (

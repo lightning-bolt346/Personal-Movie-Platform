@@ -23,11 +23,11 @@ function ScrollResetter() {
 export function SmoothScroll({ children }: { children: ReactNode }) {
   return (
     <ReactLenis root options={{
-      lerp: 0.08,            // Smoother responsiveness, less lag spikes
-      smoothWheel: true,     // Smooth scroll for mouse wheel
-      syncTouch: false,      // Let mobile/trackpad native momentum do the work instead of programmatic delay
-      wheelMultiplier: 1,    // Keep speed natural
-      gestureOrientation: 'vertical' // Prevent horizontal scroll capturing
+      lerp: 0.08,
+      smoothWheel: true,
+      syncTouch: false,
+      wheelMultiplier: 1,
+      gestureOrientation: 'vertical'
     }}>
       <ScrollResetter />
       {children}

@@ -1,14 +1,15 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Media } from "@/types/tmdb";
 import { getImageUrl } from "@/lib/tmdb";
 import { cn } from "@/lib/utils";
-import { Bookmark, Trash2, Heart, Play, Star, Plus, Check, ArrowRight } from "lucide-react";
+import { Bookmark, Trash2, Heart, Play, Star, Plus, Check, ArrowRight, Bell, BellOff } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePreferences } from "@/hooks/usePreferences";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useRouter } from "next/navigation";
 
 export function MediaCard({
@@ -16,17 +17,20 @@ export function MediaCard({
   className,
   onRemove,
   variant = 'default',
+  isUpcoming = false,
 }: {
   media: Media & { progress?: number; season?: number; episode?: number; contextType?: 'history' | 'watchlist' | 'favorites' };
   className?: string;
   onRemove?: (id: string, type: 'history' | 'watchlist' | 'favorites') => void;
   variant?: 'default' | 'top10';
+  isUpcoming?: boolean;
 }) {
   const router = useRouter();
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { preferences } = usePreferences();
+  const { hasNotification, toggleNotification } = useNotifications();
 
   const title = media.title || media.name;
   const type = media.media_type || (media.name ? "tv" : "movie");
@@ -57,6 +61,24 @@ export function MediaCard({
         setIsMobileExpanded(true);
       }
     }
+  };
+
+  const toggleReminder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleNotification({
+      id: media.id.toString(),
+      type: type as 'movie'|'tv',
+      title: title || '',
+      poster: media.poster_path,
+      releaseDate: media.release_date || media.first_air_date
+    });
+  };
+
+  const isReminded = hasNotification(media.id.toString());
+
+  const handleReminderClick = (e: React.MouseEvent) => {
+    toggleReminder(e);
   };
 
   return (
@@ -94,9 +116,11 @@ export function MediaCard({
           {/* Desktop Play Button */}
           <div className="absolute inset-0 z-20 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-250">
             <div className="translate-y-3 group-hover:translate-y-0 transition-transform duration-250">
-              <div className="w-12 h-12 bg-black/60 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-md">
-                <Play size={20} className="text-white fill-white ml-1" />
-              </div>
+              {!isUpcoming && (
+                <div className="w-12 h-12 bg-black/60 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-md">
+                  <Play size={20} className="text-white fill-white ml-1" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -113,6 +137,19 @@ export function MediaCard({
             >
               <Bookmark size={12} className={`text-white ${onWatchlist ? 'fill-white' : ''}`} />
             </button>
+            {isUpcoming && (
+              <button
+                onClick={handleReminderClick}
+                className="w-7 h-7 rounded-full flex items-center justify-center transition-[background-color,border-color] duration-150 active:scale-90 shadow-lg"
+                style={{
+                  background: isReminded ? '#e50914' : 'rgba(0,0,0,0.82)',
+                  border: `1px solid ${isReminded ? '#e50914' : 'rgba(255,255,255,0.2)'}`,
+                }}
+                title={isReminded ? "Remove Reminder" : "Set Reminder"}
+              >
+                {isReminded ? <BellOff size={12} className="text-white" /> : <Bell size={12} className="text-white" />}
+              </button>
+            )}
             {(media.contextType === 'history' || media.contextType === 'favorites') && (
               <button
                 onClick={handleFavorite}
@@ -141,6 +178,14 @@ export function MediaCard({
                 >
                    {onWatchlist ? <Check size={14} className="text-white"/> : <Plus size={14} className="text-white" />}
                 </button>
+                {isUpcoming && (
+                  <button
+                    className="w-8 h-8 bg-black/50 border border-white/20 rounded-full flex items-center justify-center backdrop-blur-sm active:scale-90 transition-transform"
+                    onClick={handleReminderClick}
+                  >
+                    {isReminded ? <BellOff size={14} className="text-white"/> : <Bell size={14} className="text-white" />}
+                  </button>
+                )}
                 {(media.contextType === 'history' || media.contextType === 'favorites') && (
                   <button
                     onClick={handleFavorite}
@@ -152,9 +197,11 @@ export function MediaCard({
              </div>
              
              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                 <div className="w-12 h-12 bg-black/60 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-md">
-                     <Play size={20} className="text-white fill-white ml-1" />
-                 </div>
+                 {!isUpcoming && (
+                   <div className="w-12 h-12 bg-black/60 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-md">
+                       <Play size={20} className="text-white fill-white ml-1" />
+                   </div>
+                 )}
              </div>
           </div>
 

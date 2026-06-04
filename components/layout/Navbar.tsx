@@ -1,8 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { Search, User, Home, Film, Tv, Compass, Sparkles } from 'lucide-react';
+import { Search, User, Home, Film, Tv, Compass, Sparkles, CalendarDays } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { SettingsModal } from '@/components/ui/SettingsModal';
+import { Settings } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -10,18 +12,20 @@ const NAV_ITEMS = [
   { href: '/tv', label: 'Series' },
   { href: '/anime', label: 'Anime' },
   { href: '/discover', label: 'Discover' },
+  { href: '/schedule', label: 'Schedule' },
 ];
 
 const MOBILE_DOCK_ITEMS = [
   { href: '/', label: 'Home', Icon: Home },
   { href: '/movies', label: 'Movies', Icon: Film },
   { href: '/tv', label: 'Series', Icon: Tv },
-  { href: '/anime', label: 'Anime', Icon: Sparkles },
   { href: '/discover', label: 'Discover', Icon: Compass },
+  { href: '/schedule', label: 'Schedule', Icon: CalendarDays },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -141,6 +145,7 @@ export function Navbar() {
         <div className="flex items-center gap-4 z-10">
           <Link href="/search" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Search size={20} strokeWidth={2.5} /></Link>
           <div className="w-[1px] h-5 bg-white/30" />
+          <button onClick={() => setIsSettingsOpen(true)} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Settings size={20} strokeWidth={2.5} /></button>
           <Link href="/profile" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><User size={20} strokeWidth={2.5} /></Link>
         </div>
       </nav>
@@ -255,6 +260,13 @@ export function Navbar() {
             >
               <Search size={17} strokeWidth={2} />
             </Link>
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95"
+              aria-label="Settings"
+            >
+              <Settings size={17} strokeWidth={2} />
+            </button>
             <Link
               href="/profile"
               onClick={clearIframes}
@@ -314,6 +326,8 @@ export function Navbar() {
           })}
         </div>
       </nav>
+
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }

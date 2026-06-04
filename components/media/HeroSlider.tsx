@@ -79,7 +79,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
       {/* ── BACKGROUND IMAGE ── */}
       <AnimatePresence initial={false}>
         <motion.div
-          key={`bg-${current.id}`}
+          key={`bg-${current.id}-${currentIndex}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -140,7 +140,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
       <div className="absolute inset-0 z-10 flex flex-col justify-end px-4 sm:px-6 md:px-14 pb-0">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
-            key={`content-${current.id}`}
+            key={`content-${current.id}-${currentIndex}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}

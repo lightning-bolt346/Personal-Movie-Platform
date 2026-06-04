@@ -1,14 +1,16 @@
 import './globals.css';
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import type { Metadata } from 'next';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { SmoothScroll } from '@/components/layout/SmoothScroll';
+import { PageTransition } from '@/components/layout/PageTransition';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
-
-import type { Metadata } from 'next';
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
 
@@ -70,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined') {
@@ -89,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-black text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
-        <SmoothScroll>
+      <SmoothScroll>
           {/* Ambient Background — Zivox Dark Violet */}
           <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden bg-black" style={{ contain: 'strict' }}>
             {/* Primary top-center deep violet core */}
@@ -146,10 +149,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <Navbar />
           <main className="flex-1 flex flex-col pb-20 md:pb-0">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </main>
           <Footer />
-        </SmoothScroll>
+          <ScrollToTop />
+      </SmoothScroll>
+        <Analytics />
       </body>
     </html>
   );

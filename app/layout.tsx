@@ -11,7 +11,7 @@ import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
@@ -123,6 +123,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <JsonLd data={globalSchema} />
+        {/* Google tag (gtag.js) */}
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-6RD41T4D6D" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-6RD41T4D6D');
+          `}
+        </Script>
       </head>
       <body className="bg-black text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
         {/* Ambient Background — Zivox Dark Violet */}
@@ -192,7 +203,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NotificationToaster />
         <SecurityGuard />
         <Analytics />
-        <GoogleAnalytics gaId="G-6RD41T4D6D" />
       </body>
     </html>
   );

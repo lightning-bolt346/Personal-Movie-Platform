@@ -1,4 +1,5 @@
 import { tmdb, getHeroItemsWithLogos } from '@/lib/tmdb';
+import { getCuratedCollections } from '@/lib/collectionsData';
 import { HeroSlider } from '@/components/media/HeroSlider';
 import { ContinueWatching } from '@/components/media/ContinueWatching';
 import { HorizontalRow } from '@/components/media/HorizontalRow';
@@ -9,6 +10,9 @@ import { CollectionsRow } from '@/components/media/CollectionsRow';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Suspense } from 'react';
 import { ThemedLoader } from '@/components/ui/ThemedLoader';
+import { ProvidersGrid } from '@/components/providers/ProvidersGrid';
+import { ProviderHeroShelf } from '@/components/providers/ProviderHeroShelf';
+import { PROVIDERS } from '@/lib/providers';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,10 +29,15 @@ async function HomeDataFetcher() {
     tmdb.discover('tv', { 'first_air_date.gte': '1990-01-01', 'first_air_date.lte': '2014-12-31', 'vote_count.gte': '1500', 'sort_by': 'vote_average.desc' }),
     tmdb.discover('movie', { 'vote_average.gte': '7.2', 'vote_count.gte': '300', 'vote_count.lte': '2500', 'sort_by': 'popularity.desc' }),
     tmdb.discover('tv', { 'vote_average.gte': '7.5', 'vote_count.gte': '200', 'vote_count.lte': '2000', 'sort_by': 'popularity.desc' }),
+    tmdb.discover('movie', { with_watch_providers: '8', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
+    tmdb.discover('movie', { with_watch_providers: '9', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
+    tmdb.discover('movie', { with_watch_providers: '337', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
+    tmdb.discover('movie', { with_watch_providers: '1899', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
+    tmdb.discover('movie', { with_watch_providers: '122', watch_region: 'IN', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
   ]);
   const delayPromise = new Promise(r => setTimeout(r, 2000));
   
-  const [[trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv]] = await Promise.all([
+  const [[trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData, disneyData, maxData, hotstarData]] = await Promise.all([
     fetchPromise,
     delayPromise
   ]);
@@ -47,25 +56,7 @@ async function HomeDataFetcher() {
   ];
 
   // Fetch fresh collection data for the curated row
-  const collectionIds = [263, 119, 230, 131292, 1241, 84, 10, 404609, 87359, 645, 2344, 328, 10194, 173710, 9485];
-  const rawCollections = await Promise.all(collectionIds.map(id => tmdb.getCollection(id.toString())));
-  
-  const CURATED_TAGLINES: Record<number, string> = {
-    263: "Nolan's definitive superhero epic", 119: "The greatest fantasy trilogy", 230: "Cinema's greatest achievement",
-    131292: "The ultimate connected universe", 1241: "The boy who lived", 84: "The original adventure hero",
-    10: "Where it all began", 404609: "Modern action at its finest", 87359: "The best ongoing action franchise",
-    645: "60 years of the greatest spy", 2344: "The sci-fi landmark", 328: "30 years of dino carnage",
-    10194: "Pixar's timeless masterpiece", 173710: "The reboot done right", 9485: "Family. Always."
-  };
-
-  const collectionsData = rawCollections.filter(Boolean).map(c => ({
-    id: c.id,
-    name: c.name.replace(' Collection', ''), // Clean up name
-    backdrop: c.backdrop_path,
-    poster: c.poster_path,
-    movieCount: c.parts?.length || 0,
-    tagline: CURATED_TAGLINES[c.id] || ''
-  }));
+  const collectionsData = await getCuratedCollections();
 
   return (
     <div className="flex flex-col min-h-screen -mt-[72px]">
@@ -106,9 +97,16 @@ async function HomeDataFetcher() {
 
       {/* Content rows */}
       <div className="flex flex-col relative z-20 pb-28 md:pb-16 mt-4 gap-8 md:gap-14">
+        {/* Movie Collections — curated iconic franchises */}
+        {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
+
         <TimeBasedWidget items={widgetPool} />
+        
         <ContinueWatching />
+
         <RecommendedForYou />
+
+        <ProvidersGrid />
 
         {/* Top 10 Today — Custom UI */}
         <Top10Row
@@ -116,18 +114,11 @@ async function HomeDataFetcher() {
           items={trending.results?.slice(0, 10) || []}
         />
 
-        <ContinueWatching />
-
-        <RecommendedForYou />
-
         <HorizontalRow
           title="🔥 Popular Movies"
           items={popMovies.results?.slice(0, 20) || []}
           seeAllHref="/movies"
         />
-
-        {/* Time-Based Suggestion Widget */}
-        <TimeBasedWidget items={widgetPool} />
 
         <HorizontalRow
           title="📺 Trending TV Shows"
@@ -141,8 +132,12 @@ async function HomeDataFetcher() {
           seeAllHref="/anime"
         />
 
-        {/* Movie Collections — curated iconic franchises */}
-        {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
+        {/* Provider Shelves */}
+        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 8)!} title="Trending on Netflix" items={netflixData.results?.slice(0, 20) || []} />
+        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 9)!} title="New on Prime Video" items={primeData.results?.slice(0, 20) || []} />
+        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 337)!} title="Trending on Disney+" items={disneyData.results?.slice(0, 20) || []} />
+        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 1899)!} title="Trending on Max" items={maxData.results?.slice(0, 20) || []} />
+        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 122)!} title="Trending on Hotstar" items={hotstarData.results?.slice(0, 20) || []} />
 
         <HorizontalRow
           title="💎 Top Rated TV Shows"

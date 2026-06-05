@@ -1,3 +1,5 @@
+import { tmdb } from './tmdb';
+
 export const COLLECTION_CATEGORIES: Record<string, number[]> = {
   'Action & Adventure': [
     131292, // Marvel Cinematic Universe
@@ -124,3 +126,25 @@ export const COLLECTION_CATEGORIES: Record<string, number[]> = {
     325076, // Creed
   ]
 };
+
+export async function getCuratedCollections() {
+  const collectionIds = [263, 119, 230, 131292, 1241, 84, 10, 404609, 87359, 645, 2344, 328, 10194, 173710, 9485];
+  const rawCollections = await Promise.all(collectionIds.map(id => tmdb.getCollection(id.toString())));
+  
+  const CURATED_TAGLINES: Record<number, string> = {
+    263: "Nolan's definitive superhero epic", 119: "The greatest fantasy trilogy", 230: "Cinema's greatest achievement",
+    131292: "The ultimate connected universe", 1241: "The boy who lived", 84: "The original adventure hero",
+    10: "Where it all began", 404609: "Modern action at its finest", 87359: "The best ongoing action franchise",
+    645: "60 years of the greatest spy", 2344: "The sci-fi landmark", 328: "30 years of dino carnage",
+    10194: "Pixar's timeless masterpiece", 173710: "The reboot done right", 9485: "Family. Always."
+  };
+
+  return rawCollections.filter(Boolean).map(c => ({
+    id: c.id,
+    name: c.name.replace(' Collection', ''), // Clean up name
+    backdrop: c.backdrop_path,
+    poster: c.poster_path,
+    movieCount: c.parts?.length || 0,
+    tagline: CURATED_TAGLINES[c.id] || ''
+  }));
+}

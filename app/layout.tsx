@@ -10,6 +10,7 @@ import { NotificationToaster } from '@/components/ui/NotificationToaster';
 import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { SecurityGuard } from '@/components/ui/SecurityGuard';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
@@ -188,6 +189,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollToTop />
         <WelcomeModal />
         <NotificationToaster />
+        <SecurityGuard />
         <Analytics />
       </body>
     </html>

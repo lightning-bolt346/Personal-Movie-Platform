@@ -4,6 +4,8 @@ import { FilterableContent } from '@/components/media/FilterableContent';
 import { HorizontalRow } from '@/components/media/HorizontalRow';
 import { HeroSlider } from '@/components/media/HeroSlider';
 import { Top10Row } from '@/components/media/Top10Row';
+import { CollectionsRow } from '@/components/media/CollectionsRow';
+import { getCuratedCollections } from '@/lib/collectionsData';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +34,8 @@ export default async function MoviesPage() {
 
   const top6Trending = trendingMovies.results?.slice(0, 6) || [];
   const heroItemsWithLogos = await getHeroItemsWithLogos(top6Trending);
+  
+  const collectionsData = await getCuratedCollections();
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
   const jsonLd = {
@@ -50,6 +54,9 @@ export default async function MoviesPage() {
 
       {/* Content rows */}
       <div className="flex flex-col relative z-20 mt-4 gap-8 md:gap-14">
+        {/* Movie Collections — curated iconic franchises */}
+        {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
+
         {/* Top 10 Today — Custom UI */}
         <Top10Row
           title="Top 10 Movies Today"

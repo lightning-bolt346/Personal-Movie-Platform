@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSource, sources, TOP_7_IDS, encodeServer, decodeServer } from '@/lib/sources';
-import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, ExternalLink, RotateCcw, Share2, Copy, Twitter, Facebook, MessageCircle } from 'lucide-react';
+import { Settings, Check, X, Heart, Server, Shield, ShieldOff, Play, Maximize, ExternalLink, RotateCcw, Share2, Copy, Twitter, Facebook, MessageCircle, ArrowUp, ArrowUpRight, Sparkles, Globe } from 'lucide-react';
 import { ShareModal } from '@/components/ui/ShareModal';
 import Link from 'next/link';
 import { useWatchHistory } from '@/hooks/useWatchHistory';
@@ -41,6 +41,8 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const [isPortrait, setIsPortrait] = useState(false);
   const [showRotateHint, setShowRotateHint] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialCountdown, setTutorialCountdown] = useState(20);
 
   useEffect(() => {
     setMounted(true);
@@ -75,12 +77,35 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     };
     checkOrientation();
     window.addEventListener('resize', checkOrientation);
+    
+    // ── Tutorial Tracking (Powers of 2) ──
+    try {
+      const visits = parseInt(localStorage.getItem('player_visits') || '0', 10) + 1;
+      localStorage.setItem('player_visits', visits.toString());
+      if (visits > 0 && (visits & (visits - 1)) === 0) {
+        setShowTutorial(true);
+      }
+    } catch (e) {}
+
+    // ── Multilingual Hint Toast ──
+    setTimeout(() => {
+      showToast('For Hindi/Multilingual, switch servers and change audio inside player');
+    }, 6000);
+
     return () => window.removeEventListener('resize', checkOrientation);
   }, []);
   
-  const [testingSources, setTestingSources] = useState(true);
+  const [testingSources, setTestingSources] = useState(!initialServer);
   const [testProgress, setTestProgress] = useState(0);
   const [testingCurrentName, setTestingCurrentName] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  useEffect(() => {
+    if (testingSources) return;
+    setIsConnecting(true);
+    const t = setTimeout(() => setIsConnecting(false), 4000);
+    return () => clearTimeout(t);
+  }, [currentSourceId, testingSources]);
 
   const { addToHistory, history } = useWatchHistory();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -290,8 +315,30 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2000);
+    setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showTutorial && tutorialCountdown > 0) {
+      timer = setInterval(() => {
+        setTutorialCountdown(c => c - 1);
+      }, 1000);
+    } else if (showTutorial && tutorialCountdown <= 0) {
+      setShowTutorial(false);
+    }
+    return () => clearInterval(timer);
+  }, [showTutorial, tutorialCountdown]);
+
+  // Lock scroll when tutorial is active
+  useEffect(() => {
+    if (showTutorial) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [showTutorial]);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -400,7 +447,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     if (sId === 'peachify') {
       setUseSandbox(false);
       localStorage.setItem('sandbox_pref_' + sId, 'false');
-      toastMsg = 'Possible ads and redirects. Sorry we were not able to stop this server work without ads';
+      toastMsg = 'You may get ads. Sorry, we were not able to make this server work without ads.';
     } else if (s.autoDisableSandbox) {
       setUseSandbox(false);
       localStorage.setItem('sandbox_pref_' + sId, 'false');
@@ -435,6 +482,65 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       className="flex flex-col w-full relative bg-void-950 rounded-2xl overflow-hidden border border-zinc-800/60"
     >
       <PlayerToasts key={id} serverName={source.publicName} serverIsNoAds={source.noAds} />
+
+      {/* First-time Tutorial Spotlight - Precise Tooltips */}
+      <AnimatePresence>
+        {showTutorial && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[60] bg-black/50 pointer-events-auto"
+              onClick={() => setShowTutorial(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute top-[48px] left-0 right-0 bottom-0 z-[70] pointer-events-none"
+            >
+              <div className="w-full h-full relative">
+                 {/* LEFT: Servers Pointer */}
+                 <div className="absolute left-2 top-2 flex flex-col items-start w-[45%] md:max-w-[220px]">
+                   <div className="ml-4 md:ml-8 mb-1 text-crimson-400 animate-bounce">
+                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_rgba(229,9,20,0.8)] md:w-6 md:h-6" />
+                   </div>
+                   <div className="bg-void-900/95 border border-crimson-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_rgba(229,9,20,0.3)] pointer-events-auto">
+                     <h4 className="text-crimson-400 font-bold text-[9px] md:text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5"><Server size={10} className="md:w-3 md:h-3" /> Servers & Audio</h4>
+                     <p className="text-zinc-300 text-[8px] md:text-[10px] leading-relaxed">Switch servers to find <strong className="text-white">Multilingual/Hindi</strong> dubs. <span className="text-emerald-400 font-semibold block mt-0.5 flex items-center gap-1"><Globe size={8} className="md:w-3 md:h-3" /> Look for the Globe icon!</span></p>
+                   </div>
+                 </div>
+
+                 {/* RIGHT: Fullscreen & Controls Pointer */}
+                 <div className="absolute right-2 top-2 flex flex-col items-end w-[50%] md:max-w-[260px] text-right">
+                   <div className="mr-4 md:mr-8 mb-1 text-crimson-400 animate-bounce">
+                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_rgba(229,9,20,0.8)] md:w-6 md:h-6" />
+                   </div>
+                   <div className="bg-void-900/95 border border-crimson-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_rgba(229,9,20,0.3)] pointer-events-auto">
+                     <h4 className="text-crimson-400 font-bold text-[9px] md:text-[11px] uppercase tracking-wider mb-1 flex items-center justify-end gap-1.5">Controls & Fullscreen <Settings size={10} className="md:w-3 md:h-3" /></h4>
+                     <p className="text-zinc-300 text-[8px] md:text-[10px] leading-relaxed">
+                       Share, Sandbox (Ad-block), or Favorite.<br/>
+                       <span className="hidden md:block text-emerald-400 font-bold mt-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded">Press F to Fullscreen, Esc/F to exit</span>
+                     </p>
+                   </div>
+                 </div>
+                 
+                 {/* Center 'Got It' Button */}
+                 <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto flex flex-col items-center">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setShowTutorial(false); }}
+                      className="bg-crimson-500 hover:bg-crimson-600 text-white font-black py-2 md:py-3 px-8 md:px-12 rounded-xl transition-all shadow-[0_0_30px_rgba(229,9,20,0.4)] text-base md:text-lg active:scale-95 flex flex-col items-center border border-crimson-400"
+                    >
+                      <span className="tracking-wide uppercase">Got it!</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-crimson-100 mt-1 uppercase tracking-widest bg-crimson-900/40 px-2 py-0.5 rounded">Time left: {tutorialCountdown}s</span>
+                    </button>
+                 </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Inline toast message (server switch) via portal */}
       {mounted && typeof document !== 'undefined' && createPortal(
@@ -527,7 +633,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                             <button
                               key={s.id}
                               onClick={() => handleSwitchServer(s.id)}
-                              className={`group flex flex-col justify-between p-4 rounded-2xl transition-all duration-300 border text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
+                              className={`group flex flex-col justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-300 border text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
                                 isActive 
                                   ? 'bg-gradient-to-br from-crimson-500/20 via-crimson-500/10 to-transparent border-crimson-500/50 text-white shadow-[0_0_20px_rgba(229,9,20,0.15)]' 
                                   : 'bg-void-900/60 border-zinc-800/80 text-zinc-300 hover:bg-zinc-800/40 hover:border-zinc-700 hover:text-white'
@@ -550,7 +656,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                               </div>
                               <div className="mt-3 z-10 flex-1 flex flex-col">
                                 <span className="text-sm font-bold leading-tight block mb-1 font-display">{displayName}</span>
-                                {s.feature && <span className="text-[10px] text-zinc-400 leading-snug mb-3">{s.feature}</span>}
+                                {s.feature && <span className="hidden sm:block text-[10px] text-zinc-400 leading-snug mb-3">{s.feature}</span>}
                                 <div className="flex items-center gap-1.5 mt-auto flex-wrap">
                                   {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">✓ No Ads</span>}
                                   {s.hasPopups && <span className="text-[9px] font-bold text-zinc-500 bg-black/50 px-1.5 py-0.5 rounded border border-white/5">Popups</span>}
@@ -817,7 +923,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
       {/* ── PLAYER TOP BAR ── */}
       {!isFullscreen && (
-        <div className="flex items-center justify-between gap-2 px-2.5 py-2 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
+        <div className="relative flex items-center justify-between gap-2 px-2.5 py-2 bg-void-950 border-b border-zinc-800/60 shrink-0 w-full">
+          {/* Desktop Fullscreen Hint */}
+          <div className="hidden md:flex absolute -top-6 right-2 text-zinc-500 font-medium tracking-wide text-[10px] pointer-events-none">
+            Press <span className="text-zinc-300 font-bold mx-1">F</span> to fullscreen and <span className="text-zinc-300 font-bold mx-1">ESC/F</span> to exit
+          </div>
+          
           {/* Left: Servers & Settings button + current server info */}
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
@@ -1020,7 +1131,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       })()}
 
 
-      <div className={`relative w-full bg-black ${isFullscreen ? 'flex-1 h-full' : 'aspect-[4/3] sm:aspect-video'}`}>
+      <div className={`relative w-full bg-black transition-all ${isFullscreen ? 'flex-1 h-full' : isPortrait ? 'aspect-[4/3] min-h-[380px] sm:aspect-video' : 'aspect-video'}`}>
 
         {testingSources ? (
           <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-hidden">
@@ -1084,13 +1195,53 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             </div>
           </div>
         ) : (
-          <iframe
-            key={`iframe-${currentSourceId}-${useSandbox ? 'sandbox' : 'nosandbox'}`}
-            src={embedUrl}
-            className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            sandbox={sandboxAttrs}
-          />
+          <>
+            <iframe
+              key={`iframe-${currentSourceId}-${useSandbox ? 'sandbox' : 'nosandbox'}`}
+              src={embedUrl}
+              className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              sandbox={sandboxAttrs}
+            />
+            {/* 4-Second "Connecting" Overlay */}
+            <AnimatePresence>
+              {isConnecting && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 z-30 bg-void-950 flex flex-col items-center justify-center p-4 text-center pointer-events-none"
+                >
+                  {poster && (
+                    <div
+                      className="absolute inset-0 opacity-10"
+                      style={{
+                        backgroundImage: `url(https://image.tmdb.org/t/p/w500${poster})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        filter: 'blur(30px) saturate(1.2)',
+                      }}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-void-950 to-void-950/50" />
+                  
+                  <div className="relative z-10 flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 rounded-full border-2 border-crimson-500/20 border-t-crimson-500 animate-spin" style={{ animationDuration: '0.8s' }} />
+                    <div>
+                      <h3 className="text-sm font-bold font-display uppercase tracking-widest text-white mb-1">
+                        Connecting to Server
+                      </h3>
+                      <p className="text-[10px] text-zinc-400">
+                        Loading <span className="text-crimson-400 font-bold">{source.publicName}</span> secure connection...
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
         )}
 
         <AnimatePresence>

@@ -159,7 +159,7 @@ export function UpcomingBanner({
         <div className="w-full md:w-[320px] shrink-0 mx-auto md:mx-0">
           <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
             <Image
-              src={getImageUrl(media.poster_path || media.backdrop_path, 'w780')}
+              src={getImageUrl(media.poster_path || media.backdrop_path, 'w780', media.title || media.name, (media.release_date || media.first_air_date || '').substring(0, 4))}
               alt={title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"

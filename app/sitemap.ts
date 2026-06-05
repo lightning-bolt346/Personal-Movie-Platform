@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { tmdb } from '@/lib/tmdb';
 import { getAllGenres } from '@/lib/genres';
 import { generateSlug } from '@/lib/utils';
+import { PROVIDERS } from '@/lib/providers';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
@@ -53,6 +54,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const providerUrls = PROVIDERS.map((provider) => ({
+    url: `${baseUrl}/providers/${provider.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }));
+
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${baseUrl}/movies`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.95 },
@@ -62,10 +70,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.75 },
     { url: `${baseUrl}/schedule`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/guide`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    ...genreUrls,
-    ...yearUrls,
+    { url: `${baseUrl}/anime`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/providers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    ...providerUrls,
     ...movieUrls,
     ...tvUrls,
+    ...genreUrls,
+    ...yearUrls,
   ];
 }

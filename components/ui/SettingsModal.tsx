@@ -29,6 +29,18 @@ const LANGUAGES = [
   { id: 'ru', name: 'Russian' }
 ];
 
+const REGIONS = [
+  { id: 'IN', name: 'India' },
+  { id: 'US', name: 'United States' },
+  { id: 'GB', name: 'United Kingdom' },
+  { id: 'CA', name: 'Canada' },
+  { id: 'AU', name: 'Australia' },
+  { id: 'JP', name: 'Japan' },
+  { id: 'KR', name: 'South Korea' },
+  { id: 'FR', name: 'France' },
+  { id: 'DE', name: 'Germany' }
+];
+
 type TabId = 'content' | 'playback' | 'data';
 
 export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -103,6 +115,21 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             exit={{ opacity: 0, x: -10 }}
             className="space-y-8"
           >
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                Primary Region
+              </h3>
+              <p className="text-xs text-zinc-500 mb-4">Set your default region to see accurate streaming platform availability.</p>
+              <select
+                value={preferences.country || 'US'}
+                onChange={(e) => updatePreferences({ country: e.target.value })}
+                className="bg-zinc-900/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjMgNiA2IDkgOSA2Ii8+PC9zdmc+')] bg-no-repeat bg-[position:calc(100%-15px)_center] w-full md:w-64"
+              >
+                {REGIONS.map(r => <option key={r.id} value={r.id} className="bg-zinc-900">{r.name}</option>)}
+              </select>
+            </section>
+
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
                 <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>

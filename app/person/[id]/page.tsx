@@ -29,20 +29,14 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
       <div className="flex flex-col md:flex-row gap-8 mb-12">
         <div className="w-full md:w-64 flex-shrink-0">
           <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-crimson-sm group">
-            {person.profile_path ? (
-              <Image 
-                src={getImageUrl(person.profile_path, 'w500')} 
-                alt={person.name} 
-                fill 
-                sizes="(max-width: 768px) 100vw, 256px"
-                className="object-cover" 
-                priority
-              />
-            ) : (
-              <div className="flex items-center justify-center w-full h-full text-zinc-600 font-bold text-center p-4">
-                No Image
-              </div>
-            )}
+            <Image 
+              src={getImageUrl(person.profile_path, 'w500', person.name)} 
+              alt={person.name} 
+              fill 
+              sizes="(max-width: 768px) 100vw, 256px"
+              className="object-cover" 
+              priority
+            />
           </div>
         </div>
         

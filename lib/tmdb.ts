@@ -249,8 +249,18 @@ export const tmdb = {
 export const getImageUrl = (
   path: string | null,
   size: "original" | "w500" | "w780" = "original",
+  title?: string,
+  year?: string
 ) => {
-  if (!path || path === "/xoarZqQav1T9r6TzylsB2x1q0v6.jpg" || path === "/vWpeqwGcGZAm724HwO2yK8xLheP.jpg") return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%2318181b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='24' fill='%2352525b' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+  if (!path || path === "/xoarZqQav1T9r6TzylsB2x1q0v6.jpg" || path === "/vWpeqwGcGZAm724HwO2yK8xLheP.jpg") {
+    if (title) {
+      // Create a beautifully designed SVG fallback
+      const encodedTitle = encodeURIComponent(title.length > 25 ? title.substring(0, 25) + '...' : title).replace(/'/g, "%27");
+      const encodedYear = year ? encodeURIComponent(year) : '';
+      return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231f1f2e' /%3E%3Cstop offset='100%25' stop-color='%230d0d12' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='600' fill='url(%23grad)'/%3E%3Crect width='400' height='600' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='4'/%3E%3Ctext x='50%25' y='45%25' font-family='system-ui, -apple-system, sans-serif' font-size='28' font-weight='800' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'%3E${encodedTitle}%3C/text%3E%3Ctext x='50%25' y='53%25' font-family='system-ui, -apple-system, sans-serif' font-size='18' font-weight='600' fill='%23a1a1aa' text-anchor='middle' dominant-baseline='middle' letter-spacing='2'%3E${encodedYear}%3C/text%3E%3C/svg%3E`;
+    }
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%2318181b'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='24' fill='%2352525b' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+  }
   return `https://image.tmdb.org/t/p/${size}${path}`;
 };
 

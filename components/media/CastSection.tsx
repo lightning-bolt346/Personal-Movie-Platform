@@ -56,13 +56,7 @@ export function CastSection({ cast, crew, createdBy }: {
           {topCast.map((person, idx) => (
             <Link key={`${person.id}-${idx}`} href={`/person/${person.id}`} className="flex flex-col gap-2 group transition-transform hover:scale-105 active:scale-95">
               <div className="relative aspect-[2/3] w-full rounded-lg overflow-hidden bg-zinc-900 border border-zinc-800">
-                {person.profile_path ? (
-                  <Image src={getImageUrl(person.profile_path, 'w500')} alt={person.name} fill sizes="(max-width: 768px) 33vw, (max-width: 1024px) 20vw, 160px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-zinc-600 font-bold text-center text-xs p-2">
-                    No Image
-                  </div>
-                )}
+                <Image src={getImageUrl(person.profile_path, 'w500', person.name)} alt={person.name} fill sizes="(max-width: 768px) 33vw, (max-width: 1024px) 20vw, 160px" className="object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
               <div>
                 <p className="text-xs font-semibold text-white leading-tight line-clamp-1">{person.name}</p>

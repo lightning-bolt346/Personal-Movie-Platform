@@ -101,7 +101,7 @@ export const MediaCard = memo(function MediaCard({
           />
           {/* Poster */}
           <Image
-            src={getImageUrl(media.poster_path, "w500")}
+            src={getImageUrl(media.poster_path, "w500", title, year)}
             alt={title || "Poster"}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 15vw"

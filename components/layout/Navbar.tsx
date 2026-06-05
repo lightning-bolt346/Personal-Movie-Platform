@@ -76,9 +76,7 @@ export function Navbar() {
 
   if (pathname?.startsWith('/watch')) {
     return (
-      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%)' }}
-      >
+      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none">
         <div className="flex items-center gap-4 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-950/80 hover:border-white/20">
            <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
              <span

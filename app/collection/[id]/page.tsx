@@ -54,14 +54,11 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
           <div className="absolute inset-0 flex flex-wrap opacity-20 blur-3xl scale-110 pointer-events-none overflow-hidden">
             {items.slice(0, 4).map((item: any) => (
               <div key={item.id} className="relative w-1/2 h-1/2">
-                {item.poster_path && (
-                  <Image
-                    src={getImageUrl(item.poster_path, 'w500')}
-                    alt=""
-                    fill
-                    className="object-cover"
-                  />
-                )}
+                <Image 
+                  src={getImageUrl(item.poster_path, 'w500', item.title || item.name, (item.release_date || item.first_air_date || '').substring(0, 4))} 
+                  alt={item.title || item.name || 'Poster'} 
+                  fill 
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"                />
               </div>
             ))}
           </div>

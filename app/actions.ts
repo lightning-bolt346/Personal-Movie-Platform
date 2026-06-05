@@ -138,8 +138,18 @@ export async function searchMedia(
     }
   }
 
-  // Filter out any 'person' media types
-  results = results.filter(item => item.media_type !== 'person');
+  // Filter out 'person' media types and unreleased content
+  const now = new Date().toISOString().split('T')[0];
+  results = results.filter(item => {
+    if (item.media_type === 'person') return false;
+    
+    // Check release dates. If in the future or completely missing (TBA), hide it.
+    const releaseDate = item.release_date || item.first_air_date;
+    if (!releaseDate) return false;
+    if (releaseDate > now) return false;
+    
+    return true;
+  });
 
   // Sort by popularity desc
   results.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
@@ -155,7 +165,14 @@ export async function searchMedia(
 export async function getSearchSuggestions(): Promise<Media[]> {
   try {
     const res = await tmdb.getTrending("all");
-    return (res.results || []).filter(item => item.media_type !== 'person');
+    const now = new Date().toISOString().split('T')[0];
+    return (res.results || []).filter(item => {
+      if (item.media_type === 'person') return false;
+      const releaseDate = item.release_date || item.first_air_date;
+      if (!releaseDate) return false;
+      if (releaseDate > now) return false;
+      return true;
+    });
   } catch (err) {
     console.error("Failed to fetch suggestions:", err);
     return [];

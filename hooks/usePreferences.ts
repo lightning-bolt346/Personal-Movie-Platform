@@ -7,6 +7,7 @@ export type Preferences = {
   contentLanguage: string;
   originalLanguage: string[];
   showRatings: boolean;
+  country: string;
 };
 
 const defaultPreferences: Preferences = {
@@ -15,6 +16,7 @@ const defaultPreferences: Preferences = {
   contentLanguage: 'en-US',
   originalLanguage: [],
   showRatings: true,
+  country: 'US',
 };
 
 export function usePreferences() {

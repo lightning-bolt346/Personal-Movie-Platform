@@ -6,10 +6,11 @@ import { getImageUrl } from '@/lib/tmdb';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useNotifications } from '@/hooks/useNotifications';
 import { TrailerModal } from '@/components/media/TrailerModal';
 import {
   CalendarDays, Clock, Bell, BellOff, Bookmark, Heart, Video,
-  MapPin, Tv, Film, Radio
+  MapPin, Tv, Film, Radio, Check
 } from 'lucide-react';
 import { storage } from '@/lib/storage';
 
@@ -86,30 +87,26 @@ export function UpcomingBanner({
 
   const trailer = media.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
   const [trailerOpen, setTrailerOpen] = useState(false);
-  const [reminded, setReminded] = useState(false);
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { hasNotification, toggleNotification } = useNotifications();
+
   const onWatchlist = isInWatchlist(idStr);
   const onFavorites = isFavorite(idStr);
+  const hasReminder = hasNotification(idStr);
 
   const bgColor = useAmbientColor(getImageUrl(media.poster_path || media.backdrop_path, 'w500'));
 
-  // Persist "reminded" to local storage keyed by id
-  useEffect(() => {
-    const stored = storage.get();
-    const reminders: string[] = (stored as any).reminders || [];
-    setReminded(reminders.includes(idStr));
-  }, [idStr]);
 
   const toggleReminder = () => {
-    const stored = storage.get();
-    const reminders: string[] = (stored as any).reminders || [];
-    const next = reminded
-      ? reminders.filter(r => r !== idStr)
-      : [...reminders, idStr];
-    storage.set({ ...(stored as any), reminders: next });
-    setReminded(!reminded);
+    toggleNotification({
+      id: idStr,
+      type: ('title' in media || (media as any).media_type === 'movie') ? 'movie' : 'tv',
+      title,
+      poster: media.poster_path,
+      releaseDate: meta.nextEpisodeDate || meta.releaseDate,
+    });
   };
 
   useEffect(() => {
@@ -231,17 +228,17 @@ export function UpcomingBanner({
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-4">
             {/* Remind Me button */}
-            <button
-              onClick={toggleReminder}
-              className={`flex items-center justify-center gap-2 px-8 py-4 rounded-xl transition-all font-bold uppercase tracking-widest text-sm shadow-xl active:scale-95 ${
-                reminded
-                  ? 'bg-crimson-500 hover:bg-crimson-600 text-white shadow-crimson-500/20'
-                  : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
-              }`}
-            >
-              {reminded ? <BellOff size={18} /> : <Bell size={18} />}
-              {reminded ? 'Reminder Set' : 'Remind Me'}
-            </button>
+              <button
+                onClick={toggleReminder}
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm transition-colors shadow-lg active:scale-95 ${
+                  hasReminder
+                    ? 'bg-crimson-600 hover:bg-crimson-500 text-white shadow-crimson-500/30'
+                    : 'bg-white/10 hover:bg-white/20 text-white shadow-black/20'
+                }`}
+              >
+                {hasReminder ? <Check size={16} /> : <Bell size={16} />}
+                {hasReminder ? 'Reminder Set' : 'Remind Me'}
+              </button>
 
             {/* Trailer */}
             {trailer && (

@@ -488,7 +488,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 initial={{ scale: 0.98, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.98, y: 20, opacity: 0 }}
-                className="bg-void-900/95 backdrop-blur-2xl border-t sm:border border-white/10 sm:rounded-2xl w-full sm:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden mt-auto sm:mt-0"
+                className="bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-2xl w-full max-w-[calc(100vw-2rem)] sm:max-w-5xl h-[85vh] sm:h-auto sm:max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden mt-auto mb-4 sm:mb-0 sm:mt-0"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Background glows */}
@@ -916,7 +916,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
           : [...top7];
 
         return (
-          <div className="px-3 pt-2.5 pb-1.5 bg-void-950 border-b border-zinc-800/40 shrink-0">
+          <div className={`px-3 pt-2.5 pb-1.5 bg-void-950 border-b border-zinc-800/40 shrink-0 ${isFullscreen ? 'hidden' : ''}`}>
             {/* Desktop: all 7 always visible */}
             <div className="hidden lg:flex items-center gap-1.5 flex-wrap">
               {top7.map((s) => {
@@ -1020,7 +1020,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       })()}
 
 
-      <div className="relative w-full aspect-video bg-black">
+      <div className={`relative w-full bg-black ${isFullscreen ? 'flex-1 h-full' : 'aspect-[4/3] sm:aspect-video'}`}>
 
         {testingSources ? (
           <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-hidden">

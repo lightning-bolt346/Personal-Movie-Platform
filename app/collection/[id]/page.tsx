@@ -35,36 +35,57 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
-        <BackButton />
-      </div>
       {/* Hero Header */}
-      <div className="relative w-full h-[50vh] md:h-[60vh]">
-        <div className="absolute inset-0 bg-void-950/80 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/60 to-transparent z-10" />
+      <div className="relative w-full min-h-[50vh] md:min-h-[60vh] flex flex-col pt-24 pb-12">
+        <div className="absolute inset-0 bg-void-950/80 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/60 to-transparent z-10 pointer-events-none" />
         
-        {collection.backdrop_path && (
+        {/* Real Backdrop */}
+        {collection.backdrop_path ? (
           <Image
             src={getImageUrl(collection.backdrop_path, 'original')}
             alt={collection.name}
             fill
             priority
-            className="object-cover object-top opacity-50"
+            className="object-cover object-top opacity-50 pointer-events-none"
           />
+        ) : (
+          /* Fallback Mosaic Backdrop if TMDB has no backdrop */
+          <div className="absolute inset-0 flex flex-wrap opacity-20 blur-3xl scale-110 pointer-events-none overflow-hidden">
+            {items.slice(0, 4).map((item: any) => (
+              <div key={item.id} className="relative w-1/2 h-1/2">
+                {item.poster_path && (
+                  <Image
+                    src={getImageUrl(item.poster_path, 'w500')}
+                    alt=""
+                    fill
+                    className="object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         )}
         
-        <div className="absolute inset-0 z-20 flex flex-col justify-end max-w-7xl mx-auto px-4 pb-12">
-          <h1 className="text-4xl md:text-6xl font-display font-black text-white mb-4 drop-shadow-lg">
-            {collection.name}
-          </h1>
-          <p className="text-zinc-300 max-w-3xl text-sm md:text-base leading-relaxed drop-shadow-md">
-            {collection.overview}
-          </p>
+        <div className="relative z-20 flex-1 flex flex-col justify-end max-w-7xl mx-auto px-4 w-full h-full">
+          {/* Back button now explicitly routes to Home so user starts at the top, avoiding footer flash */}
+          <div className="mb-auto pt-4 md:pt-8">
+            <BackButton href="/" />
+          </div>
+
+          <div className="mt-12 md:mt-auto">
+            <h1 className="text-4xl md:text-6xl font-display font-black text-white mb-4 drop-shadow-lg leading-tight">
+              {collection.name}
+            </h1>
+            <p className="text-zinc-300 max-w-3xl text-sm md:text-base leading-relaxed drop-shadow-md">
+              {collection.overview}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="max-w-7xl mx-auto px-4 w-full -mt-8 relative z-30 pb-20">
+      <div className="max-w-7xl mx-auto px-4 w-full relative z-30 pb-20 pt-8">
         <MediaGrid title={`${items.length} Movies`} items={items} />
       </div>
     </div>

@@ -4,7 +4,7 @@ import { MediaDetails } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';
 import { getSeasonDetailsAction } from '@/app/actions';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
-import { ChevronDown, Play, Star, CheckCircle2, Circle, ArrowLeft, Share2, Check } from 'lucide-react';
+import { ChevronDown, Play, Star, CheckCircle2, Circle, ArrowLeft, Share2, Check, CalendarDays, Bell } from 'lucide-react';
 import { ShareModal } from '@/components/ui/ShareModal';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -15,6 +15,7 @@ import { TrailerModal } from '@/components/media/TrailerModal';
 import { CastSection } from '@/components/media/CastSection';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Bookmark, Heart, Video } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
@@ -152,9 +153,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { hasNotification, toggleNotification } = useNotifications();
   const idStr = show.id.toString();
   const onWatchlist = isInWatchlist(idStr);
   const onFavorites = isFavorite(idStr);
+  const hasReminder = hasNotification(idStr);
 
   useEffect(() => {
     if (isUpcoming) return; // don't load episodes for fully upcoming shows
@@ -258,11 +261,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             <UpcomingBanner media={show} meta={meta} />
           )}
 
-          {/* Mid-season "next episode" info: rendered inside UpcomingBanner's strip,
-              but we still show the player below for available episodes */}
-          {tvState === 'mid_season' && (
-            <UpcomingBanner media={show} meta={meta} />
-          )}
+          {/* Mid-season "next episode" info will now be integrated directly into the player below */}
 
           {/* ── Player section ── */}
           <div className={`flex gap-8 transition-all duration-500 ${isPlaying ? 'flex-col items-center' : 'flex-col xl:flex-row'}`}>
@@ -360,6 +359,25 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       {show.episode_run_time?.[0] ? <span>~{show.episode_run_time[0]}m per EP</span> : null}
                       {show.status && (
                         <span className="border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 rounded text-[10px] uppercase">{show.status}</span>
+                      )}
+                      
+                      {tvState === 'mid_season' && meta.nextEpisodeDate && (
+                        <div className="flex items-center gap-1.5 border border-crimson-500/30 bg-crimson-500/10 px-2 py-0.5 rounded">
+                           <CalendarDays size={12} className="text-crimson-400" />
+                           <span className="text-[10px] uppercase font-bold text-crimson-400">
+                             Ep {meta.nextEpisodeNumber} in {Math.max(1, Math.ceil((new Date(meta.nextEpisodeDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)))}d
+                           </span>
+                           <div className="w-[1px] h-3 bg-crimson-500/30 mx-0.5" />
+                           <button 
+                             onClick={() => toggleNotification({
+                               id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, releaseDate: meta.nextEpisodeDate!
+                             })}
+                             className="opacity-70 hover:opacity-100 hover:text-white transition-opacity outline-none"
+                             title={hasReminder ? 'Remove Reminder' : 'Remind Me'}
+                           >
+                             {hasReminder ? <Check size={12} className="text-green-400" /> : <Bell size={12} />}
+                           </button>
+                        </div>
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">

@@ -7,9 +7,14 @@ import { RecommendedForYou } from '@/components/media/RecommendedForYou';
 import { TimeBasedWidget } from '@/components/home/TimeBasedWidget';
 import { CollectionsRow } from '@/components/media/CollectionsRow';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { Suspense } from 'react';
+import { ThemedLoader } from '@/components/ui/ThemedLoader';
 
-export default async function Home() {
-  const [trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv] = await Promise.all([
+export const dynamic = 'force-dynamic';
+
+async function HomeDataFetcher() {
+  // Artificial delay to ensure loading animation is visible for at least 2 seconds as requested
+  const fetchPromise = Promise.all([
     tmdb.getTrending('all'),
     tmdb.getPopular('movie'),
     tmdb.getPopular('tv'),
@@ -20,6 +25,12 @@ export default async function Home() {
     tmdb.discover('tv', { 'first_air_date.gte': '1990-01-01', 'first_air_date.lte': '2014-12-31', 'vote_count.gte': '1500', 'sort_by': 'vote_average.desc' }),
     tmdb.discover('movie', { 'vote_average.gte': '7.2', 'vote_count.gte': '300', 'vote_count.lte': '2500', 'sort_by': 'popularity.desc' }),
     tmdb.discover('tv', { 'vote_average.gte': '7.5', 'vote_count.gte': '200', 'vote_count.lte': '2000', 'sort_by': 'popularity.desc' }),
+  ]);
+  const delayPromise = new Promise(r => setTimeout(r, 2000));
+  
+  const [[trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv]] = await Promise.all([
+    fetchPromise,
+    delayPromise
   ]);
 
   const top6Trending = trending.results?.slice(0, 6) || [];
@@ -35,6 +46,27 @@ export default async function Home() {
     ...(topTv.results || [])
   ];
 
+  // Fetch fresh collection data for the curated row
+  const collectionIds = [263, 119, 230, 131292, 1241, 84, 10, 404609, 87359, 645, 2344, 328, 10194, 173710, 9485];
+  const rawCollections = await Promise.all(collectionIds.map(id => tmdb.getCollection(id.toString())));
+  
+  const CURATED_TAGLINES: Record<number, string> = {
+    263: "Nolan's definitive superhero epic", 119: "The greatest fantasy trilogy", 230: "Cinema's greatest achievement",
+    131292: "The ultimate connected universe", 1241: "The boy who lived", 84: "The original adventure hero",
+    10: "Where it all began", 404609: "Modern action at its finest", 87359: "The best ongoing action franchise",
+    645: "60 years of the greatest spy", 2344: "The sci-fi landmark", 328: "30 years of dino carnage",
+    10194: "Pixar's timeless masterpiece", 173710: "The reboot done right", 9485: "Family. Always."
+  };
+
+  const collectionsData = rawCollections.filter(Boolean).map(c => ({
+    id: c.id,
+    name: c.name.replace(' Collection', ''), // Clean up name
+    backdrop: c.backdrop_path,
+    poster: c.poster_path,
+    movieCount: c.parts?.length || 0,
+    tagline: CURATED_TAGLINES[c.id] || ''
+  }));
+
   return (
     <div className="flex flex-col min-h-screen -mt-[72px]">
       <JsonLd data={{
@@ -44,9 +76,9 @@ export default async function Home() {
             '@type': 'WebSite',
             '@id': `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/#website`,
             name: 'ZIVOX',
-            alternateName: ['Zivox TV', 'Zivox Anime', 'Zivox Shows', 'Zivox Movies', 'Zivox Vercel', 'zivox online movie', 'zivox hindi movie'],
+            alternateName: ['Zivox TV', 'Zivox Anime', 'Zivox Shows', 'Zivox Movies', 'Zivox App', 'Zivox Official'],
             url: process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app',
-            description: 'Free premium streaming platform for movies, TV shows, and anime in HD quality. The ultimate alternative to Netmirror, Pikashow, Fmovies, and 123movies.',
+            description: 'Free premium streaming platform for movies, TV shows, and anime in HD quality without ads.',
             potentialAction: {
               '@type': 'SearchAction',
               target: {
@@ -84,26 +116,21 @@ export default async function Home() {
           items={trending.results?.slice(0, 10) || []}
         />
 
-        <HorizontalRow
-          title="🔥 Trending Now"
-          items={trending.results?.slice(6, 20) || []}
-          seeAllHref="/movies"
-        />
+        <ContinueWatching />
+
+        <RecommendedForYou />
 
         <HorizontalRow
-          title="🍿 Popular Movies"
+          title="🔥 Popular Movies"
           items={popMovies.results?.slice(0, 20) || []}
           seeAllHref="/movies"
         />
 
-        <HorizontalRow
-          title="🌟 Top Rated Movies"
-          items={topMovies.results?.slice(0, 20) || []}
-          seeAllHref="/movies"
-        />
+        {/* Time-Based Suggestion Widget */}
+        <TimeBasedWidget items={widgetPool} />
 
         <HorizontalRow
-          title="📺 Popular TV Shows"
+          title="📺 Trending TV Shows"
           items={popTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />
@@ -115,14 +142,70 @@ export default async function Home() {
         />
 
         {/* Movie Collections — curated iconic franchises */}
-        <CollectionsRow />
+        {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
 
         <HorizontalRow
           title="💎 Top Rated TV Shows"
           items={topTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />
+        
+        {/* Semantic SEO Block for Home Page */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full mt-12 mb-8">
+          <div className="bg-void-900/50 border border-zinc-800/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+            <h2 className="text-xl md:text-2xl font-bold font-display text-white mb-4">Watch Movies & TV Shows Free Online in HD</h2>
+            <div className="prose prose-sm prose-invert max-w-none text-zinc-400 space-y-4">
+              <p>
+                Welcome to <strong>ZIVOX</strong>, your premier destination to <a href="/movies" className="text-crimson-400 hover:underline">watch free movies online</a> and stream the latest TV series in stunning 1080p and 4K HD quality. Whether you're looking for Hollywood blockbusters, critically acclaimed indie films, or ongoing television episodes, ZIVOX offers an unparalleled streaming experience without the need for registration or expensive subscriptions.
+              </p>
+              <p>
+                As a leading 2026 streaming platform, ZIVOX features a massive library of constantly updated content. From <a href="/anime" className="text-pink-400 hover:underline">subbed and dubbed Anime</a> to classic cinema and trending internet series, our fast servers ensure buffer-free playback on any device.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h3 className="text-white font-bold text-base mb-2">Why Choose ZIVOX?</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>No Registration Required:</strong> Start watching instantly.</li>
+                    <li><strong>Premium HD Quality:</strong> 1080p and 4K streams available.</li>
+                    <li><strong>Massive Library:</strong> Over 100,000 titles spanning all genres.</li>
+                    <li><strong>Daily Updates:</strong> New episodes and theatrical releases added daily.</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-base mb-2">Popular Categories</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><a href="/movies" className="hover:text-white transition-colors">Free HD Movies Online</a></li>
+                    <li><a href="/tv" className="hover:text-white transition-colors">Binge-Watch TV Series</a></li>
+                    <li><a href="/anime" className="hover:text-white transition-colors">Top Anime Releases</a></li>
+                    <li><a href="/discover" className="hover:text-white transition-colors">Discover New Cinematic Gems</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+  
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "ZIVOX - Watch Free Movies and TV Shows",
+    "url": siteUrl,
+    "description": "Stream ZIVOX online movie collections in HD without ads or registration. Watch free movies online, hindi dubbed movies, and top rated cinema.",
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen w-full">
+      <JsonLd data={jsonLd} />
+      <Suspense fallback={<ThemedLoader theme="home" />}>
+        <HomeDataFetcher />
+      </Suspense>
     </div>
   );
 }

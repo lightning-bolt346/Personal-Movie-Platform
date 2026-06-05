@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Film, Tv, Zap, Github, Twitter } from 'lucide-react';
+import { Github, Twitter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
@@ -145,52 +145,22 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Attribution & Status */}
+          {/* Contact & Legal */}
           <div>
             <h3 className="text-xs font-bold tracking-[0.15em] uppercase text-white/30 mb-4">
-              Powered By
+              Contact Us
             </h3>
             <div className="flex flex-col gap-3">
-              {/* TMDB */}
-              <div
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-fit"
-                style={{
-                  background: 'rgba(1,180,228,0.08)',
-                  border: '1px solid rgba(1,180,228,0.15)',
-                }}
-              >
-                <Film size={14} className="text-[#01b4e4]" />
-                <span className="text-xs font-semibold text-white">
-                  TMDB API
-                </span>
-              </div>
-              {/* Next.js & React */}
-              <div
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-fit"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}
-              >
-                <Zap size={14} className="text-white" />
-                <span className="text-xs font-semibold text-white">
-                  Next.js 16
-                </span>
-              </div>
-              {/* Status */}
-              <div className="flex items-center gap-2 mt-1">
-                <span
-                  className="w-2 h-2 rounded-full bg-green-500"
-                  style={{ boxShadow: '0 0 6px rgba(34,197,94,0.7)' }}
-                />
-                <span className="text-xs font-mono text-green-500/70">
-                  All systems operational
-                </span>
-              </div>
+              <a href="mailto:zivox.tv@proton.me" className="text-sm font-medium text-white hover:text-crimson-400 transition-colors">
+                zivox.tv@proton.me
+              </a>
+              <p className="text-xs text-white/40">
+                For business inquiries, DMCA notices, or support.
+              </p>
             </div>
 
             {/* Legal links */}
-            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6">
+            <div className="flex flex-col gap-2 mt-6">
               {LEGAL_LINKS.map(({ label, href }) => (
                 <Link
                   key={label}
@@ -211,12 +181,7 @@ export function Footer() {
           </p>
         </div>
 
-        {/* SEO Hidden Content Block */}
-        <div className="pt-8 pb-4 mt-8 border-t border-white/5 max-w-7xl mx-auto">
-          <p className="text-[10px] text-zinc-600/50 leading-relaxed text-justify font-sans selection:bg-transparent cursor-default">
-            Zivox is the ultimate platform to watch free movies online, including zivox hindi movie releases, zivox anime, and exclusive zivox shows. Built as the premier alternative to netmirror, pikashow, 123movies, fmovies, soap2day, bflix, flixhq, yesmovies, goku.to, putlocker, solarmovie, movies2watch, sflix, hurawatch, hdtoday, cineb, myflixer, losmovies, himovies, braflix, and movie-web. Stream zivox online movie collections in HD without ads or registration. From zivox tv specials to top streaming sites free alternatives, enjoy uninterrupted free cinema online, hindi dubbed movies watch online, and watch movies free 2026 updates daily. Hosted securely on zivox vercel and zivox official app environments.
-          </p>
-        </div>
+
 
         {/* Bottom bar */}
         <div

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Film, ArrowRight } from 'lucide-react';
 import { generateSlug } from '@/lib/utils';
 
-interface Collection {
+export interface CollectionData {
   id: number;
   name: string;
   backdrop: string;
@@ -14,26 +14,7 @@ interface Collection {
   tagline: string;
 }
 
-// Curated by a movie enthusiast — classics + modern franchises worth knowing
-const CURATED_COLLECTIONS: Collection[] = [
-  { id: 263, name: 'The Dark Knight Trilogy', backdrop: '/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', poster: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg', movieCount: 3, tagline: "Nolan's definitive superhero epic" },
-  { id: 119, name: 'The Lord of the Rings', backdrop: '/sD9NESwYpOFWvDvnHHwz9eCl3eY.jpg', poster: '/cAmEXs9GGCF0e1CGCyFRYCJjTmI.jpg', movieCount: 3, tagline: 'The greatest fantasy trilogy' },
-  { id: 230, name: 'The Godfather', backdrop: '/tmU7GeKVybMWFbwHZEDrrnzJHbv.jpg', poster: '/3bhkrj58Vtu7enYsLe1rhdUT6sa.jpg', movieCount: 3, tagline: "Cinema's greatest achievement" },
-  { id: 131292, name: 'MCU Collection', backdrop: '/tWqifoYuwLETmmasnGHO7xBjEtt.jpg', poster: '/pQFoyx7gek8phiqJA4y7lOtpRNm.jpg', movieCount: 33, tagline: 'The ultimate connected universe' },
-  { id: 307080, name: 'Star Wars Skywalker Saga', backdrop: '/zOpeQKcS7PZIJFMkjGoQFMTWjiO.jpg', poster: '/d8duYyyC9J5T825Hg7grmaabfxQ.jpg', movieCount: 9, tagline: 'A galaxy far, far away' },
-  { id: 84, name: 'Indiana Jones', backdrop: '/AtmfYTslBTEhQpwON28lIhBqkwB.jpg', poster: '/g54E87NWwq2SMJRqRMfnmx42UuA.jpg', movieCount: 5, tagline: 'The original adventure hero' },
-  { id: 10, name: 'Star Wars Original', backdrop: '/zOpeQKcS7PZIJFMkjGoQFMTWjiO.jpg', poster: '/btTdmkgIvOi0FFip1sPuZI2oQG6.jpg', movieCount: 3, tagline: 'Where it all began' },
-  { id: 404609, name: 'John Wick', backdrop: '/fSwYa5q6QUGLBGxGMalKdNHiuqG.jpg', poster: '/vx1mQ30LNFbIlqmMBjISTFiAbcW.jpg', movieCount: 4, tagline: 'Modern action at its finest' },
-  { id: 87359, name: 'Mission: Impossible', backdrop: '/bSqt9rhDZx1Q7UZ86dBPd1CTUNR.jpg', poster: '/dST0qWf7VeVo5Ge6vf7CjAFVMIl.jpg', movieCount: 8, tagline: 'The best ongoing action franchise' },
-  { id: 645, name: 'James Bond', backdrop: '/cmWoodFHQVHzNOlfOiRSz9GPFpS.jpg', poster: '/svPVMgH3aOaFkS7iS6sHWHTWjJA.jpg', movieCount: 27, tagline: '60 years of the greatest spy' },
-  { id: 2344, name: 'The Matrix', backdrop: '/bRm2DEgUiYciDw3myHuYFInD7la.jpg', poster: '/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg', movieCount: 4, tagline: 'The sci-fi landmark' },
-  { id: 328, name: 'Jurassic Park', backdrop: '/rLSUjr725ez1cK7SKVxC9qly7I0.jpg', poster: '/9i3plLl89DHMz7mahksDaAo8Yys.jpg', movieCount: 6, tagline: '30 years of dino carnage' },
-  { id: 10194, name: 'Toy Story', backdrop: '/9FrPDAI8Yv5RWqEMakx8uVBRQNl.jpg', poster: '/uXDfjJbdP4ijW5hWSBrPu9WT85S.jpg', movieCount: 4, tagline: "Pixar's timeless masterpiece" },
-  { id: 173710, name: 'Planet of the Apes', backdrop: '/n1RgHCjCxCEIBPsFJOCNIbxPkR2.jpg', poster: '/af3NRp7baGxLEfQbVoSdEaEmqKK.jpg', movieCount: 6, tagline: 'The reboot done right' },
-  { id: 9485, name: 'Fast & Furious', backdrop: '/y4D3OMOHPQ1Qm2pYLRSxfhO3SjO.jpg', poster: '/3P52oz9HPQdxsxLM2LYtor2KCHI.jpg', movieCount: 11, tagline: "Family. Always." },
-];
-
-export function CollectionsRow() {
+export function CollectionsRow({ collections }: { collections: CollectionData[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -77,7 +58,7 @@ export function CollectionsRow() {
           🎬 Iconic Collections
         </h2>
         <Link
-          href="/discover"
+          href="/collections"
           className="flex items-center gap-1 text-sm font-semibold text-white/35 hover:text-white/80 transition-colors duration-200 group"
         >
           View All
@@ -122,21 +103,23 @@ export function CollectionsRow() {
           touchAction: 'pan-x pan-y',
         }}
       >
-        {CURATED_COLLECTIONS.map((col) => (
+        {collections.map((col) => (
           <Link
             key={col.id}
             href={`/collection/${generateSlug(col.id.toString(), col.name)}`}
-            className="relative flex-shrink-0 group/card rounded-xl overflow-hidden cursor-pointer"
+            className="relative flex-shrink-0 group/card rounded-xl overflow-hidden cursor-pointer bg-zinc-900 border border-zinc-800"
             style={{ width: 'clamp(240px, 28vw, 340px)', aspectRatio: '16/9' }}
           >
             {/* Backdrop image */}
-            <Image
-              src={`https://image.tmdb.org/t/p/w780${col.backdrop}`}
-              alt={col.name}
-              fill
-              sizes="(max-width: 640px) 70vw, (max-width: 1024px) 30vw, 20vw"
-              className="object-cover transition-transform duration-500 group-hover/card:scale-[1.05]"
-            />
+            {col.backdrop && (
+              <Image
+                src={`https://image.tmdb.org/t/p/w780${col.backdrop}`}
+                alt={col.name}
+                fill
+                sizes="(max-width: 640px) 70vw, (max-width: 1024px) 30vw, 20vw"
+                className="object-cover transition-transform duration-500 group-hover/card:scale-[1.05]"
+              />
+            )}
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
             {/* Active scale effect on hover */}

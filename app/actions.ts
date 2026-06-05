@@ -275,3 +275,105 @@ export async function fetchScheduleAction(params: ScheduleParams): Promise<TMDBR
     total_results: combined.length,
   };
 }
+
+// ─── Collection Actions ───────────────────────────────────────────────────────
+
+export async function getCollectionsAction(ids: number[], forceProxy: boolean = false) {
+  const promises = ids.map(id => tmdb.getCollection(id.toString(), forceProxy));
+  const data = await Promise.all(promises);
+  return data.filter(Boolean);
+}
+
+export async function getDynamicCollectionsAction(pageChunk: number) {
+  try {
+    // A chunk of 1 fetches pages 1,2,3,4. Chunk 2 fetches 5,6,7,8.
+    const startPage = (pageChunk - 1) * 4 + 1;
+    const pagePromises = [];
+    
+    // Fetch 8 pages of data simultaneously (4 popular, 4 top rated = 160 movies!)
+    for (let i = 0; i < 4; i++) {
+      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/popular', { page: String(startPage + i) }, { forceProxy: true }).catch(() => null));
+      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/top_rated', { page: String(startPage + i) }, { forceProxy: true }).catch(() => null));
+    }
+    
+    const pagesData = await Promise.all(pagePromises);
+    const allMovies: Media[] = [];
+    pagesData.forEach(p => {
+      if (p && p.results) allMovies.push(...p.results);
+    });
+    
+    // Deduplicate movies to prevent redundant API calls
+    const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
+    
+    // 🔥 MASSIVE PARALLEL FETCH: Get full details for ~150 movies simultaneously
+    const movieDetailsPromises = uniqueMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`, {}, { forceProxy: true }).catch(() => null));
+    const movieDetails = await Promise.all(movieDetailsPromises);
+    
+    // Extract unique hidden collections
+    const collectionIds = new Set<number>();
+    movieDetails.forEach(movie => {
+      if (movie && movie.belongs_to_collection) {
+        collectionIds.add(movie.belongs_to_collection.id);
+      }
+    });
+    
+    // Fetch the actual collection payloads
+    const collectionsData = await getCollectionsAction(Array.from(collectionIds), true);
+    
+    // Sort collections by popularity or movie count to make them look good
+    const sortedCollections = collectionsData.sort((a, b) => (b.parts?.length || 0) - (a.parts?.length || 0));
+    
+    return {
+      page: pageChunk,
+      results: sortedCollections,
+      total_pages: 50 // Arbitrarily high limit for infinite scrolling
+    };
+  } catch (e) {
+    console.error("Dynamic collections failed:", e);
+    return { page: pageChunk, results: [], total_pages: 50 };
+  }
+}
+
+export async function searchCollectionsAction(query: string, page: number = 1) {
+  // 1. Hit the standard Collection search
+  const collectionRes = await tmdb.searchCollections(query, page);
+  let results = collectionRes.results || [];
+  
+  // 2. The "Supercharged" Phase: Only on Page 1, we also search for Movies matching the query
+  // This solves the problem where TMDB's collection search is bad, but movie search is great.
+  if (page === 1) {
+    try {
+      // Search for movies with the query
+      const movieRes = await fetchTMDB<TMDBResponse<Media>>("/search/movie", { query, page: '1' });
+      const topMovies = (movieRes.results || []).slice(0, 5); // Take top 5 most relevant movies
+      
+      // Fetch full details for these 5 movies in parallel to find hidden collections
+      const movieDetailsPromises = topMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`).catch(() => null));
+      const movieDetails = await Promise.all(movieDetailsPromises);
+      
+      // Extract unique collection IDs that we haven't already found in collectionRes
+      const existingIds = new Set(results.map((c: any) => c.id));
+      const newCollectionIds = new Set<number>();
+      
+      movieDetails.forEach(movie => {
+        if (movie && movie.belongs_to_collection && !existingIds.has(movie.belongs_to_collection.id)) {
+          newCollectionIds.add(movie.belongs_to_collection.id);
+        }
+      });
+      
+      // Fetch the actual collection data for these new hidden collections
+      if (newCollectionIds.size > 0) {
+        const newCollections = await getCollectionsAction(Array.from(newCollectionIds));
+        // Prepend them to the results (since they are highly relevant from movie search)
+        results = [...newCollections, ...results];
+      }
+    } catch (e) {
+      console.error("Supercharged search failed gracefully:", e);
+    }
+  }
+
+  return {
+    ...collectionRes,
+    results
+  };
+}

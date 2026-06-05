@@ -52,7 +52,7 @@ export function ShareModal({ isOpen, onClose, title, shareUrl, subtitle, childre
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 50, opacity: 0, scale: 0.97 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            className="relative bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-sm overflow-hidden shadow-2xl"
+            className="relative bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-[calc(100vw-2rem)] sm:max-w-sm mb-4 sm:mb-0 overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* purple gradient top */}

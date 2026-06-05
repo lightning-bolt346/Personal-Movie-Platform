@@ -1,37 +1,68 @@
 import { TMDBResponse, Media, MediaDetails } from "@/types/tmdb";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const PROXY_BASE_URL = "https://db.videasy.net/3";
 
 export async function fetchTMDB<T>(
   path: string,
   params: Record<string, string> = {},
+  options: { forceProxy?: boolean } = {}
 ): Promise<T> {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey || apiKey === "YOUR_TMDB_API_KEY") {
     throw new Error("NO_API_KEY");
   }
 
-  const url = new URL(`${TMDB_BASE_URL}${path}`);
-  url.searchParams.append("api_key", apiKey);
-  Object.entries(params).forEach(([key, value]) =>
-    url.searchParams.append(key, value),
-  );
+  const queryParams = new URLSearchParams(params);
+  queryParams.append("api_key", apiKey);
+  const queryString = queryParams.toString();
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-  try {
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 3600 },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
+  const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits: 3 });
+  const endpoint = path + (Object.keys(params).length ? '?' + queryString : '');
 
-    if (!res.ok) throw new Error(`TMDB API Error: ${res.statusText}`);
-    return res.json();
+  const executeFetch = async (baseUrl: string, isFallback = false): Promise<T> => {
+    const url = `${baseUrl}${path}?${queryString}`;
+    try {
+      const res = await fetch(url, {
+        next: { revalidate: 3600 },
+        signal: controller.signal,
+      });
+      
+      if (!res.ok) {
+        throw new Error(`TMDB API Error: ${res.statusText}`);
+      }
+      
+      if (isFallback) {
+        console.log(`\x1b[33m[${timeString}] ⚠️ TMDB API FALLBACK SUCCESS: ${endpoint}\x1b[0m`);
+      } else {
+        console.log(`\x1b[32m[${timeString}] ✅ TMDB API SUCCESS: ${endpoint}\x1b[0m`);
+      }
+      return res.json();
+    } catch (err: any) {
+      if (isFallback || options.forceProxy) {
+        console.log(`\x1b[31m[${timeString}] ❌ TMDB API FAILED: ${endpoint} | Reason: ${err.message || 'Timeout/Network Error'}\x1b[0m`);
+      }
+      throw err;
+    }
+  };
+
+  try {
+    if (options.forceProxy) {
+      return await executeFetch(PROXY_BASE_URL);
+    } else {
+      return await executeFetch(TMDB_BASE_URL);
+    }
   } catch (err) {
-    clearTimeout(timeout);
+    if (!options.forceProxy) {
+      console.log(`\x1b[33m[${timeString}] 🔄 TMDB API RETRYING WITH PROXY: ${endpoint}\x1b[0m`);
+      return await executeFetch(PROXY_BASE_URL, true);
+    }
     throw err;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -204,8 +235,15 @@ export const tmdb = {
     }).catch(() => null),
   getImages: async (type: "movie" | "tv", id: string) =>
     fetchTMDB<any>(`/${type}/${id}/images`, { include_image_language: "en,null" }).catch(() => null),
-  getCollection: async (id: string) =>
-    fetchTMDB<any>(`/collection/${id}`).catch(() => null),
+  getCollection: async (id: string, forceProxy?: boolean) =>
+    fetchTMDB<any>(`/collection/${id}`, {}, { forceProxy }).catch(() => null),
+  searchCollections: async (query: string, page: number = 1) =>
+    fetchTMDB<TMDBResponse<any>>("/search/collection", { query, page: page.toString() }).catch(() => ({
+      page: 1,
+      results: [],
+      total_pages: 1,
+      total_results: 0,
+    })),
 };
 
 export const getImageUrl = (

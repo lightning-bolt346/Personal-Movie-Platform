@@ -19,9 +19,9 @@ export const MediaCard = memo(function MediaCard({
   variant = 'default',
   isUpcoming = false,
 }: {
-  media: Media & { progress?: number; season?: number; episode?: number; contextType?: 'history' | 'watchlist' | 'favorites' };
+  media: Media & { progress?: number; season?: number; episode?: number; contextType?: 'history' | 'watchlist' | 'favorites' | 'notifications' };
   className?: string;
-  onRemove?: (id: string, type: 'history' | 'watchlist' | 'favorites') => void;
+  onRemove?: (id: string, type: 'history' | 'watchlist' | 'favorites' | 'notifications') => void;
   variant?: 'default' | 'top10';
   isUpcoming?: boolean;
 }) {
@@ -252,12 +252,12 @@ export const MediaCard = memo(function MediaCard({
         </div>
       </Link>
 
-      {/* Remove button (watch history) */}
-      {onRemove && media.contextType === 'history' && (
+      {/* Remove button (history / notifications) */}
+      {onRemove && (media.contextType === 'history' || media.contextType === 'notifications') && (
         <button
           onClick={(e) => { e.preventDefault(); onRemove(media.id.toString(), media.contextType!); }}
           className="absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl"
-          title="Remove from History"
+          title={`Remove from ${media.contextType === 'history' ? 'History' : 'Notifications'}`}
         >
           <Trash2 size={11} />
         </button>

@@ -93,18 +93,16 @@ export function Top10Row({ title, items }: Top10RowProps) {
       <div className="absolute right-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
         style={{ background: 'linear-gradient(to left, #05010a, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
-      {/* Lenis natively handles the vertical wheel events, no JS listener needed */}
       <div
         ref={scrollRef}
         onScroll={checkScroll}
-        className="flex gap-2 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth"
+        className="flex gap-2 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth overscroll-x-contain touch-pan-x"
         style={{
           paddingLeft: 'max(1.5rem, calc((100vw - 1800px) / 2 + 3.5rem))',
           paddingRight: 'max(1.5rem, calc((100vw - 1800px) / 2 + 3.5rem))',
           paddingTop: '64px',
           paddingBottom: '32px',
-          overscrollBehavior: 'contain',
-          touchAction: 'pan-x',
+          touchAction: 'pan-x pan-y',
         }}
       >
         {items.slice(0, 10).map((item, idx) => (

@@ -4,7 +4,7 @@ import { MediaCard } from './MediaCard';
 import { ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export function MediaGrid({ title, items, onRemove }: { title?: string; items: Media[]; onRemove?: (id: string, type: 'history'|'watchlist'|'favorites') => void }) {
+export function MediaGrid({ title, items, onRemove }: { title?: string; items: Media[]; onRemove?: (id: string, type: 'history'|'watchlist'|'favorites'|'notifications') => void }) {
   if (!items || items.length === 0) return null;
   return (
     <section className="relative z-20 px-4 md:px-12 py-6">

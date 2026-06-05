@@ -11,6 +11,7 @@ import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
@@ -191,6 +192,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NotificationToaster />
         <SecurityGuard />
         <Analytics />
+        <GoogleAnalytics gaId="G-6RD41T4D6D" />
       </body>
     </html>
   );

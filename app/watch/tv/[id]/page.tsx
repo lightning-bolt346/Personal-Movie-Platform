@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { tmdb, getImageUrl } from '@/lib/tmdb';
 import { TvPlayer } from './TvPlayer';
 import { MediaGrid } from '@/components/media/MediaGrid';
+import { LegalBanner } from '@/components/ui/LegalBanner';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { generateSlug } from '@/lib/utils';
 
@@ -129,6 +130,9 @@ export default async function WatchTv({ params }: { params: Promise<{ id: string
           <MediaGrid title="More Like This" items={similar} />
         </div>
       )}
+      <div className="mt-8">
+        <LegalBanner />
+      </div>
     </div>
   );
 }

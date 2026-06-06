@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Search, User, Home, Film, Tv, Compass, Sparkles, CalendarDays, Dices, ArrowLeft } from 'lucide-react';
+import { Search, User, Home, Film, Tv, Compass, Sparkles, CalendarDays, Dices, ArrowLeft, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { SettingsModal } from '@/components/ui/SettingsModal';
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: '/anime', label: 'Anime' },
   { href: '/discover', label: 'Discover' },
   { href: '/schedule', label: 'Schedule' },
+  { href: '/blog', label: 'Blog' },
 ];
 
 const MOBILE_DOCK_ITEMS = [
@@ -23,6 +24,7 @@ const MOBILE_DOCK_ITEMS = [
   { href: '/anime', label: 'Anime', Icon: Sparkles },
   { href: '/discover', label: 'Discover', Icon: Compass },
   { href: '/schedule', label: 'Schedule', Icon: CalendarDays },
+  { href: '/blog', label: 'Blog', Icon: BookOpen },
 ];
 
 export function Navbar() {

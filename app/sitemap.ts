@@ -3,6 +3,7 @@ import { tmdb } from '@/lib/tmdb';
 import { getAllGenres } from '@/lib/genres';
 import { generateSlug } from '@/lib/utils';
 import { PROVIDERS } from '@/lib/providers';
+import { blogPosts } from '@/lib/blog';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
@@ -54,12 +55,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Year-based pages (2018–2026)
   const yearUrls = Array.from({ length: 9 }, (_, i) => 2018 + i).map((year) => ({
     url: `${baseUrl}/year/${year}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.6,
+  }));
+
+  const blogUrls = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
   }));
 
   const providerUrls = PROVIDERS.map((provider) => ({
@@ -78,6 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.75 },
     { url: `${baseUrl}/schedule`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/guide`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/providers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     ...providerUrls,
     ...movieUrls,
@@ -85,5 +93,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...genreUrls,
     ...yearUrls,
     ...peopleUrls,
+    ...blogUrls,
   ];
 }

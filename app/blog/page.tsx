@@ -1,0 +1,84 @@
+import { Metadata } from 'next';
+import Link from 'next/link';
+import { blogPosts } from '@/lib/blog';
+import { JsonLd } from '@/components/seo/JsonLd';
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+
+export const metadata: Metadata = {
+  title: 'Blog & Guides — ZIVOX',
+  description: 'Read the latest guides, movie recommendations, anime reviews, and streaming news on the ZIVOX Blog.',
+  openGraph: {
+    title: 'Blog & Guides — ZIVOX',
+    description: 'Read the latest guides, movie recommendations, anime reviews, and streaming news on the ZIVOX Blog.',
+    type: 'website',
+  },
+};
+
+export default function BlogIndex() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'ZIVOX Blog',
+    description: 'News, guides, and reviews for movies, TV shows, and anime.',
+    url: `${siteUrl}/blog`,
+    blogPost: blogPosts.map(post => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      datePublished: post.date,
+      author: {
+        '@type': 'Organization',
+        name: post.author,
+      },
+      url: `${siteUrl}/blog/${post.slug}`,
+    })),
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen pb-28 md:pb-20 pt-28 max-w-7xl mx-auto px-4 w-full">
+      <JsonLd data={jsonLd} />
+      
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tighter text-white drop-shadow-xl mb-4">
+          ZIVOX <span className="text-crimson-500">Blog</span>
+        </h1>
+        <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
+          Discover genuine articles, movie recommendations, and streaming guides.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {blogPosts.map((post) => (
+          <Link key={post.id} href={`/blog/${post.slug}`} className="group flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all">
+            <div className="aspect-video relative overflow-hidden bg-zinc-800">
+              <img 
+                src={post.coverImage} 
+                alt={post.title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="p-6 flex flex-col flex-grow">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-crimson-500 bg-crimson-500/10 px-2 py-1 rounded">
+                  {post.tags[0]}
+                </span>
+                <span className="text-xs text-zinc-500 font-medium">
+                  {new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2 group-hover:text-crimson-500 transition-colors line-clamp-2">
+                {post.title}
+              </h2>
+              <p className="text-sm text-zinc-400 line-clamp-3 mb-4 flex-grow">
+                {post.description}
+              </p>
+              <div className="text-xs font-bold text-zinc-500 mt-auto pt-4 border-t border-zinc-800/50 uppercase tracking-wide">
+                By {post.author}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}

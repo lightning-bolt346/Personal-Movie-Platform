@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: 'Discover', href: '/discover' },
   { label: 'Search', href: '/search' },
   { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Profile', href: '/profile' },
 ];
 

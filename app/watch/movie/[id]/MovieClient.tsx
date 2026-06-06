@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { MediaDetails } from '@/types/tmdb';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
 import { TrailerModal } from '@/components/media/TrailerModal';
+import { LegalBanner } from '@/components/ui/LegalBanner';
 import { CastSection } from '@/components/media/CastSection';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -255,6 +256,18 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${movie.title} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/movie/${generateSlug(movie.id.toString(), movie.title)}` : undefined} />
+      
+      {/* Banner at the very bottom */}
+      <div
+        style={{
+          overflow: 'hidden',
+          maxHeight: isPlaying ? '0px' : '1000px',
+          opacity: isPlaying ? 0 : 1,
+          transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+        }}
+      >
+        <LegalBanner />
+      </div>
     </div>
   );
 }

@@ -45,17 +45,31 @@ export default function DmcaPage() {
         </div>
 
         {/* Policy Content */}
-        <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 md:p-8 space-y-6">
+        <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 md:p-8 space-y-8">
+          <section>
+            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-crimson-500"></div>
+              Intermediary Disclaimer (India IT Act Section 79)
+            </h2>
+            <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">
+              ZIVOX is an intermediary under Section 2(1)(w) of the Information Technology Act 2000. 
+              We do not create, edit, host, or store any third-party content.
+            </p>
+          </section>
+
           <section>
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-crimson-500"></div>
               Copyright Infringement
             </h2>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">
-              ZIVOX serves strictly as a content aggregator and does not host any media files directly. We merely provide links to third-party services. Legal concerns regarding the files should be addressed directly with the respective file hosts and providers. ZIVOX bears no responsibility for the media files displayed by these providers.
+              ZIVOX is a search engine/aggregator that indexes publicly available streaming links.
+              We do not host, store, or distribute any video content. All content is hosted by third parties.
+              ZIVOX does not compress, modify, or distribute copyrighted material.
             </p>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-              If you believe that your copyrighted work has been copied in a way that constitutes copyright infringement and is accessible via this site, please notify the third-party media host directly. ZIVOX has no control over the content hosted on third-party servers.
+              If you are a copyright owner and believe your content has been infringed,
+              please contact us at <a href="mailto:dmca@zivox.to" className="text-crimson-500 hover:underline">dmca@zivox.to</a> for immediate removal of the indexing link.
             </p>
           </section>
         </div>

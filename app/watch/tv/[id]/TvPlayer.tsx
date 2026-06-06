@@ -12,6 +12,7 @@ import { useWatchHistory } from '@/hooks/useWatchHistory';
 import { storage } from '@/lib/storage';
 import { getLanguageName, generateSlug } from '@/lib/utils';
 import { TrailerModal } from '@/components/media/TrailerModal';
+import { LegalBanner } from '@/components/ui/LegalBanner';
 import { CastSection } from '@/components/media/CastSection';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -534,6 +535,18 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${show.name} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/tv/${generateSlug(show.id.toString(), show.name)}` : undefined} />
+      
+      {/* Banner at the very bottom */}
+      <div
+        style={{
+          overflow: 'hidden',
+          maxHeight: isPlaying ? '0px' : '1000px',
+          opacity: isPlaying ? 0 : 1,
+          transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+        }}
+      >
+        <LegalBanner />
+      </div>
     </div>
   );
 }

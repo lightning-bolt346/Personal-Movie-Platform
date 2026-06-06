@@ -176,8 +176,8 @@ export function Footer() {
 
         {/* Disclaimer Note */}
         <div className="pt-8 pb-6 border-t border-white/5 mt-4">
-          <p className="text-sm text-white/45 text-center max-w-3xl mx-auto leading-relaxed bg-zinc-900/50 p-4 rounded-xl border border-white/5">
-            <strong>Please note:</strong> ZIVOX does not host any files itself but instead only displays content from 3rd party providers. Legal issues should be taken up with them.
+          <p className="text-sm text-zinc-400 text-center max-w-4xl mx-auto leading-relaxed bg-zinc-900/40 p-4 md:p-5 rounded-2xl border border-zinc-800/50 shadow-inner">
+            <strong className="text-zinc-200">Disclaimer:</strong> ZIVOX is an intermediary search engine that indexes publicly available links. We do not host, store, or distribute any video content. All media is hosted by non-affiliated third parties.
           </p>
         </div>
 

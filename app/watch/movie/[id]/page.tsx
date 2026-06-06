@@ -121,9 +121,20 @@ export default async function WatchMovie({ params }: { params: Promise<{ id: str
         : undefined,
   };
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Movies', item: `${siteUrl}/movies` },
+      { '@type': 'ListItem', position: 3, name: movie.title, item: `${siteUrl}/watch/movie/${slug}` },
+    ],
+  };
+
   return (
     <div className="flex flex-col gap-8 w-full pt-28 md:pt-32 pb-28 md:pb-20">
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbLd} />
       <MovieClient movie={movie} />
       {similar.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 w-full">

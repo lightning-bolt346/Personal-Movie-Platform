@@ -120,9 +120,20 @@ export default async function WatchTv({ params }: { params: Promise<{ id: string
         : undefined,
   };
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'TV Shows', item: `${siteUrl}/tv` },
+      { '@type': 'ListItem', position: 3, name: show.name, item: `${siteUrl}/watch/tv/${slug}` },
+    ],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 pt-28 md:pt-32 pb-28 md:pb-20 flex flex-col gap-8 w-full">
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbLd} />
       <TvPlayer show={show} />
 
       {similar.length > 0 && (

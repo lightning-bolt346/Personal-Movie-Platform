@@ -6,7 +6,7 @@ import { LegalBanner } from '@/components/ui/LegalBanner';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { generateSlug } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // 1 hour ISR
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
 
@@ -64,7 +64,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      images: [{ url: image, width: 780, alt: movie.title ?? 'Movie poster' }],
+      images: [{ url: image, width: 780, height: 1170, alt: movie.title ?? 'Movie poster' }],
       type: 'video.movie',
       url: canonicalUrl,
     },

@@ -8,9 +8,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
 
   // Fetch trending + popular + discover concurrently for a richer sitemap (pages 1-3)
-  const [trendingMovies, trendingTv, popMovies1, popMovies2, popMovies3, popTv1, popTv2, popTv3] = await Promise.all([
+  const [trendingMovies, trendingTv, trendingPeople, popMovies1, popMovies2, popMovies3, popTv1, popTv2, popTv3] = await Promise.all([
     tmdb.getTrending('movie').catch(() => ({ results: [] as any[] })),
     tmdb.getTrending('tv').catch(() => ({ results: [] as any[] })),
+    tmdb.getTrending('person').catch(() => ({ results: [] as any[] })),
     tmdb.discover('movie', { sort_by: 'popularity.desc', page: '1' }).catch(() => ({ results: [] as any[] })),
     tmdb.discover('movie', { sort_by: 'popularity.desc', page: '2' }).catch(() => ({ results: [] as any[] })),
     tmdb.discover('movie', { sort_by: 'popularity.desc', page: '3' }).catch(() => ({ results: [] as any[] })),
@@ -46,6 +47,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const peopleUrls = (trendingPeople.results || []).map((person) => ({
+    url: `${baseUrl}/person/${generateSlug(person.id, person.name)}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
   // Year-based pages (2018–2026)
   const yearUrls = Array.from({ length: 9 }, (_, i) => 2018 + i).map((year) => ({
     url: `${baseUrl}/year/${year}`,
@@ -70,12 +78,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.75 },
     { url: `${baseUrl}/schedule`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/guide`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/anime`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/providers`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     ...providerUrls,
     ...movieUrls,
     ...tvUrls,
     ...genreUrls,
     ...yearUrls,
+    ...peopleUrls,
   ];
 }

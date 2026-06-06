@@ -134,11 +134,11 @@ const getMockMedia = (i: number, t: string = "movie"): Media => {
 };
 
 export const tmdb = {
-  getTrending: async (type: "all" | "movie" | "tv" = "all") =>
-    fetchTMDB<TMDBResponse<Media>>(`/trending/${type}/week`).catch(() => ({
+  getTrending: async (type: "all" | "movie" | "tv" | "person" = "all") =>
+    fetchTMDB<TMDBResponse<any>>(`/trending/${type}/week`).catch(() => ({
       page: 1,
       results: Array.from({ length: 12 }).map((_, i) =>
-        getMockMedia(i, type === "all" ? "movie" : type),
+        type === "person" ? { id: i, name: "Fallback Person", profile_path: null, known_for: [] } : getMockMedia(i, type === "all" ? "movie" : type),
       ),
       total_pages: 1,
       total_results: 12,

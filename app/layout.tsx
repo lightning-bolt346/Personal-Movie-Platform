@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   keywords: ['Zivox', 'Zivox tv', 'zivox anime', 'zivox shows', 'zivox vercel', 'zivox online movie', 'Zivox official', 'zivox app', 'watch free movies online', 'free HD movies', 'watch shows online free', 'watch anime free', 'free streaming sites', 'movies to watch free', 'online tv shows free', 'watch movies free 2026', 'no ads streaming', 'watch latest movies', 'free cinema online'],
   alternates: {
     canonical: '/',
+    languages: {
+      'en': '/',
+    },
   },
   openGraph: {
     title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',

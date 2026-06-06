@@ -13,8 +13,14 @@ const NAV_ITEMS = [
   { href: '/tv', label: 'Series' },
   { href: '/anime', label: 'Anime' },
   { href: '/discover', label: 'Discover' },
+];
+
+const BROWSE_ITEMS = [
+  { href: '/collections', label: 'Collections' },
   { href: '/schedule', label: 'Schedule' },
   { href: '/blog', label: 'Blog' },
+  { href: '/providers', label: 'Providers' },
+  { href: '/guide', label: 'Guide' },
 ];
 
 const MOBILE_DOCK_ITEMS = [
@@ -24,7 +30,6 @@ const MOBILE_DOCK_ITEMS = [
   { href: '/anime', label: 'Anime', Icon: Sparkles },
   { href: '/discover', label: 'Discover', Icon: Compass },
   { href: '/schedule', label: 'Schedule', Icon: CalendarDays },
-  { href: '/blog', label: 'Blog', Icon: BookOpen },
 ];
 
 export function Navbar() {
@@ -286,6 +291,35 @@ export function Navbar() {
                 </Link>
               );
             })}
+
+            {/* Browse Dropdown */}
+            <div className="relative group flex items-center h-full py-4 -my-4">
+              <button className="flex items-center gap-1 text-[14px] font-medium tracking-wide text-white/60 hover:text-white/95 transition-all duration-300 outline-none">
+                Browse
+                <svg className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-48 bg-void-950/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+                <div className="flex flex-col p-1.5">
+                  {BROWSE_ITEMS.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => {
+                        handleNavigation(e, item.href);
+                        // Force hover state off by removing focus/blurring active element
+                        if (document.activeElement instanceof HTMLElement) {
+                          document.activeElement.blur();
+                        }
+                      }}
+                      className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${isActive(item.href) ? 'bg-crimson-500/15 text-crimson-400' : 'text-zinc-400 hover:bg-zinc-800/80 hover:text-white'}`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Action Icons (Right) */}

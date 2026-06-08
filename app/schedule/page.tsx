@@ -9,7 +9,6 @@ import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
 import { fetchScheduleAction, ScheduleParams } from '@/app/actions';
 import { Media } from '@/types/tmdb';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { BackButton } from '@/components/ui/BackButton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -551,10 +550,6 @@ function SchedulePageContent() {
     <div className="relative min-h-screen pb-28 md:pb-20 w-full">
       {/* Fixed animated background — never scrolls */}
       <AnimatedBackground />
-
-      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
-        <BackButton />
-      </div>
 
       <div className="relative z-10 max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-[10vh] md:pt-[12vh] w-full">
         <div className="flex flex-col md:flex-row items-start gap-8 w-full">

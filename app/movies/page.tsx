@@ -1,13 +1,16 @@
 import { tmdb, getHeroItemsWithLogos } from '@/lib/tmdb';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { FilterableContent } from '@/components/media/FilterableContent';
-import { HorizontalRow } from '@/components/media/HorizontalRow';
 import { HeroSlider } from '@/components/media/HeroSlider';
-import { Top10Row } from '@/components/media/Top10Row';
-import { CollectionsRow } from '@/components/media/CollectionsRow';
+import { RecommendedForYou } from '@/components/media/RecommendedForYou';
 import { getCuratedCollections } from '@/lib/collectionsData';
+import nextDynamic from 'next/dynamic';
 
-export const dynamic = 'force-dynamic';
+const CollectionsRow = nextDynamic(() => import('@/components/media/CollectionsRow').then(mod => mod.CollectionsRow));
+const Top10Row = nextDynamic(() => import('@/components/media/Top10Row').then(mod => mod.Top10Row));
+const HorizontalRow = nextDynamic(() => import('@/components/media/HorizontalRow').then(mod => mod.HorizontalRow));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Watch Movies Free Online in HD — ZIVOX',
@@ -19,17 +22,10 @@ export const metadata = {
 };
 
 export default async function MoviesPage() {
-  // Artificial delay to ensure loading animation is visible for at least 2 seconds as requested
-  const fetchPromise = Promise.all([
+  const [trendingMovies, popMovies, topMovies] = await Promise.all([
     tmdb.getTrending('movie'),
     tmdb.getPopular('movie'),
     tmdb.getTopRated('movie'),
-  ]);
-  const delayPromise = new Promise(r => setTimeout(r, 2000));
-  
-  const [[trendingMovies, popMovies, topMovies]] = await Promise.all([
-    fetchPromise,
-    delayPromise
   ]);
 
   const top6Trending = trendingMovies.results?.slice(0, 6) || [];
@@ -54,6 +50,9 @@ export default async function MoviesPage() {
 
       {/* Content rows */}
       <div className="flex flex-col relative z-20 mt-4 gap-8 md:gap-14">
+        
+        <RecommendedForYou mediaType="movie" />
+
         {/* Movie Collections — curated iconic franchises */}
         {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
 

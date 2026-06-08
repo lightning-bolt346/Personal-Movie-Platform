@@ -3,7 +3,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { AnimeDashboard } from '@/components/media/AnimeDashboard';
 import { Media } from '@/types/tmdb';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Watch Anime Free Online — Sub & Dub in HD — ZIVOX',
@@ -24,8 +24,7 @@ import { Suspense } from 'react';
 import { ThemedLoader } from '@/components/ui/ThemedLoader';
 
 async function AnimeDataFetcher() {
-  // Artificial delay to ensure loading animation is visible for at least 2 seconds as requested
-  const fetchPromise = Promise.all([
+  const [trendP1, trendP2, topP1, topP2, topP3, topP4, topP5] = await Promise.all([
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc", page: "1" }),
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc", page: "2" }).catch(() => ({ results: [] })),
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "vote_average.desc", "vote_count.gte": "100", page: "1" }),
@@ -33,12 +32,6 @@ async function AnimeDataFetcher() {
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "vote_average.desc", "vote_count.gte": "100", page: "3" }).catch(() => ({ results: [] })),
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "vote_average.desc", "vote_count.gte": "100", page: "4" }).catch(() => ({ results: [] })),
     tmdb.discover("tv", { with_genres: "16", with_original_language: "ja", sort_by: "vote_average.desc", "vote_count.gte": "100", page: "5" }).catch(() => ({ results: [] })),
-  ]);
-  const delayPromise = new Promise(r => setTimeout(r, 2000));
-  
-  const [[trendP1, trendP2, topP1, topP2, topP3, topP4, topP5]] = await Promise.all([
-    fetchPromise,
-    delayPromise
   ]);
 
   const trending = deduplicate([...(trendP1.results || []), ...(trendP2.results || [])]);

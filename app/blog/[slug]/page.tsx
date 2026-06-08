@@ -90,7 +90,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* Header */}
         <header className="mb-10 flex flex-col items-start text-left">
           <div className="flex items-center gap-3 mb-6">
-            {post.tags.map(tag => (
+            {post.tags.map((tag: string) => (
               <span key={tag} className="text-xs font-bold uppercase tracking-wider text-crimson-500 bg-crimson-500/10 px-3 py-1 rounded-full border border-crimson-500/20">
                 {tag}
               </span>
@@ -130,6 +130,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                      prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-8
                      prose-a:text-crimson-500 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-crimson-400
                      prose-ul:text-zinc-300 prose-li:my-3
+                     prose-blockquote:border-l-crimson-500 prose-blockquote:bg-white/5 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:text-zinc-300 prose-blockquote:not-italic prose-blockquote:my-10
+                     prose-hr:border-white/10 prose-hr:my-12
                      prose-strong:text-white prose-strong:font-bold"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />

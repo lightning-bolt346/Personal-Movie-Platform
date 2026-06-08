@@ -13,9 +13,10 @@ interface ToastData {
 interface PlayerToastsProps {
   serverName?: string;
   serverIsNoAds?: boolean;
+  isPaused?: boolean;
 }
 
-export function PlayerToasts({ serverName, serverIsNoAds }: PlayerToastsProps) {
+export function PlayerToasts({ serverName, serverIsNoAds, isPaused }: PlayerToastsProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [mounted, setMounted] = useState(false);
   const initialToastsTriggered = useRef(false);
@@ -25,9 +26,10 @@ export function PlayerToasts({ serverName, serverIsNoAds }: PlayerToastsProps) {
     setMounted(true);
   }, []);
 
-  // Fire initial toasts only AFTER portal is ready (mounted=true)
+  // Fire initial toasts only AFTER portal is ready (mounted=true) and not paused
   useEffect(() => {
     if (!mounted) return;
+    if (isPaused) return;
     if (initialToastsTriggered.current) return;
     initialToastsTriggered.current = true;
 
@@ -79,7 +81,7 @@ export function PlayerToasts({ serverName, serverIsNoAds }: PlayerToastsProps) {
       );
       return () => timeouts.forEach(clearTimeout);
     }
-  }, [mounted, serverName, serverIsNoAds]);
+  }, [mounted, serverName, serverIsNoAds, isPaused]);
 
   // Watch for Server Name changes (skip the very first assignment)
   useEffect(() => {

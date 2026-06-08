@@ -187,6 +187,22 @@ export async function getSeasonDetailsAction(tvId: string, seasonNumber: number)
   return await tmdb.getSeasonDetails(tvId, seasonNumber);
 }
 
+export async function getTrailerAction(id: string, type: 'movie' | 'tv'): Promise<string | null> {
+  try {
+    const data = await fetchTMDB<any>(`/${type}/${id}/videos`);
+    if (!data || !data.results) return null;
+    
+    // Find a YouTube trailer
+    const trailer = data.results.find((v: any) => v.site === 'YouTube' && v.type === 'Trailer') 
+                 || data.results.find((v: any) => v.site === 'YouTube' && v.type === 'Teaser')
+                 || data.results.find((v: any) => v.site === 'YouTube');
+                 
+    return trailer ? trailer.key : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 // ─── Schedule Action ──────────────────────────────────────────────────────────
 
 export interface ScheduleParams {
@@ -309,8 +325,8 @@ export async function getDynamicCollectionsAction(pageChunk: number) {
     
     // Fetch 8 pages of data simultaneously (4 popular, 4 top rated = 160 movies!)
     for (let i = 0; i < 4; i++) {
-      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/popular', { page: String(startPage + i) }, { forceProxy: true }).catch(() => null));
-      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/top_rated', { page: String(startPage + i) }, { forceProxy: true }).catch(() => null));
+      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/popular', { page: String(startPage + i) }).catch(() => null));
+      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/top_rated', { page: String(startPage + i) }).catch(() => null));
     }
     
     const pagesData = await Promise.all(pagePromises);
@@ -323,7 +339,7 @@ export async function getDynamicCollectionsAction(pageChunk: number) {
     const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
     
     // 🔥 MASSIVE PARALLEL FETCH: Get full details for ~150 movies simultaneously
-    const movieDetailsPromises = uniqueMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`, {}, { forceProxy: true }).catch(() => null));
+    const movieDetailsPromises = uniqueMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`).catch(() => null));
     const movieDetails = await Promise.all(movieDetailsPromises);
     
     // Extract unique hidden collections

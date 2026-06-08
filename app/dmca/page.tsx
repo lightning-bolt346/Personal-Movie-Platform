@@ -69,7 +69,7 @@ export default function DmcaPage() {
             </p>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
               If you are a copyright owner and believe your content has been infringed,
-              please contact us at <a href="mailto:dmca@zivox.to" className="text-crimson-500 hover:underline">dmca@zivox.to</a> for immediate removal of the indexing link.
+              please contact us at <a href="mailto:zivox.tv@proton.me" className="text-crimson-500 hover:underline">zivox.tv@proton.me</a> for immediate removal of the indexing link.
             </p>
           </section>
         </div>

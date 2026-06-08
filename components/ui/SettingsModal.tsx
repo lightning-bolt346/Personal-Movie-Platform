@@ -20,13 +20,30 @@ const GENRES = [
 const LANGUAGES = [
   { id: 'en', name: 'English' },
   { id: 'hi', name: 'Hindi' },
+  { id: 'ta', name: 'Tamil' },
+  { id: 'te', name: 'Telugu' },
+  { id: 'ml', name: 'Malayalam' },
+  { id: 'kn', name: 'Kannada' },
+  { id: 'bn', name: 'Bengali' },
+  { id: 'mr', name: 'Marathi' },
+  { id: 'gu', name: 'Gujarati' },
+  { id: 'pa', name: 'Punjabi' },
   { id: 'ko', name: 'Korean' },
   { id: 'ja', name: 'Japanese' },
   { id: 'es', name: 'Spanish' },
   { id: 'fr', name: 'French' },
   { id: 'de', name: 'German' },
   { id: 'zh', name: 'Chinese' },
-  { id: 'ru', name: 'Russian' }
+  { id: 'ru', name: 'Russian' },
+  { id: 'ar', name: 'Arabic' },
+  { id: 'pt', name: 'Portuguese' },
+  { id: 'it', name: 'Italian' },
+  { id: 'id', name: 'Indonesian' },
+  { id: 'th', name: 'Thai' },
+  { id: 'vi', name: 'Vietnamese' },
+  { id: 'tr', name: 'Turkish' },
+  { id: 'nl', name: 'Dutch' },
+  { id: 'pl', name: 'Polish' }
 ];
 
 const REGIONS = [
@@ -38,7 +55,17 @@ const REGIONS = [
   { id: 'JP', name: 'Japan' },
   { id: 'KR', name: 'South Korea' },
   { id: 'FR', name: 'France' },
-  { id: 'DE', name: 'Germany' }
+  { id: 'DE', name: 'Germany' },
+  { id: 'ES', name: 'Spain' },
+  { id: 'IT', name: 'Italy' },
+  { id: 'BR', name: 'Brazil' },
+  { id: 'MX', name: 'Mexico' },
+  { id: 'AE', name: 'United Arab Emirates' },
+  { id: 'SA', name: 'Saudi Arabia' },
+  { id: 'RU', name: 'Russia' },
+  { id: 'ZA', name: 'South Africa' },
+  { id: 'SG', name: 'Singapore' },
+  { id: 'NL', name: 'Netherlands' }
 ];
 
 type TabId = 'content' | 'playback' | 'data';

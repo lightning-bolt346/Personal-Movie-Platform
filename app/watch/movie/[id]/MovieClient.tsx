@@ -57,6 +57,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [bgTrailerPlaying, setBgTrailerPlaying] = useState(false);
   const trailer = movie.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
 
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
@@ -121,6 +122,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                         videoKey={trailer?.key || null}
                         backdropPath={movie.backdrop_path || movie.poster_path}
                         title={movie.title || ''}
+                        onPlayingChange={setBgTrailerPlaying}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
                       <button
@@ -133,9 +135,9 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                         <span className="hidden sm:inline">Share</span>
                         <Share2 size={16} />
                       </button>
-                      <div className="absolute inset-0 flex items-center justify-center z-20">
+                      <div className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-opacity duration-700 ${bgTrailerPlaying ? 'opacity-0' : 'opacity-100'}`}>
                         <div
-                          className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl"
+                          className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl pointer-events-auto"
                           style={{
                             background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
                             boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,

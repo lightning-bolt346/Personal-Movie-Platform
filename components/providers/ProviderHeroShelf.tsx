@@ -60,14 +60,14 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
           {/* Brand Accent Bar */}
           <div className="w-1.5 h-7 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 12px ${provider.color}80` }} />
           
-          <div className="flex items-center gap-2">
+          <Link href={`/providers/${provider.slug}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="relative w-16 h-7 hidden sm:block">
               <Image src={provider.logo} alt={provider.name} fill className="object-contain object-left" />
             </div>
             <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight">
               {title}
             </h2>
-          </div>
+          </Link>
         </div>
         
         <Link

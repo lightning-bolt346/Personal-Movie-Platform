@@ -6,7 +6,8 @@ export function SecurityGuard() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Completely disable console methods to prevent API/Embed URL leaks
+    // Disabled for testing
+    return;
     const noop = () => {};
     const methods = [
       'log', 'debug', 'info', 'warn', 'error', 'table', 'trace', 'dir', 

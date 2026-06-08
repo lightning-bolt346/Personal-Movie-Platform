@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { SettingsModal } from '@/components/ui/SettingsModal';
 import { Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAutoLocation } from '@/hooks/useAutoLocation';
+import { useRef } from 'react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -16,8 +18,8 @@ const NAV_ITEMS = [
 ];
 
 const BROWSE_ITEMS = [
-  { href: '/collections', label: 'Collections' },
   { href: '/schedule', label: 'Schedule' },
+  { href: '/collections', label: 'Collections' },
   { href: '/blog', label: 'Blog' },
   { href: '/providers', label: 'Providers' },
   { href: '/guide', label: 'Guide' },
@@ -35,8 +37,11 @@ const MOBILE_DOCK_ITEMS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  useAutoLocation();
   const [randomMoviePreview, setRandomMoviePreview] = useState<any>(null);
   const [isHoveringRandom, setIsHoveringRandom] = useState(false);
+  const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+  const browseRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -58,6 +63,20 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (browseRef.current && !browseRef.current.contains(event.target as Node)) {
+        setIsBrowseOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setIsBrowseOpen(false);
+  }, [pathname]);
 
   const clearIframes = () => {
     document.querySelectorAll('iframe').forEach(i => (i.src = ''));
@@ -293,26 +312,40 @@ export function Navbar() {
             })}
 
             {/* Browse Dropdown */}
-            <div className="relative group flex items-center h-full py-4 -my-4">
-              <button className="flex items-center gap-1 text-[14px] font-medium tracking-wide text-white/60 hover:text-white/95 transition-all duration-300 outline-none">
+            <div ref={browseRef} className="relative flex items-center h-full py-4 -my-4">
+              <button 
+                onClick={() => setIsBrowseOpen(!isBrowseOpen)}
+                className={`flex items-center gap-1 text-[14px] font-medium tracking-wide transition-all duration-300 outline-none ${isBrowseOpen ? 'text-white/95' : 'text-white/60 hover:text-white/95'}`}
+              >
                 Browse
-                <svg className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`w-4 h-4 opacity-70 transition-transform duration-300 ${isBrowseOpen ? 'rotate-180 opacity-100' : 'hover:opacity-100'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </button>
               
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-48 bg-void-950/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
-                <div className="flex flex-col p-1.5">
+              <div 
+                className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-xl overflow-hidden z-50 transition-all duration-300 transform origin-top ${isBrowseOpen ? 'opacity-100 visible translate-y-0 pointer-events-auto' : 'opacity-0 invisible translate-y-2 pointer-events-none'}`}
+                style={{
+                  backgroundColor: 'rgba(10, 8, 12, 0.85)',
+                  backdropFilter: 'blur(30px) saturate(180%) contrast(120%) brightness(1.1)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%) contrast(120%) brightness(1.1)',
+                  border: '1px solid rgba(255, 165, 80, 0.15)',
+                  boxShadow: '0 20px 40px -10px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 2px rgba(255, 165, 80, 0.1)',
+                }}
+              >
+                <div className="absolute inset-0 pointer-events-none opacity-50 mix-blend-overlay" style={{
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 20%, transparent 50%, rgba(255,255,255,0.02) 80%, rgba(255,255,255,0.2) 100%)'
+                }} />
+                <div className="flex flex-col p-1.5 relative z-10">
                   {BROWSE_ITEMS.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={(e) => {
                         handleNavigation(e, item.href);
-                        // Force hover state off by removing focus/blurring active element
                         if (document.activeElement instanceof HTMLElement) {
                           document.activeElement.blur();
                         }
                       }}
-                      className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${isActive(item.href) ? 'bg-crimson-500/15 text-crimson-400' : 'text-zinc-400 hover:bg-zinc-800/80 hover:text-white'}`}
+                      className={`px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 flex items-center ${isActive(item.href) ? 'bg-white/10 text-white font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : 'text-white/60 hover:bg-white/5 hover:text-white/95'}`}
                     >
                       {item.label}
                     </Link>

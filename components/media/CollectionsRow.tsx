@@ -54,9 +54,11 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
     <section ref={sectionRef} className="relative group/row row-hidden">
       {/* Header */}
       <div className="w-full max-w-[1800px] mx-auto px-4 md:px-14 mb-3 flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2">
-          🎬 Iconic Collections
-        </h2>
+        <Link href="/collections" className="hover:opacity-80 transition-opacity">
+          <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2 group">
+            🎬 Iconic Collections
+          </h2>
+        </Link>
         <Link
           href="/collections"
           className="flex items-center gap-1 text-sm font-semibold text-white/35 hover:text-white/80 transition-colors duration-200 group"

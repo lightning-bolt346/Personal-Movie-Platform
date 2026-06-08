@@ -12,28 +12,19 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.verc
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
   const { id } = await params;
   const rawId = id.split('-')[0];
-  const resolvedSearchParams = await searchParams;
-  const isParty = !!resolvedSearchParams?.party;
 
   const show = await tmdb.getDetails('tv', rawId);
 
-  const defaultTitle = show.name
+  const title = show.name
     ? `Watch ${show.name} Free in HD | ZIVOX`
     : 'Watch TV Shows Free in HD | ZIVOX';
-  const title = isParty
-    ? `🍿 Watch Party: ${show.name} | ZIVOX`
-    : defaultTitle;
 
-  const rawDesc = isParty
-    ? `Join the watch party for ${show.name} on ZIVOX. Stream it together in HD for free!`
-    : show.overview || 'Stream TV shows in premium HD quality on ZIVOX.';
+  const rawDesc = show.overview || 'Stream TV shows in premium HD quality on ZIVOX.';
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc;
 
   const image = getImageUrl(show.poster_path || show.backdrop_path, 'w780');

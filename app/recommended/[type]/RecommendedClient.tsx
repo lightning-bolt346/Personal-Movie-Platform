@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePreferences } from '@/hooks/usePreferences';
-import { HorizontalRow } from './HorizontalRow';
 import { discoverMedia } from '@/app/actions';
 import { Media } from '@/types/tmdb';
+import { MediaGrid } from '@/components/media/MediaGrid';
+import { ThemedLoader } from '@/components/ui/ThemedLoader';
 
-export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie' | 'tv' | 'all' }) {
+export function RecommendedClient({ mediaType }: { mediaType: 'movie' | 'tv' | 'all' }) {
   const { preferences } = usePreferences();
   const [recommendations, setRecommendations] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,10 +14,13 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Skip if both genres and languages are empty (wait for auto-location)
     if (preferences.preferredGenres.length === 0 && preferences.originalLanguage.length === 0) {
-      setLoading(false);
-      return;
+      if (preferences.locationAutoDetected) {
+         // Auto location done but no prefs? Default empty means global fetch. 
+      } else {
+         // Wait for auto location
+         return;
+      }
     }
 
     const fetchRecommendations = async () => {
@@ -72,7 +76,6 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
           
           let mIdx = 0, tIdx = 0;
           while (mIdx < movies.length || tIdx < tvShows.length) {
-            // 2 movies for every 1 TV show = 33% TV shows
             if (mIdx < movies.length) combinedResults.push(movies[mIdx++]);
             if (mIdx < movies.length) combinedResults.push(movies[mIdx++]);
             if (tIdx < tvShows.length) combinedResults.push(tvShows[tIdx++]);
@@ -81,7 +84,6 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
           combinedResults = await fetchByType(mediaType);
         }
 
-        // Deduplicate
         const seen = new Set();
         const uniqueResults = combinedResults.filter(item => {
            if (seen.has(item.id)) return false;
@@ -90,7 +92,7 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
         });
 
         if (uniqueResults.length > 0) {
-          setRecommendations(uniqueResults.slice(0, 30));
+          setRecommendations(uniqueResults);
         }
       } catch (e) {
         console.error(e);
@@ -100,19 +102,31 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
     };
 
     fetchRecommendations();
-  }, [preferences.preferredGenres, preferences.adultContent, preferences.originalLanguage, mediaType]);
+  }, [preferences.preferredGenres, preferences.adultContent, preferences.originalLanguage, preferences.locationAutoDetected, mediaType]);
 
-  if (loading || recommendations.length === 0) {
-    return null;
+  if (loading) {
+    return <div className="mt-32"><ThemedLoader /></div>;
   }
 
+  if (recommendations.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center mt-32">
+        <p className="text-6xl mb-4" style={{ filter: 'grayscale(1)', opacity: 0.3 }}>🎬</p>
+        <p className="text-xl font-display font-bold text-white/30 mb-1">No recommendations found</p>
+        <p className="text-sm text-white/20">Try adjusting your preferences or watching more content.</p>
+      </div>
+    );
+  }
+
+  const titles = {
+    'movie': 'Recommended Movies',
+    'tv': 'Recommended TV Shows',
+    'all': 'Recommended For You'
+  };
+
   return (
-    <div className="w-full">
-      <HorizontalRow 
-        title="Recommended For You" 
-        items={recommendations.slice(0, 15)} 
-        seeAllHref={`/recommended/${mediaType}`}
-      />
+    <div className="w-full mt-32 max-w-[1800px] mx-auto min-h-screen">
+      <MediaGrid title={titles[mediaType]} items={recommendations} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { Provider } from '@/lib/providers';
 
 interface ProviderCardProps {
   provider: Provider;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   showName?: boolean;
 }
 
@@ -14,6 +14,7 @@ export function ProviderCard({ provider, size = 'md', showName = false }: Provid
     sm: { w: 100, h: 50, logoH: 36 },
     md: { w: 130, h: 70, logoH: 48 },
     lg: { w: 160, h: 80, logoH: 56 },
+    xl: { w: 180, h: 90, logoH: 64 },
   }[size];
 
   return (

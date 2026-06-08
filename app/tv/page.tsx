@@ -4,8 +4,9 @@ import { FilterableContent } from '@/components/media/FilterableContent';
 import { HorizontalRow } from '@/components/media/HorizontalRow';
 import { HeroSlider } from '@/components/media/HeroSlider';
 import { Top10Row } from '@/components/media/Top10Row';
+import { RecommendedForYou } from '@/components/media/RecommendedForYou';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Watch TV Shows & Series Free Online in HD — ZIVOX',
@@ -20,17 +21,10 @@ import { Suspense } from 'react';
 import { ThemedLoader } from '@/components/ui/ThemedLoader';
 
 async function TvDataFetcher() {
-  // Artificial delay to ensure loading animation is visible for at least 2 seconds as requested
-  const fetchPromise = Promise.all([
+  const [trendingTv, popTv, topTv] = await Promise.all([
     tmdb.getTrending('tv'),
     tmdb.getPopular('tv'),
     tmdb.getTopRated('tv'),
-  ]);
-  const delayPromise = new Promise(r => setTimeout(r, 2000));
-  
-  const [[trendingTv, popTv, topTv]] = await Promise.all([
-    fetchPromise,
-    delayPromise
   ]);
 
   const top6Trending = trendingTv.results?.slice(0, 6) || [];
@@ -53,6 +47,8 @@ async function TvDataFetcher() {
 
       {/* Content rows */}
       <div className="flex flex-col relative z-20 mt-4 gap-8 md:gap-14">
+        <RecommendedForYou mediaType="tv" />
+
         {/* Top 10 Today — Custom UI */}
         <Top10Row
           title="Top 10 Series Today"

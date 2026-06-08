@@ -35,6 +35,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const [showNextOverlay, setShowNextOverlay] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const [favoriteServers, setFavoriteServers] = useState<string[]>([]);
   const [showAllServers, setShowAllServers] = useState(false);
@@ -105,6 +106,13 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     setIsConnecting(true);
     const t = setTimeout(() => setIsConnecting(false), 4000);
     return () => clearTimeout(t);
+  }, [currentSourceId, testingSources]);
+
+  // Auto-scroll active server tab into view
+  useEffect(() => {
+    if (!testingSources && activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   }, [currentSourceId, testingSources]);
 
   const { addToHistory, history } = useWatchHistory();
@@ -481,7 +489,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="flex flex-col w-full relative bg-void-950 rounded-2xl overflow-hidden border border-zinc-800/60"
     >
-      <PlayerToasts key={id} serverName={source.publicName} serverIsNoAds={source.noAds} />
+      <PlayerToasts key={id} serverName={source.publicName} serverIsNoAds={source.noAds} isPaused={showTutorial} />
 
       {/* First-time Tutorial Spotlight - Precise Tooltips */}
       <AnimatePresence>
@@ -526,15 +534,25 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                    </div>
                  </div>
                  
-                 {/* Center 'Got It' Button */}
-                 <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto flex flex-col items-center">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setShowTutorial(false); }}
-                      className="bg-crimson-500 hover:bg-crimson-600 text-white font-black py-2 md:py-3 px-8 md:px-12 rounded-xl transition-all shadow-[0_0_30px_rgba(229,9,20,0.4)] text-base md:text-lg active:scale-95 flex flex-col items-center border border-crimson-400"
-                    >
-                      <span className="tracking-wide uppercase">Got it!</span>
-                      <span className="text-[9px] md:text-[10px] font-bold text-crimson-100 mt-1 uppercase tracking-widest bg-crimson-900/40 px-2 py-0.5 rounded">Time left: {tutorialCountdown}s</span>
-                    </button>
+                 {/* Center/Bottom Content: Heading + Got It Button */}
+                 <div className="absolute inset-0 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 pointer-events-auto flex flex-col items-center justify-end md:justify-center w-full pb-[env(safe-area-inset-bottom,24px)] md:pb-0">
+                    {/* Add gradient background for mobile to make text readable over video */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent md:hidden pointer-events-none" />
+                    
+                    <div className="relative z-10 flex flex-col items-center w-full px-4 mt-8 md:mt-0">
+                      {/* Optional preview image could go here */}
+                      <div className="text-center mb-6">
+                        <h2 className="text-[clamp(20px,5vw,28px)] font-bold text-white leading-none drop-shadow-lg">Quick Instructions</h2>
+                        <p className="text-[#e53935] font-bold mt-2 text-[11px] tracking-[0.1em] uppercase">Read this carefully</p>
+                      </div>
+
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setShowTutorial(false); }}
+                        className="bg-[#e53935] text-white font-bold h-[52px] w-full max-w-[340px] rounded-[10px] text-[16px] transition-all shadow-[0_0_20px_rgba(229,9,20,0.3)] active:scale-95 flex items-center justify-center mb-[env(safe-area-inset-bottom,16px)] md:mb-0"
+                      >
+                        Got it!
+                      </button>
+                    </div>
                  </div>
               </div>
             </motion.div>
@@ -587,30 +605,33 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9990] bg-black/70 backdrop-blur-md flex flex-col items-stretch sm:items-center sm:justify-center"
+              className="fixed inset-0 z-[9990] bg-black/80 backdrop-blur-md flex flex-col items-stretch justify-end md:items-center md:justify-center"
               onClick={() => setShowSettingsModal(false)}
             >
               <motion.div 
-                initial={{ scale: 0.98, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.98, y: 20, opacity: 0 }}
-                className="bg-void-900/95 backdrop-blur-2xl border border-white/10 rounded-3xl sm:rounded-2xl w-full max-w-[calc(100vw-2rem)] sm:max-w-5xl h-[85vh] sm:h-auto sm:max-h-[88vh] flex flex-col shadow-2xl relative overflow-hidden mt-auto mb-4 sm:mb-0 sm:mt-0"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-[#1c1b19] border border-[oklch(1_0_0/0.08)] rounded-t-[16px] md:rounded-[16px] w-full max-w-[100vw] md:max-w-5xl max-h-[92dvh] md:h-auto flex flex-col shadow-2xl relative overflow-hidden mt-auto md:mb-auto md:mt-auto"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Mobile Drag Handle */}
+                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-2 mb-1 md:hidden shrink-0" />
                 {/* Background glows */}
                 <div className="absolute -top-24 -left-24 w-48 h-48 bg-crimson-500/10 rounded-full blur-[100px] pointer-events-none" />
                 <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
 
                 {/* Modal header */}
-                <div className="px-5 py-4 border-b border-zinc-800/80 flex items-center justify-between bg-void-950/60 relative z-10 shrink-0">
-                  <h3 className="text-base sm:text-xl font-bold font-display tracking-wider text-white flex items-center gap-2.5 uppercase">
-                    <Settings size={18} className="text-crimson-500 animate-spin" style={{ animationDuration: '6s' }} /> ZIVOX Control
+                <div className="px-4 py-3 md:px-5 md:py-4 border-b border-[oklch(1_0_0/0.08)] flex items-center justify-between bg-black/20 relative z-10 shrink-0">
+                  <h3 className="text-sm md:text-xl font-bold font-display tracking-wider text-white flex items-center gap-2.5 uppercase">
+                    <Settings size={16} className="text-crimson-500 animate-spin md:w-[18px] md:h-[18px]" style={{ animationDuration: '6s' }} /> ZIVOX Control
                   </h3>
                   <button 
                     onClick={() => setShowSettingsModal(false)}
-                    className="text-zinc-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-xl active:scale-95"
+                    className="text-zinc-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 w-9 h-9 flex items-center justify-center rounded-xl active:scale-95"
                   >
-                    <X size={18} />
+                    <X size={16} className="md:w-[18px] md:h-[18px]" />
                   </button>
                 </div>
 
@@ -618,25 +639,34 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                   {/* Left: Server list */}
                   <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-3 shrink-0">
-                      <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400">Select Server</h4>
-                      <span className="text-xs bg-crimson-500/10 border border-crimson-500/20 px-2.5 py-1 rounded-full text-crimson-500 font-bold uppercase tracking-wider">{sources.length} Active</span>
+                    <div className="flex items-center justify-between px-4 py-3 md:px-5 md:py-3 shrink-0 whitespace-nowrap">
+                      <h4 className="text-[11px] md:text-xs font-bold uppercase tracking-widest text-zinc-400">Select Server</h4>
+                      <span className="text-[11px] md:text-xs bg-crimson-500/10 border border-crimson-500/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-crimson-500 font-bold uppercase tracking-wider">{sources.length} Active</span>
                     </div>
-                    <div data-lenis-prevent="true" className="flex flex-col gap-5 overflow-y-auto flex-1 px-5 pb-5">
+                    <div data-lenis-prevent="true" className="flex flex-col gap-4 md:gap-5 overflow-y-auto flex-1 px-4 md:px-5 pb-4 md:pb-5">
                       {(() => {
                         const renderServerCard = (s: typeof sources[0]) => {
                           const isActive = currentSourceId === s.id;
                           const isFav = favoriteServers.includes(s.id);
                           const isTop7 = TOP_7_IDS.includes(s.id);
                           const displayName = s.publicName;
+                          
+                          // Build description
+                          const descParts = [];
+                          if (s.feature) descParts.push(s.feature);
+                          if (s.noAds) descParts.push('No Ads');
+                          if (s.hasPopups) descParts.push('Popups');
+                          if (s.autoDisableSandbox) descParts.push('Ads possible');
+                          const description = descParts.join(' · ') || 'Standard Server';
+
                           return (
                             <button
                               key={s.id}
                               onClick={() => handleSwitchServer(s.id)}
-                              className={`group flex flex-col justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-300 border text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
+                              className={`group flex flex-col justify-between w-full p-3 md:p-4 rounded-lg md:rounded-2xl transition-all duration-300 border border-[oklch(1_0_0/0.08)] text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
                                 isActive 
-                                  ? 'bg-gradient-to-br from-crimson-500/20 via-crimson-500/10 to-transparent border-crimson-500/50 text-white shadow-[0_0_20px_rgba(229,9,20,0.15)]' 
-                                  : 'bg-void-900/60 border-zinc-800/80 text-zinc-300 hover:bg-zinc-800/40 hover:border-zinc-700 hover:text-white'
+                                  ? 'bg-crimson-500/10 border-crimson-500/50 text-white shadow-[0_0_20px_rgba(229,9,20,0.1)]' 
+                                  : 'bg-black/20 text-zinc-300 hover:bg-black/40 hover:text-white'
                               }`}
                             >
                               {isActive && (
@@ -654,14 +684,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                                   <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-crimson-500 shadow-[0_0_8px_#e50914]' : 'bg-zinc-700'}`} />
                                 </div>
                               </div>
-                              <div className="mt-3 z-10 flex-1 flex flex-col">
-                                <span className="text-sm font-bold leading-tight block mb-1 font-display">{displayName}</span>
-                                {s.feature && <span className="hidden sm:block text-[10px] text-zinc-400 leading-snug mb-3">{s.feature}</span>}
-                                <div className="flex items-center gap-1.5 mt-auto flex-wrap">
-                                  {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">✓ No Ads</span>}
-                                  {s.hasPopups && <span className="text-[9px] font-bold text-zinc-500 bg-black/50 px-1.5 py-0.5 rounded border border-white/5">Popups</span>}
-                                  {s.autoDisableSandbox && <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">⚠ Ads possible</span>}
-                                </div>
+                              <div className="mt-2 md:mt-3 z-10 flex-1 flex flex-col">
+                                <span className="text-sm md:text-sm font-bold leading-tight block mb-0.5 md:mb-1 font-display">{displayName}</span>
+                                <span className="text-[12px] text-[#9ca3af] leading-snug truncate">{description}</span>
                               </div>
                             </button>
                           );
@@ -671,15 +696,15 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                           <>
                             {favoriteSources.length > 0 && (
                               <div>
-                                <h5 className="text-[10px] font-bold uppercase tracking-widest text-pink-500 mb-2 flex items-center gap-1.5"><Heart size={11} className="fill-pink-500" /> Favorites</h5>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
+                                <h5 className="text-[11px] font-bold uppercase tracking-widest text-pink-500 mb-2 flex items-center gap-1.5"><Heart size={11} className="fill-pink-500" /> Favorites</h5>
+                                <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-3">
                                   {favoriteSources.map(s => renderServerCard(s))}
                                 </div>
                               </div>
                             )}
                             <div>
-                              <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">âœ¦ Recommended</h5>
-                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
+                              <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-2 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-[#22c55e] rounded-full" /> Recommended</h5>
+                              <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-3">
                                 {top7Sources.map(s => renderServerCard(s))}
                               </div>
                             </div>
@@ -742,93 +767,67 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                   </div>
 
                   {/* Right: Security controls */}
-                  <div className="w-full lg:w-72 shrink-0 flex flex-col gap-3 overflow-y-auto px-5 pb-5 border-t lg:border-t-0 lg:border-l border-zinc-800/60 pt-4 lg:pt-4">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Security</h4>
-                    <div className="bg-void-900/50 border border-zinc-800/80 rounded-xl p-4 flex flex-col gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg transition-colors ${useSandbox ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                          {useSandbox ? <Shield size={14} /> : <ShieldOff size={14} />}
+                  <div className="w-full lg:w-80 shrink-0 flex flex-col gap-2 overflow-y-auto px-4 md:px-5 pb-4 md:pb-5 border-t lg:border-t-0 lg:border-l border-[oklch(1_0_0/0.08)] pt-4">
+                    <h4 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-1">Security</h4>
+                    
+                    {/* Sandbox Shield */}
+                    <div className="bg-black/20 border border-[oklch(1_0_0/0.08)] rounded-lg px-4 min-h-[56px] flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-transform" onClick={() => {
+                        const n = !useSandbox;
+                        setUseSandbox(n);
+                        localStorage.setItem('sandbox_pref_' + currentSourceId, n.toString());
+                        showToast(`Sandbox ${n ? 'ON' : 'OFF'}`);
+                    }}>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`shrink-0 ${useSandbox ? 'text-[#22c55e]' : 'text-zinc-500'}`}>
+                          {useSandbox ? <Shield size={18} /> : <ShieldOff size={18} />}
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-0.5">Sandbox Shield</h4>
-                          <p className="text-[10px] text-zinc-400 leading-normal">Blocks popups, redirects and trackers from embed sources.</p>
+                        <div className="flex flex-col">
+                          <span className="text-[13px] font-semibold text-white leading-tight">Sandbox Shield</span>
+                          <span className="text-[11px] text-[#9ca3af] truncate">Blocks popups & trackers</span>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-zinc-800/40">
-                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{useSandbox ? 'Protected' : 'Disabled'}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const n = !useSandbox;
-                            setUseSandbox(n);
-                            localStorage.setItem('sandbox_pref_' + currentSourceId, n.toString());
-                            showToast(`Sandbox ${n ? 'ON' : 'OFF'}`);
-                          }}
-                          className={`relative w-10 h-5 rounded-full transition-all duration-300 ${
-                            useSandbox ? 'bg-emerald-500' : 'bg-zinc-700'
-                          }`}
-                        >
-                          <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${
-                            useSandbox ? 'left-[22px]' : 'left-0.5'
-                          }`} />
-                        </button>
-                      </div>
+                      <button className={`shrink-0 relative w-10 h-5 rounded-full transition-all duration-300 ${useSandbox ? 'bg-[#22c55e]' : 'bg-zinc-700'}`}>
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${useSandbox ? 'left-[22px]' : 'left-0.5'}`} />
+                      </button>
                     </div>
 
-                    <div className="bg-void-900/50 border border-zinc-800/80 rounded-xl p-4 flex flex-col gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                          <Shield size={14} />
+                    {/* Auto-Shield */}
+                    <div className="bg-black/20 border border-[oklch(1_0_0/0.08)] rounded-lg px-4 min-h-[56px] flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-transform" onClick={() => {
+                        const n = !autoSandboxOnSwitch;
+                        setAutoSandboxOnSwitch(n);
+                        localStorage.setItem('auto_sandbox_on_switch', n.toString());
+                    }}>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`shrink-0 ${autoSandboxOnSwitch ? 'text-indigo-400' : 'text-zinc-500'}`}>
+                          <Shield size={18} />
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-0.5">Auto-Shield</h4>
-                          <p className="text-[10px] text-zinc-400 leading-normal">Re-enables sandbox every time you switch servers.</p>
+                        <div className="flex flex-col">
+                          <span className="text-[13px] font-semibold text-white leading-tight">Auto-Shield</span>
+                          <span className="text-[11px] text-[#9ca3af] truncate">Re-enables on switch</span>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-zinc-800/40">
-                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{autoSandboxOnSwitch ? 'Active' : 'Off'}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const n = !autoSandboxOnSwitch;
-                            setAutoSandboxOnSwitch(n);
-                            localStorage.setItem('auto_sandbox_on_switch', n.toString());
-                          }}
-                          className={`relative w-10 h-5 rounded-full transition-all duration-300 ${
-                            autoSandboxOnSwitch ? 'bg-indigo-500' : 'bg-zinc-700'
-                          }`}
-                        >
-                          <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${
-                            autoSandboxOnSwitch ? 'left-[22px]' : 'left-0.5'
-                          }`} />
-                        </button>
-                      </div>
+                      <button className={`shrink-0 relative w-10 h-5 rounded-full transition-all duration-300 ${autoSandboxOnSwitch ? 'bg-indigo-500' : 'bg-zinc-700'}`}>
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${autoSandboxOnSwitch ? 'left-[22px]' : 'left-0.5'}`} />
+                      </button>
                     </div>
 
+                    {/* Auto-Play Next */}
                     {type === 'tv' && (
-                      <div className="bg-void-900/50 border border-zinc-800/80 rounded-xl p-4 flex flex-col gap-3">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 rounded-lg bg-crimson-500/10 text-crimson-400 border border-crimson-500/20">
-                            <Play size={14} />
+                      <div className="bg-black/20 border border-[oklch(1_0_0/0.08)] rounded-lg px-4 min-h-[56px] flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-transform" onClick={() => {
+                          const n = !autoPlayNext; setAutoPlayNext(n); storage.set({ settings: { ...storage.get().settings, autoPlayNext: n } });
+                      }}>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`shrink-0 ${autoPlayNext ? 'text-crimson-500' : 'text-zinc-500'}`}>
+                            <Play size={18} />
                           </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-0.5">Auto-Play Next</h4>
-                            <p className="text-[10px] text-zinc-400 leading-normal">Automatically plays the next episode when current ends.</p>
+                          <div className="flex flex-col">
+                            <span className="text-[13px] font-semibold text-white leading-tight">Auto-Play Next</span>
+                            <span className="text-[11px] text-[#9ca3af] truncate">Plays next episode</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-zinc-800/40">
-                          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{autoPlayNext ? 'On' : 'Off'}</span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); const n = !autoPlayNext; setAutoPlayNext(n); storage.set({ settings: { ...storage.get().settings, autoPlayNext: n } }); }}
-                            className={`relative w-10 h-5 rounded-full transition-all duration-300 ${
-                              autoPlayNext ? 'bg-crimson-500' : 'bg-zinc-700'
-                            }`}
-                          >
-                            <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${
-                              autoPlayNext ? 'left-[22px]' : 'left-0.5'
-                            }`} />
-                          </button>
-                        </div>
+                        <button className={`shrink-0 relative w-10 h-5 rounded-full transition-all duration-300 ${autoPlayNext ? 'bg-crimson-500' : 'bg-zinc-700'}`}>
+                          <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${autoPlayNext ? 'left-[22px]' : 'left-0.5'}`} />
+                        </button>
                       </div>
                     )}
 
@@ -1086,38 +1085,51 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
               </button>
             </div>
 
-            {/* Mobile: first 4 */}
-            <div className="flex md:hidden items-center gap-1.5 flex-wrap">
-              {orderedStrip.slice(0, 4).map((s) => {
-                const isActive = s.id === currentSourceId;
-                const isMultilingual = multilingualIds.has(s.id);
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => !isActive && handleSwitchServer(s.id)}
-                    title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}`}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
-                      isActive
-                        ? 'bg-crimson-500/20 border-crimson-500/60 text-crimson-400 cursor-default'
-                        : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
-                    }`}
-                  >
-                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-crimson-500' : 'bg-zinc-600'}`} />
-                    {s.publicName}
-                    {isActive && <span className="text-[8px] font-bold uppercase tracking-widest text-crimson-500/80 ml-0.5">●</span>}
-                    {isMultilingual && <span title="Multi-language">🌐</span>}
-                  </button>
-                );
-              })}
+            {/* Mobile Tab Bar (<768px) */}
+            <div className="md:hidden flex flex-col w-full">
+              <div className="relative w-full">
+                <div 
+                  className="flex items-center overflow-x-auto snap-x snap-mandatory w-full relative z-0 pb-1 [&::-webkit-scrollbar]:hidden"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+                >
+                  {orderedStrip.map((s) => {
+                    const isActive = s.id === currentSourceId;
+                    const isMultilingual = multilingualIds.has(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        ref={isActive ? activeTabRef : null}
+                        onClick={() => !isActive && handleSwitchServer(s.id)}
+                        className={`shrink-0 flex items-center justify-center gap-1.5 h-[32px] px-3 text-[12px] whitespace-nowrap snap-start border-b-2 transition-all duration-200 bg-transparent ${
+                          isActive
+                            ? 'border-crimson-500 text-white font-bold cursor-default'
+                            : 'border-transparent text-zinc-400 hover:text-white active:bg-white/5 cursor-pointer'
+                        }`}
+                      >
+                        {s.publicName}
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-crimson-500 shadow-[0_0_6px_#e50914] shrink-0" />}
+                        {!isActive && s.noAds && <span className="text-[10px] text-emerald-500 shrink-0">●</span>}
+                        {isMultilingual && <span className="text-[14px] shrink-0 leading-none">🌐</span>}
+                      </button>
+                    );
+                  })}
+                  {/* Extra padding so the last item can scroll past the fade */}
+                  <div className="shrink-0 w-8" />
+                </div>
+                {/* Right Edge Fade Mask */}
+                <div className="absolute right-0 top-0 bottom-1 w-12 bg-gradient-to-l from-void-950 to-transparent pointer-events-none z-10" />
+              </div>
+
+              {/* All Servers Button */}
               <button
                 onClick={() => setShowSettingsModal(true)}
-                className="text-[10px] text-zinc-500 hover:text-white transition-colors px-2 py-1 rounded-full border border-zinc-800 hover:border-zinc-600"
+                className="w-full text-center text-[12px] text-[#e53935] font-bold py-[6px] mt-1"
               >
-                +{top7.length - 4}
+                All {sources.length} servers ↑
               </button>
             </div>
 
-            <p className="text-[10px] text-zinc-600 mt-1.5 leading-snug">
+            <p className="hidden md:block text-[10px] text-zinc-600 mt-1.5 leading-snug">
               🌐 = Multi-language subtitles &amp; dubs &nbsp;·&nbsp; ● = No ads &nbsp;·&nbsp;{' '}
               <button
                 onClick={() => setShowSettingsModal(true)}
@@ -1167,12 +1179,11 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
               </div>
 
               <div className="flex flex-col items-center gap-1.5">
-                <h3 className="text-sm sm:text-base font-bold font-display uppercase tracking-widest text-white">
-                  Finding Best Stream
+                <h3 className="text-[12px] text-[#9ca3af] font-medium flex items-center">
+                  Fetching media / Trying streaming servers<span className="animate-pulse tracking-widest">...</span>
                 </h3>
-                <p className="text-zinc-500 text-[11px] sm:text-xs text-center max-w-[200px] leading-relaxed">
-                  Testing{' '}
-                  <span className="text-white font-semibold">{testingCurrentName}</span>
+                <p className="text-zinc-500 text-[11px] text-center max-w-[200px] leading-relaxed">
+                  Testing <span className="text-white font-semibold">{testingCurrentName}</span>
                 </p>
               </div>
               

@@ -7,12 +7,19 @@ interface YoutubeBackgroundPlayerProps {
   videoKey: string | null;
   backdropPath: string | null;
   title: string;
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
-export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title }: YoutubeBackgroundPlayerProps) {
+export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayingChange }: YoutubeBackgroundPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (onPlayingChange) {
+      onPlayingChange(isPlaying);
+    }
+  }, [isPlaying, onPlayingChange]);
 
   useEffect(() => {
     if (!videoKey) {
@@ -97,11 +104,20 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title }: Youtu
           }`}
         >
           <iframe
+            suppressHydrationWarning
             ref={iframeRef}
-            src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1&controls=0&disablekb=1&loop=1&playlist=${videoKey}&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&enablejsapi=1`}
+            src={`https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&enablejsapi=1`}
             className="w-full h-full md:w-[150%] md:h-[150%] md:-translate-x-[16.6%] md:-translate-y-[16.6%] max-w-none border-0"
             allow="autoplay; encrypted-media"
             style={{ border: 0 }}
+            onLoad={() => {
+              if (iframeRef.current?.contentWindow) {
+                iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
+              }
+              setTimeout(() => {
+                setIsPlaying(true);
+              }, 4000);
+            }}
           />
         </div>
       )}

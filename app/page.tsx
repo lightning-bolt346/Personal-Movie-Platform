@@ -2,23 +2,24 @@ import { tmdb, getHeroItemsWithLogos } from '@/lib/tmdb';
 import { getCuratedCollections } from '@/lib/collectionsData';
 import { HeroSlider } from '@/components/media/HeroSlider';
 import { ContinueWatching } from '@/components/media/ContinueWatching';
-import { HorizontalRow } from '@/components/media/HorizontalRow';
-import { Top10Row } from '@/components/media/Top10Row';
 import { RecommendedForYou } from '@/components/media/RecommendedForYou';
-import { TimeBasedWidget } from '@/components/home/TimeBasedWidget';
-import { CollectionsRow } from '@/components/media/CollectionsRow';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Suspense } from 'react';
 import { ThemedLoader } from '@/components/ui/ThemedLoader';
-import { ProvidersGrid } from '@/components/providers/ProvidersGrid';
-import { ProviderHeroShelf } from '@/components/providers/ProviderHeroShelf';
 import { PROVIDERS } from '@/lib/providers';
+import nextDynamic from 'next/dynamic';
 
-export const dynamic = 'force-dynamic';
+const CollectionsRow = nextDynamic(() => import('@/components/media/CollectionsRow').then(mod => mod.CollectionsRow));
+const TimeBasedWidget = nextDynamic(() => import('@/components/home/TimeBasedWidget').then(mod => mod.TimeBasedWidget));
+const ProvidersGrid = nextDynamic(() => import('@/components/providers/ProvidersGrid').then(mod => mod.ProvidersGrid));
+const Top10Row = nextDynamic(() => import('@/components/media/Top10Row').then(mod => mod.Top10Row));
+const HorizontalRow = nextDynamic(() => import('@/components/media/HorizontalRow').then(mod => mod.HorizontalRow));
+const ProviderHeroShelf = nextDynamic(() => import('@/components/providers/ProviderHeroShelf').then(mod => mod.ProviderHeroShelf));
+
+export const revalidate = 3600;
 
 async function HomeDataFetcher() {
-  // Artificial delay to ensure loading animation is visible for at least 2 seconds as requested
-  const fetchPromise = Promise.all([
+  const [trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData, disneyData, maxData, hotstarData] = await Promise.all([
     tmdb.getTrending('all'),
     tmdb.getPopular('movie'),
     tmdb.getPopular('tv'),
@@ -34,12 +35,6 @@ async function HomeDataFetcher() {
     tmdb.discover('movie', { with_watch_providers: '337', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
     tmdb.discover('movie', { with_watch_providers: '1899', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
     tmdb.discover('movie', { with_watch_providers: '122', watch_region: 'IN', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-  ]);
-  const delayPromise = new Promise(r => setTimeout(r, 2000));
-  
-  const [[trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData, disneyData, maxData, hotstarData]] = await Promise.all([
-    fetchPromise,
-    delayPromise
   ]);
 
   const top6Trending = trending.results?.slice(0, 6) || [];
@@ -97,14 +92,15 @@ async function HomeDataFetcher() {
 
       {/* Content rows */}
       <div className="flex flex-col relative z-20 pb-28 md:pb-16 mt-4 gap-8 md:gap-14">
+        
+        {/* Priority Rows (Above Fold) */}
+        <ContinueWatching />
+        <RecommendedForYou mediaType="all" />
+
         {/* Movie Collections — curated iconic franchises */}
         {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
 
         <TimeBasedWidget items={widgetPool} />
-        
-        <ContinueWatching />
-
-        <RecommendedForYou />
 
         <ProvidersGrid />
 

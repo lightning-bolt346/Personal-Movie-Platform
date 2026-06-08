@@ -60,9 +60,17 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
     >
       {/* Header */}
       <div className="w-full max-w-[1800px] mx-auto px-4 md:px-14 mb-3 flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight">
-          {title}
-        </h2>
+        {seeAllHref ? (
+          <Link href={seeAllHref} className="hover:opacity-80 transition-opacity">
+            <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2 group">
+              {title}
+            </h2>
+          </Link>
+        ) : (
+          <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight">
+            {title}
+          </h2>
+        )}
         {seeAllHref && (
           <Link
             href={seeAllHref}

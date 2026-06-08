@@ -152,7 +152,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               height: '70%',
               background: 'radial-gradient(ellipse at center, rgba(76,20,200,0.18) 0%, rgba(50,10,130,0.08) 35%, rgba(50,10,130,0.02) 60%, transparent 80%)',
               animation: 'purple-beam 16s ease-in-out infinite',
-              willChange: 'transform, opacity',
             }}
           />
           {/* Top-left cool blue accent */}
@@ -165,7 +164,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               height: '45%',
               background: 'radial-gradient(ellipse at center, rgba(30,60,180,0.08) 0%, rgba(30,60,180,0.02) 40%, transparent 70%)',
               animation: 'purple-beam 22s ease-in-out infinite reverse',
-              willChange: 'transform, opacity',
             }}
           />
           {/* Top-right warm violet accent */}
@@ -178,7 +176,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               height: '40%',
               background: 'radial-gradient(ellipse at center, rgba(100,30,200,0.08) 0%, rgba(100,30,200,0.02) 40%, transparent 70%)',
               animation: 'purple-beam 19s ease-in-out infinite',
-              willChange: 'transform, opacity',
             }}
           />
           {/* Very subtle warm bottom accent — prevents cold feel */}

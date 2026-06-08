@@ -339,10 +339,10 @@ function SearchPageContent() {
             {suggestions.length > 0 && (
               <div className="w-full max-w-6xl border-t border-white/5 pt-10">
                 <h3 className="flex items-center gap-2 text-xs font-bold text-crimson-500 uppercase tracking-widest mb-6 px-2">
-                  <Sparkles size={14} className="text-crimson-500" /> Recommended For You
+                  <Sparkles size={14} className="text-crimson-500" /> Trending Right Now
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-                  {suggestions.slice(0, 6).map((item, i) => (
+                  {suggestions.slice(0, 12).map((item, i) => (
                     <motion.div
                       key={`suggestion-welcome-${item.id}`}
                       initial={{ opacity: 0, y: 15 }}
@@ -375,10 +375,10 @@ function SearchPageContent() {
             {suggestions.length > 0 && (
               <div className="w-full max-w-6xl border-t border-white/5 pt-10">
                 <h3 className="flex items-center gap-2 text-xs font-bold text-crimson-500 uppercase tracking-widest mb-6 px-2">
-                  <Sparkles size={14} className="text-crimson-500" /> You Might Also Like
+                  <Sparkles size={14} className="text-crimson-500" /> Trending Right Now
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-                  {suggestions.slice(0, 6).map((item, i) => (
+                  {suggestions.slice(0, 12).map((item, i) => (
                     <motion.div
                       key={`suggestion-empty-${item.id}`}
                       initial={{ opacity: 0, y: 15 }}

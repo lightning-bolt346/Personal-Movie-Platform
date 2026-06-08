@@ -4,6 +4,7 @@ import { MediaGrid } from '@/components/media/MediaGrid';
 import { generateSlug } from '@/lib/utils';
 import Image from 'next/image';
 import { BackButton } from '@/components/ui/BackButton';
+import { CollectionShareButton } from '@/components/ui/CollectionShareButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -74,9 +75,10 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
             <h1 className="text-4xl md:text-6xl font-display font-black text-white mb-4 drop-shadow-lg leading-tight">
               {collection.name}
             </h1>
-            <p className="text-zinc-300 max-w-3xl text-sm md:text-base leading-relaxed drop-shadow-md">
+            <p className="text-zinc-300 max-w-3xl text-sm md:text-base leading-relaxed drop-shadow-md mb-6">
               {collection.overview}
             </p>
+            <CollectionShareButton title={collection.name} />
           </div>
         </div>
       </div>

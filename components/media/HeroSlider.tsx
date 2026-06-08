@@ -69,12 +69,13 @@ export function HeroSlider({ items }: { items: Media[] }) {
   };
 
   return (
-    <div
-      className="relative w-full bg-black overflow-hidden h-[85vh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px] group"
-      style={{ contain: 'layout' }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="relative w-full bg-[#050505] z-10">
+      <div
+        className="relative w-full bg-[#050505] overflow-hidden h-[85vh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px] group"
+        style={{ contain: 'layout' }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
       {/* ── BACKGROUND IMAGE ── */}
       <AnimatePresence initial={false}>
         <motion.div
@@ -91,7 +92,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
             fill
             sizes="100vw"
             className="object-cover object-top"
-            style={{ animation: 'ken-burns 16s ease-in-out alternate forwards', willChange: 'transform' }}
+            style={{ animation: 'ken-burns 16s ease-in-out alternate forwards' }}
             priority
             referrerPolicy="no-referrer"
           />
@@ -206,14 +207,14 @@ export function HeroSlider({ items }: { items: Media[] }) {
             {/* CTA Buttons */}
             <div className="flex items-center gap-3">
               <Link
-                href={`/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(current.id.toString(), current.title || current.name)}`}
+                href={`/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(current.id.toString(), current.title || current.name)}?play=1`}
                 className="flex items-center gap-2.5 px-8 py-3 rounded-full font-bold text-[15px] text-black transition-[opacity,transform] duration-200 active:scale-95 hover:opacity-90 shadow-xl"
                 style={{
                   background: '#ffffff',
                 }}
               >
                 <Play size={18} className="fill-black" />
-                Play
+                Play Now
               </Link>
               
               <Link
@@ -271,6 +272,10 @@ export function HeroSlider({ items }: { items: Media[] }) {
           </div>
         </div>
       </div>
+      </div>
+      
+      {/* Subpixel gap cover (bleeds outside overflow) to stamp out mobile subpixel lines */}
+      <div className="absolute -bottom-[2px] left-0 right-0 h-[4px] bg-[#050505] z-0 pointer-events-none" />
     </div>
   );
 }

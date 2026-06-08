@@ -1,5 +1,5 @@
 'use client';
-import { useState, memo } from "react";
+import { useState, memo, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Media } from "@/types/tmdb";
@@ -7,6 +7,8 @@ import { getImageUrl } from "@/lib/tmdb";
 import { cn, generateSlug } from "@/lib/utils";
 import { Bookmark, Trash2, Heart, Play, Star, Plus, Check, ArrowRight, Bell, BellOff } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { getTrailerAction } from "@/app/actions";
+
 import { useFavorites } from "@/hooks/useFavorites";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -27,9 +29,6 @@ export const MediaCard = memo(function MediaCard({
 }) {
   const router = useRouter();
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
-  const { isInWatchlist, toggleWatchlist } = useWatchlist();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const { preferences } = usePreferences();
   const { hasNotification, toggleNotification } = useNotifications();
 
   const title = media.title || media.name;
@@ -39,6 +38,115 @@ export const MediaCard = memo(function MediaCard({
   const href = `/watch/${isMovie ? "movie" : "tv"}/${generateSlug(media.id.toString(), title)}${
     !isMovie && media.season && media.episode ? `?season=${media.season}&episode=${media.episode}` : ""
   }`;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [trailerFailed, setTrailerFailed] = useState(false);
+  const [expandOrigin, setExpandOrigin] = useState<'center' | 'left' | 'right'>('center');
+  const [trailerPlaying, setTrailerPlaying] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let expandTimeoutId: NodeJS.Timeout;
+    let minTimeId: NodeJS.Timeout;
+    
+    if (isHovered && !isMobileExpanded && typeof window !== 'undefined' && window.innerWidth >= 768) {
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const expandedWidth = rect.width * 1.6;
+        const diff = (expandedWidth - rect.width) / 2;
+        if (rect.left - diff < 10) {
+          setExpandOrigin('left');
+        } else if (rect.right + diff > window.innerWidth - 10) {
+          setExpandOrigin('right');
+        } else {
+          setExpandOrigin('center');
+        }
+      }
+
+      expandTimeoutId = setTimeout(() => {
+        setIsExpanded(true);
+      }, 400);
+
+      minTimeId = setTimeout(() => {
+        setMinTimeElapsed(true);
+      }, 2000);
+
+      timeoutId = setTimeout(async () => {
+        if (!trailerKey && !trailerFailed) {
+          const key = await getTrailerAction(media.id.toString(), type as 'movie'|'tv');
+          if (key) {
+            setTrailerKey(key);
+          } else {
+            setTrailerFailed(true);
+          }
+        }
+      }, 400);
+    } else {
+      setIsExpanded(false);
+      setTrailerPlaying(false);
+      setMinTimeElapsed(false);
+    }
+    
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(expandTimeoutId);
+      clearTimeout(minTimeId);
+    };
+  }, [isHovered, media.id, type, trailerKey, trailerFailed, isMobileExpanded]);
+
+  useEffect(() => {
+    if (!isExpanded || !trailerKey || trailerFailed) return;
+
+    let isMounted = true;
+    const failsafeId = setTimeout(() => {
+      if (isMounted && !trailerPlaying) setTrailerFailed(true);
+    }, 10000);
+
+    const handleMessage = (e: MessageEvent) => {
+      if (!isMounted) return;
+      if (!e.origin.includes('youtube.com') && !e.origin.includes('youtube-nocookie.com')) return;
+      
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (data.event === 'infoDelivery' && data.info) {
+          if (data.info.playerState === 1) {
+            clearTimeout(failsafeId);
+            setTimeout(() => {
+              if (isMounted) setTrailerPlaying(true);
+            }, 1200);
+          }
+          if (data.info.errorCode) {
+            setTrailerFailed(true);
+          }
+        }
+        if (data.event === 'onStateChange' && data.info === 1) {
+          clearTimeout(failsafeId);
+          setTimeout(() => {
+            if (isMounted) setTrailerPlaying(true);
+          }, 1200);
+        }
+        if (data.event === 'onError') {
+          setTrailerFailed(true);
+        }
+      } catch (err) {}
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('message', handleMessage);
+      clearTimeout(failsafeId);
+    };
+  }, [isExpanded, trailerKey, trailerFailed, trailerPlaying]);
+
+  const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { preferences } = usePreferences();
+
   const onWatchlist = isInWatchlist(media.id.toString());
   const onFavorites = isFavorite(media.id.toString());
 
@@ -82,7 +190,12 @@ export const MediaCard = memo(function MediaCard({
   };
 
   return (
-    <div className="relative group block" onMouseLeave={() => setIsMobileExpanded(false)}>
+    <div 
+      ref={cardRef}
+      className="relative group block" 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsMobileExpanded(false); setIsHovered(false); }}
+    >
       <Link href={href} className={cn("relative block", className)} onClick={handleCardClick}>
         <div
           className="relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer will-change-transform"
@@ -126,9 +239,9 @@ export const MediaCard = memo(function MediaCard({
              ) : null}
           </div>
 
-          {/* Desktop Hover Overlay */}
+          {/* Desktop Hover Overlay (Fades out when expanded) */}
           <div
-            className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 hidden md:flex flex-col justify-end p-3.5 z-10"
+            className={`absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 hidden md:flex flex-col justify-end p-3.5 z-20 ${isExpanded ? 'opacity-0 group-hover:opacity-0' : ''}`}
             style={{
               background: variant === 'top10'
                 ? 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)'
@@ -140,7 +253,7 @@ export const MediaCard = memo(function MediaCard({
           </div>
 
           {/* Desktop Play Button */}
-          <div className="absolute inset-0 z-20 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-250">
+          <div className={`absolute inset-0 z-20 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-250 ${isExpanded ? 'opacity-0 group-hover:opacity-0 hidden' : ''}`}>
             <div className="translate-y-3 group-hover:translate-y-0 transition-transform duration-250">
               {!isUpcoming && (
                 <div className="w-12 h-12 bg-black/60 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-md">
@@ -256,13 +369,106 @@ export const MediaCard = memo(function MediaCard({
       {onRemove && (media.contextType === 'history' || media.contextType === 'notifications') && (
         <button
           onClick={(e) => { e.preventDefault(); onRemove(media.id.toString(), media.contextType!); }}
-          className="absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl"
+          className={`absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl ${isExpanded ? 'hidden' : ''}`}
           title={`Remove from ${media.contextType === 'history' ? 'History' : 'Notifications'}`}
         >
           <Trash2 size={11} />
         </button>
       )}
 
+      {/* ── EXPANDED POP-OUT CARD ── */}
+      {isExpanded && (
+        <div 
+          className={cn(
+            "absolute -top-4 h-[calc(100%+2rem)] w-[160%] bg-void-950 rounded-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] z-50 overflow-hidden pointer-events-auto border border-zinc-800 flex flex-col transform animate-in fade-in duration-300 ease-out zoom-in-[0.85]",
+            expandOrigin === 'center' ? "left-1/2 -translate-x-1/2 origin-center" :
+            expandOrigin === 'left' ? "left-0 origin-left" :
+            "right-0 origin-right"
+          )}
+          onMouseLeave={() => { setIsExpanded(false); setIsHovered(false); }}
+        >
+          <div 
+            onClick={() => router.push(href)}
+            className="flex-1 flex flex-col cursor-pointer"
+          >
+            {/* Top part: Trailer / Poster */}
+            <div className="relative w-full h-[60%] bg-black overflow-hidden border-b border-white/5">
+              <Image
+                src={getImageUrl(media.backdrop_path || media.poster_path, "w500")}
+                alt={title || "Poster"}
+                fill
+                className={`object-cover transition-opacity duration-700 ${trailerPlaying && minTimeElapsed && !trailerFailed ? 'opacity-0' : 'opacity-60'}`}
+                sizes="30vw"
+              />
+              {trailerKey && !trailerFailed && (
+                <div className={`absolute inset-0 bg-black overflow-hidden pointer-events-none transition-opacity duration-700 ${trailerPlaying && minTimeElapsed ? 'opacity-100' : 'opacity-0'}`}>
+                  <iframe
+                    ref={iframeRef}
+                    src={`https://www.youtube-nocookie.com/embed/${trailerKey}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1`}
+                    className="absolute top-1/2 left-1/2 w-[300%] h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    allow="autoplay; encrypted-media"
+                    title="Trailer"
+                    onLoad={() => {
+                      if (iframeRef.current?.contentWindow) {
+                        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*');
+                      }
+                      // Fallback: If YouTube JS API fails to broadcast, reveal after a longer safe time (4s) so UI is guaranteed gone
+                      setTimeout(() => {
+                        setTrailerPlaying(true);
+                      }, 4000);
+                    }}
+                  />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-transparent to-transparent pointer-events-none" />
+            </div>
+
+            {/* Bottom part: Metadata & Play */}
+            <div className="relative flex flex-col justify-end px-4 py-3 h-[40%] bg-void-950 gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2">
+                  <Link
+                    href={`${href}?play=1`}
+                    className="flex items-center justify-center bg-white text-black hover:bg-gray-200 w-8 h-8 rounded-full transition-all active:scale-95 shadow-md"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Play size={14} className="fill-black ml-0.5" />
+                  </Link>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleWatchlist(e); }}
+                    className="flex items-center justify-center bg-void-800 hover:bg-void-700 border border-white/20 text-white w-8 h-8 rounded-full transition-all active:scale-95"
+                  >
+                    {onWatchlist ? <Check size={14} /> : <Plus size={14} />}
+                  </button>
+                  {(media.contextType === 'history' || media.contextType === 'favorites') && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleFavorite(e); }}
+                      className="flex items-center justify-center bg-void-800 hover:bg-void-700 border border-white/20 text-white w-8 h-8 rounded-full transition-all active:scale-95"
+                    >
+                      <Heart size={14} className={onFavorites ? 'fill-pink-500 text-pink-500' : ''} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-white font-bold text-sm leading-tight truncate drop-shadow-md">{title}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-green-500 font-semibold text-[10px] drop-shadow-md">{(media.vote_average ? (media.vote_average * 10).toFixed(0) : '90')}% Match</p>
+                  <p className="text-white/60 font-semibold text-[10px] drop-shadow-md border border-white/20 px-1 rounded-sm">{year}</p>
+                  <p className="text-white/60 font-semibold text-[10px] drop-shadow-md">{isMovie ? 'Movie' : 'Series'}</p>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {media.genre_ids?.slice(0, 3).map(id => {
+                    const genreMap: Record<number, string> = { 28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy', 80: 'Crime', 99: 'Documentary', 18: 'Drama', 10751: 'Family', 14: 'Fantasy', 27: 'Horror', 9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi', 53: 'Thriller', 37: 'Western', 10759: 'Action & Adv.', 10765: 'Sci-Fi & Fantasy' };
+                    return genreMap[id] ? <span key={id} className="text-[9px] text-white/50">{genreMap[id]}</span> : null;
+                  }).reduce((prev, curr) => curr ? (prev === null ? [curr] : [...prev, <span key={`dot-${curr.key}`} className="text-[9px] text-white/20">•</span>, curr]) : prev, null as any)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
   </div>
   );
 });

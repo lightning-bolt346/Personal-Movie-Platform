@@ -58,7 +58,6 @@ function AnimatedBackgroundComponent() {
             style={{
               background: 'radial-gradient(ellipse 60% 25% at 50% 30%, rgba(220, 150, 255, 0.4) 0%, rgba(220, 150, 255, 0.1) 35%, transparent 60%)',
               animation: 'cloth-sway 18s ease-in-out infinite alternate',
-              willChange: 'transform, opacity',
               transform: 'translate3d(0,0,0)',
               backfaceVisibility: 'hidden',
             }}

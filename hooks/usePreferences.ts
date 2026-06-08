@@ -8,6 +8,7 @@ export type Preferences = {
   originalLanguage: string[];
   showRatings: boolean;
   country: string;
+  locationAutoDetected?: boolean;
 };
 
 const defaultPreferences: Preferences = {
@@ -17,6 +18,7 @@ const defaultPreferences: Preferences = {
   originalLanguage: [],
   showRatings: true,
   country: 'US',
+  locationAutoDetected: false,
 };
 
 export function usePreferences() {

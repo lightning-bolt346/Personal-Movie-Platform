@@ -291,8 +291,8 @@ export const MediaCard = memo(function MediaCard({
               onClick={handleWatchlist}
               className="w-7 h-7 rounded-full flex items-center justify-center transition-[background-color,border-color] duration-150 active:scale-90 shadow-lg"
               style={{
-                background: onWatchlist ? '#e50914' : 'rgba(0,0,0,0.82)',
-                border: `1px solid ${onWatchlist ? '#e50914' : 'rgba(255,255,255,0.2)'}`,
+                background: onWatchlist ? 'rgb(var(--brand-500))' : 'rgba(0,0,0,0.82)',
+                border: `1px solid ${onWatchlist ? 'rgb(var(--brand-500))' : 'rgba(255,255,255,0.2)'}`,
               }}
               title={onWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
             >
@@ -303,8 +303,8 @@ export const MediaCard = memo(function MediaCard({
                 onClick={handleReminderClick}
                 className="w-7 h-7 rounded-full flex items-center justify-center transition-[background-color,border-color] duration-150 active:scale-90 shadow-lg"
                 style={{
-                  background: isReminded ? '#e50914' : 'rgba(0,0,0,0.82)',
-                  border: `1px solid ${isReminded ? '#e50914' : 'rgba(255,255,255,0.2)'}`,
+                  background: isReminded ? 'rgb(var(--brand-500))' : 'rgba(0,0,0,0.82)',
+                  border: `1px solid ${isReminded ? 'rgb(var(--brand-500))' : 'rgba(255,255,255,0.2)'}`,
                 }}
                 title={isReminded ? "Remove Reminder" : "Set Reminder"}
               >
@@ -378,8 +378,8 @@ export const MediaCard = memo(function MediaCard({
                 className="h-full rounded-r-full"
                 style={{
                   width: `${Math.min(100, Math.max(0, media.progress))}%`,
-                  background: 'linear-gradient(to right, #e50914, #ff3d47)',
-                  boxShadow: '0 0 8px rgba(229,9,20,0.5)',
+                  background: 'linear-gradient(to right, rgb(var(--brand-500)), #ff3d47)',
+                  boxShadow: '0 0 8px rgba(var(--brand-500),0.5)',
                 }}
               />
             </div>
@@ -400,7 +400,7 @@ export const MediaCard = memo(function MediaCard({
       {onRemove && (media.contextType === 'history' || media.contextType === 'notifications') && (
         <button
           onClick={(e) => { e.preventDefault(); onRemove(media.id.toString(), media.contextType!); }}
-          className={`absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-crimson-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl ${isExpanded ? 'hidden' : ''}`}
+          className={`absolute -top-2 -right-2 z-40 w-6 h-6 bg-void-900 hover:bg-brand-500 border border-white/10 text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-[opacity,background-color] duration-200 hover:scale-110 shadow-xl ${isExpanded ? 'hidden' : ''}`}
           title={`Remove from ${media.contextType === 'history' ? 'History' : 'Notifications'}`}
         >
           <Trash2 size={11} />

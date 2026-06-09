@@ -89,14 +89,15 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
   const activeSearch = searchParams.get('q') || '';
   const [searchValue, setSearchValue] = useState(activeSearch);
 
+  // Debounce the search input
   useEffect(() => {
-    setSearchValue(activeSearch);
-  }, [activeSearch]);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateParam('q', searchValue);
-  };
+    const handler = setTimeout(() => {
+      if (searchValue !== activeSearch) {
+        updateParam('q', searchValue);
+      }
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchValue, activeSearch]);
 
   const clearSearch = () => {
     setSearchValue('');
@@ -107,7 +108,7 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
     <div className="w-full md:w-64 shrink-0 flex flex-col gap-8 md:sticky md:top-24 h-max pb-8 z-20">
       
       {/* Search Input */}
-      <form onSubmit={handleSearchSubmit} className="relative w-full group">
+      <div className="relative w-full group">
         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
           <Search size={18} className="text-white/40 group-focus-within:text-white transition-colors" />
         </div>
@@ -128,7 +129,7 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
             <X size={16} />
           </button>
         )}
-      </form>
+      </div>
       
       {/* Media Type Tabs */}
       <div className="flex flex-col gap-2">

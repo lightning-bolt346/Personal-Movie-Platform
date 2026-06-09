@@ -23,9 +23,9 @@ export function ScrollToTop() {
           : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       style={{
-        background: 'linear-gradient(135deg, #e50914 0%, #b00610 100%)',
+        background: 'linear-gradient(135deg, rgb(var(--brand-500)) 0%, #b00610 100%)',
         border: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 4px 24px rgba(229,9,20,0.35), 0 2px 8px rgba(0,0,0,0.5)',
+        boxShadow: '0 4px 24px rgba(var(--brand-500),0.35), 0 2px 8px rgba(0,0,0,0.5)',
       }}
     >
       <ChevronUp size={20} className="text-white" strokeWidth={2.5} />

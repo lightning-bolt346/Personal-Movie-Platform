@@ -11,6 +11,7 @@ import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
+import { ThemeManager } from '@/components/ui/ThemeManager';
 import { getSiteUrl } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -173,6 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
           />
         </div>
+        <ThemeManager />
         <GlobalLoader />
         <Navbar />
         <main className="flex-1 flex flex-col pb-20 md:pb-0 relative z-10 w-full min-h-screen">

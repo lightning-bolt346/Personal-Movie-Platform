@@ -54,7 +54,7 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
       
       <div className="mb-10 text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tighter text-white drop-shadow-xl mb-4">
-          Best of <span className="text-crimson-500">{year}</span>
+          Best of <span className="text-brand-500">{year}</span>
         </h1>
         <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
           The most popular movies and TV shows released in {year}. Stream them all for free in HD on ZIVOX.
@@ -69,7 +69,7 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
           <a 
             key={y} 
             href={`/year/${y}`}
-            className={`px-5 py-2 rounded-full border text-sm font-bold transition-all ${y === yearNum ? 'bg-crimson-500 border-crimson-500 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+            className={`px-5 py-2 rounded-full border text-sm font-bold transition-all ${y === yearNum ? 'bg-brand-500 border-brand-500 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
           >
             {y}
           </a>

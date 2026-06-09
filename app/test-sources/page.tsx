@@ -144,13 +144,13 @@ function TestSourcesClient() {
               <div className="flex gap-4">
                 <button
                   onClick={() => setType('movie')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'movie' ? 'bg-crimson-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'movie' ? 'bg-brand-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
                 >
                   Movie
                 </button>
                 <button
                   onClick={() => setType('tv')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'tv' ? 'bg-crimson-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'tv' ? 'bg-brand-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
                 >
                   TV Show
                 </button>
@@ -162,7 +162,7 @@ function TestSourcesClient() {
                   type="text"
                   value={id}
                   onChange={e => setId(e.target.value)}
-                  className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-crimson-500 transition-colors"
+                  className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand-500 transition-colors"
                   placeholder="e.g., 157336 for Interstellar"
                 />
               </div>
@@ -175,7 +175,7 @@ function TestSourcesClient() {
                       type="number"
                       value={season}
                       onChange={e => setSeason(parseInt(e.target.value) || 1)}
-                      className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-crimson-500 transition-colors"
+                      className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand-500 transition-colors"
                       min="1"
                     />
                   </div>
@@ -185,7 +185,7 @@ function TestSourcesClient() {
                       type="number"
                       value={episode}
                       onChange={e => setEpisode(parseInt(e.target.value) || 1)}
-                      className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-crimson-500 transition-colors"
+                      className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand-500 transition-colors"
                       min="1"
                     />
                   </div>
@@ -202,10 +202,10 @@ function TestSourcesClient() {
                 <button
                   key={s.id}
                   onClick={() => handleSourceChange(s.id)}
-                  className={`flex flex-col text-left px-4 py-3 rounded-xl transition-all border ${selectedSourceId === s.id && !useCustomUrl ? 'bg-crimson-500/10 border-crimson-500/30 text-white' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'}`}
+                  className={`flex flex-col text-left px-4 py-3 rounded-xl transition-all border ${selectedSourceId === s.id && !useCustomUrl ? 'bg-brand-500/10 border-brand-500/30 text-white' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-void-800'}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Server size={14} className={selectedSourceId === s.id && !useCustomUrl ? 'text-crimson-500' : 'text-zinc-500'} />
+                    <Server size={14} className={selectedSourceId === s.id && !useCustomUrl ? 'text-brand-500' : 'text-zinc-500'} />
                     <span className="font-bold text-sm">{s.name}</span>
                     <div className="flex items-center gap-1.5 ml-auto">
                         {s.tier === 1 && <span className="text-[9px] uppercase tracking-wider bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded border border-green-500/20">Tier 1</span>}
@@ -228,7 +228,7 @@ function TestSourcesClient() {
                   value={customUrl}
                   onChange={e => { setCustomUrl(e.target.value); setUseCustomUrl(true); }}
                   onFocus={() => setUseCustomUrl(true)}
-                  className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-crimson-500 transition-colors"
+                  className="w-full bg-void-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
                   placeholder="https://player.videasy.net/movie/{tmdbId}"
                 />
               </div>
@@ -240,7 +240,7 @@ function TestSourcesClient() {
                      type="checkbox" 
                      checked={isApiEndpoint} 
                      onChange={(e) => setIsApiEndpoint(e.target.checked)} 
-                     className="accent-crimson-500 w-4 h-4 rounded shrink-0 mt-0.5"
+                     className="accent-brand-500 w-4 h-4 rounded shrink-0 mt-0.5"
                    />
                    <div className="flex flex-col gap-0.5">
                       <span>Parse as API Endpoint</span>
@@ -255,10 +255,10 @@ function TestSourcesClient() {
                          type="checkbox" 
                          checked={useCorsProxy} 
                          onChange={(e) => setUseCorsProxy(e.target.checked)} 
-                         className="accent-crimson-500 w-4 h-4 rounded shrink-0 mt-0.5"
+                         className="accent-brand-500 w-4 h-4 rounded shrink-0 mt-0.5"
                        />
                        <div className="flex flex-col gap-0.5">
-                          <span className="text-crimson-400">Fetch via CORS Proxy</span>
+                          <span className="text-brand-400">Fetch via CORS Proxy</span>
                           <span className="text-[10px] text-zinc-500 font-normal">Routes requests through a proxy to bypass CORS restrictions.</span>
                        </div>
                     </label>
@@ -269,7 +269,7 @@ function TestSourcesClient() {
                         <select
                           value={corsProxyUrl}
                           onChange={e => setCorsProxyUrl(e.target.value)}
-                          className="w-full bg-void-950 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-crimson-500"
+                          className="w-full bg-void-950 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-brand-500"
                         >
                           <option value="https://corsproxy.io/?">CORSProxy.io (Fast, direct)</option>
                           <option value="https://api.allorigins.win/raw?url=">AllOrigins.win (Bypasses rate limits)</option>
@@ -345,7 +345,7 @@ function TestSourcesClient() {
         <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
           <div className="flex items-center justify-between bg-void-950 border border-zinc-800 px-4 py-3 rounded-xl shadow-lg">
              <div className="flex items-center gap-2 truncate pr-4">
-                {isApiEndpoint ? <Terminal size={16} className="text-crimson-500 shrink-0" /> : <Play size={16} className="text-crimson-500 shrink-0" />}
+                {isApiEndpoint ? <Terminal size={16} className="text-brand-500 shrink-0" /> : <Play size={16} className="text-brand-500 shrink-0" />}
                 <span className="text-sm font-mono text-zinc-300 truncate">{embedUrl || 'Waiting for URL...'}</span>
              </div>
              <a href={embedUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-500 hover:text-white shrink-0">
@@ -362,7 +362,7 @@ function TestSourcesClient() {
                <div className="w-full h-full bg-void-950 p-6 overflow-auto custom-scrollbar relative">
                    {apiLoading ? (
                        <div className="absolute inset-0 flex items-center justify-center text-zinc-500">
-                           <div className="w-8 h-8 border-2 border-t-crimson-500 border-zinc-800 rounded-full animate-spin" />
+                           <div className="w-8 h-8 border-2 border-t-brand-500 border-zinc-800 rounded-full animate-spin" />
                        </div>
                    ) : apiResponse ? (
                        <pre className="text-xs font-mono text-zinc-300 whitespace-pre-wrap">{apiResponse}</pre>

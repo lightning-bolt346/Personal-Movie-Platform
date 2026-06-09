@@ -101,7 +101,7 @@ export default function ProfilePage() {
       <AnimatedBackground />
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-12 py-32 space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 pb-8 border-b border-zinc-800">
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-crimson-500 to-crimson-900 flex items-center justify-center shadow-2xl shrink-0">
+        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-brand-500 to-brand-900 flex items-center justify-center shadow-2xl shrink-0">
           <User size={40} className="text-white" />
         </div>
         <div className="flex-1">
@@ -155,7 +155,7 @@ export default function ProfilePage() {
             <p>Your watchlist is empty.</p>
             <Link
               href="/"
-              className="text-crimson-500 hover:text-crimson-400 mt-2 font-medium"
+              className="text-brand-500 hover:text-brand-400 mt-2 font-medium"
             >
               Discover movies
             </Link>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
             {history.length > 0 && (
               <button
                 onClick={clearHistory}
-                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-crimson-500 transition-colors bg-void-900 px-3 py-1.5 rounded-lg border border-zinc-800"
+                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-brand-500 transition-colors bg-void-900 px-3 py-1.5 rounded-lg border border-zinc-800"
               >
                 <Trash2 size={14} /> Clear History
               </button>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
       <div className="space-y-6 pt-12 border-t border-zinc-800/50">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold font-display uppercase tracking-wider flex items-center gap-2">
-            <Bell size={24} className="text-crimson-500" /> Upcoming Notifications
+            <Bell size={24} className="text-brand-500" /> Upcoming Notifications
           </h2>
           <span className="text-sm font-mono text-zinc-500">
             {notifications.length} ITEMS
@@ -227,7 +227,7 @@ export default function ProfilePage() {
             <p>You haven&apos;t set any notifications yet.</p>
             <Link
               href="/schedule"
-              className="text-crimson-500 hover:text-crimson-400 mt-2 font-medium"
+              className="text-brand-500 hover:text-brand-400 mt-2 font-medium"
             >
               Browse Schedule
             </Link>

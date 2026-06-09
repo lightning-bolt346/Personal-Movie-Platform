@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const providers = [
-  { slug: 'netflix', name: 'Netflix', color: '#E50914' },
+  { slug: 'netflix', name: 'Netflix', color: 'rgb(var(--brand-500))' },
   { slug: 'prime-video', name: 'Prime Video', color: '#00A8E1' },
   { slug: 'disney-plus', name: 'Disney+', color: '#113CCF' },
   { slug: 'max', name: 'Max', color: '#002BE7' },
@@ -39,7 +39,7 @@ const providers = [
   { slug: 'discovery-plus', name: 'discovery+', color: '#0055ff' },
   { slug: 'espn-plus', name: 'ESPN+', color: '#E31837' },
   { slug: 'starz', name: 'Starz', color: '#555555' },
-  { slug: 'showtime', name: 'Showtime', color: '#E50914' },
+  { slug: 'showtime', name: 'Showtime', color: 'rgb(var(--brand-500))' },
   { slug: 'amc-plus', name: 'AMC+', color: '#D4AF37' },
   { slug: 'acorn-tv', name: 'Acorn TV', color: '#1A4F41' }
 ];

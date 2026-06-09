@@ -28,7 +28,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
       <BackButton />
       <div className="flex flex-col md:flex-row gap-8 mb-12">
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-crimson-sm group">
+          <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/50 bg-void-950 glow-brand-sm group">
             <Image 
               src={getImageUrl(person.profile_path, 'w500', person.name)} 
               alt={person.name} 

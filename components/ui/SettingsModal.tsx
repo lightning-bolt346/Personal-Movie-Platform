@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Settings, Download, Upload, MonitorPlay, Shield, Database, ChevronRight } from 'lucide-react';
+import { X, Settings, Download, Upload, MonitorPlay, Shield, Database, ChevronRight, Palette } from 'lucide-react';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useEffect, useRef, useState } from 'react';
 
@@ -68,7 +68,15 @@ const REGIONS = [
   { id: 'NL', name: 'Netherlands' }
 ];
 
-type TabId = 'content' | 'playback' | 'data';
+const THEMES = [
+  { id: 'crimson', name: 'Zivox Red', color: '#e50914' },
+  { id: 'violet', name: 'Ambient Space', color: '#8b5cf6' },
+  { id: 'cyan', name: 'Future Blue', color: '#06b6d4' },
+  { id: 'emerald', name: 'Calm Green', color: '#10b981' },
+  { id: 'amber', name: 'Cinematic Gold', color: '#f59e0b' },
+];
+
+type TabId = 'appearance' | 'content' | 'playback' | 'data';
 
 export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { preferences, updatePreferences } = usePreferences();
@@ -130,9 +138,49 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Content for each tab
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'appearance':
+        return (
+          <motion.div
+            key="appearance"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-8"
+          >
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                Theme Color
+              </h3>
+              <p className="text-xs text-zinc-500 mb-4">Choose your preferred accent color across the platform.</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {THEMES.map(theme => {
+                  const isActive = preferences.theme === theme.id || (!preferences.theme && theme.id === 'crimson');
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => updatePreferences({ theme: theme.id })}
+                      className={`flex flex-col items-center gap-3 p-4 rounded-xl transition-all border ${
+                        isActive ? 'bg-white/10 border-brand-500 shadow-[0_0_20px_rgba(var(--brand-500),0.2)]' : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <div 
+                        className={`w-10 h-10 rounded-full shadow-inner ${isActive ? 'ring-2 ring-offset-2 ring-offset-void-950 ring-brand-500' : ''}`}
+                        style={{ backgroundColor: theme.color }}
+                      />
+                      <span className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-zinc-400'}`}>
+                        {theme.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </motion.div>
+        );
+
       case 'content':
         return (
           <motion.div
@@ -144,7 +192,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           >
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
                 Primary Region
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Set your default region to see accurate streaming platform availability.</p>
@@ -159,7 +207,27 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                Interface Language
+              </h3>
+              <p className="text-xs text-zinc-500 mb-4">Set the language for movie/show metadata and titles.</p>
+              <select
+                value={preferences.contentLanguage || 'en-US'}
+                onChange={(e) => updatePreferences({ contentLanguage: e.target.value })}
+                className="bg-zinc-900/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjMgNiA2IDkgOSA2Ii8+PC9zdmc+')] bg-no-repeat bg-[position:calc(100%-15px)_center] w-full md:w-64"
+              >
+                <option value="en-US" className="bg-zinc-900">English (US)</option>
+                <option value="hi-IN" className="bg-zinc-900">Hindi</option>
+                <option value="es-ES" className="bg-zinc-900">Spanish</option>
+                <option value="fr-FR" className="bg-zinc-900">French</option>
+                <option value="de-DE" className="bg-zinc-900">German</option>
+                <option value="ja-JP" className="bg-zinc-900">Japanese</option>
+              </select>
+            </section>
+
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
                 Favorite Genres
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Select genres to personalize your Discover feed.</p>
@@ -172,7 +240,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       onClick={() => handleToggleGenre(genre.id)}
                       className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         isSelected 
-                          ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
+                          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
                           : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
                       }`}
                     >
@@ -185,7 +253,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
                 Preferred Languages
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Prioritize content originally produced in these languages.</p>
@@ -198,7 +266,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       onClick={() => handleToggleLang(lang.id)}
                       className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         isSelected 
-                          ? 'bg-crimson-500 text-white shadow-lg shadow-crimson-500/20' 
+                          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
                           : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
                       }`}
                     >
@@ -225,7 +293,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           >
             <section className="space-y-3">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
                 Display & Playback
               </h3>
               
@@ -237,7 +305,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <h4 className="font-semibold text-white">Include Mature Content</h4>
                   <p className="text-zinc-400 text-xs mt-0.5">Show 18+ and restricted content in recommendations</p>
                 </div>
-                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-brand-500' : 'bg-black/50 border border-white/20'}`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.adultContent ? 'translate-x-7' : 'translate-x-1'}`} />
                 </div>
               </button>
@@ -250,7 +318,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <h4 className="font-semibold text-white">Show Content Ratings</h4>
                   <p className="text-zinc-400 text-xs mt-0.5">Display IMDb/TMDB star ratings on movie cards</p>
                 </div>
-                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-crimson-500' : 'bg-black/50 border border-white/20'}`}>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-brand-500' : 'bg-black/50 border border-white/20'}`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.showRatings ? 'translate-x-7' : 'translate-x-1'}`} />
                 </div>
               </button>
@@ -270,7 +338,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             <section className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-crimson-500 rounded-full"></span>
+                  <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
                   Data Management
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed max-w-md">
@@ -354,8 +422,8 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             <div className="w-full md:w-[280px] shrink-0 bg-black/40 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
               <div className="p-6 pb-4 flex items-center justify-between md:block">
                 <div className="flex items-center gap-3 mb-1">
-                  <div className="w-8 h-8 rounded-full bg-crimson-500/20 flex items-center justify-center">
-                    <Settings size={16} className="text-crimson-500" />
+                  <div className="w-8 h-8 rounded-full bg-brand-500/20 flex items-center justify-center">
+                    <Settings size={16} className="text-brand-500" />
                   </div>
                   <h2 className="text-lg font-bold text-white leading-tight">Settings</h2>
                 </div>
@@ -368,6 +436,17 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
               </div>
               
               <div className="flex md:flex-col gap-1 p-2 md:p-4 overflow-x-auto md:overflow-visible no-scrollbar">
+                <button 
+                  onClick={() => setActiveTab('appearance')}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                    activeTab === 'appearance' 
+                      ? 'bg-white/10 text-white shadow-lg border border-white/5' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <Palette size={18} className={activeTab === 'appearance' ? 'text-white' : 'text-zinc-500'} />
+                  Appearance
+                </button>
                 <button 
                   onClick={() => setActiveTab('content')}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${

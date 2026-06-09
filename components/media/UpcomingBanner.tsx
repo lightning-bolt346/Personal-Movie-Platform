@@ -169,7 +169,7 @@ export function UpcomingBanner({
             <div
               className="absolute top-4 left-4 right-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-2xl"
               style={{
-                background: 'rgba(229,9,20,0.9)',
+                background: 'rgba(var(--brand-500),0.9)',
                 backdropFilter: 'blur(10px)',
               }}
             >
@@ -192,7 +192,7 @@ export function UpcomingBanner({
                 borderColor: 'rgba(255,255,255,0.1)',
                 boxShadow: `0 0 30px ${bgColor ? bgColor + '30' : 'rgba(255,255,255,0.05)'}`
               }}>
-              <CalendarDays size={18} className="text-crimson-500" />
+              <CalendarDays size={18} className="text-brand-500" />
               <span className="text-white font-bold tracking-wide">{countdown.label}</span>
               <span className="text-white/40 px-2">|</span>
               <span className="text-white/60 font-semibold text-sm">{formatDate(targetDate!)}</span>
@@ -232,7 +232,7 @@ export function UpcomingBanner({
                 onClick={toggleReminder}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm transition-colors shadow-lg active:scale-95 ${
                   hasReminder
-                    ? 'bg-crimson-600 hover:bg-crimson-500 text-white shadow-crimson-500/30'
+                    ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-brand-500/30'
                     : 'bg-white/10 hover:bg-white/20 text-white shadow-black/20'
                 }`}
               >
@@ -255,11 +255,11 @@ export function UpcomingBanner({
               onClick={() => toggleWatchlist({ id: idStr, type: mediaType as any, title, poster: media.poster_path })}
               className={`flex items-center justify-center gap-2 border px-5 py-4 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-widest text-xs ${
                 onWatchlist
-                  ? 'bg-crimson-500/10 border-crimson-500/30 text-crimson-500'
+                  ? 'bg-brand-500/10 border-brand-500/30 text-brand-500'
                   : 'bg-white/5 border-white/10 hover:bg-white/10 text-white/70'
               }`}
             >
-              <Bookmark size={16} className={onWatchlist ? 'fill-crimson-500' : ''} />
+              <Bookmark size={16} className={onWatchlist ? 'fill-brand-500' : ''} />
             </button>
             
             {/* Favorite */}
@@ -282,15 +282,15 @@ export function UpcomingBanner({
         <div
           className="mt-6 flex items-center gap-4 px-5 py-4 rounded-xl border"
           style={{
-            background: 'rgba(229,9,20,0.06)',
-            borderColor: 'rgba(229,9,20,0.20)',
+            background: 'rgba(var(--brand-500),0.06)',
+            borderColor: 'rgba(var(--brand-500),0.20)',
           }}
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(229,9,20,0.15)' }}
+            style={{ background: 'rgba(var(--brand-500),0.15)' }}
           >
-            <Radio size={18} className="text-crimson-500" />
+            <Radio size={18} className="text-brand-500" />
           </div>
           <div>
             <p className="text-sm font-bold text-white">
@@ -301,7 +301,7 @@ export function UpcomingBanner({
             </p>
           </div>
           <div className="ml-auto text-right shrink-0">
-            <p className="text-lg font-black text-crimson-500">{countdown?.days}</p>
+            <p className="text-lg font-black text-brand-500">{countdown?.days}</p>
             <p className="text-[10px] text-white/40 uppercase tracking-wide">days left</p>
           </div>
         </div>

@@ -68,7 +68,7 @@ export default async function GenrePage({ params, searchParams }: { params: Prom
       
       <div className="mb-10 text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tighter text-white drop-shadow-xl mb-4">
-          <span className="text-crimson-500">{genre.name}</span> Movies & Shows
+          <span className="text-brand-500">{genre.name}</span> Movies & Shows
         </h1>
         <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
           Discover the most popular {genre.name} content. Stream seamlessly in high quality on ZIVOX.

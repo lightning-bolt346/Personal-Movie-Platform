@@ -52,7 +52,7 @@ export function Select({ value, onChange, options, placeholder = 'Select...', pl
                 setIsOpen(false);
               }}
               className={`w-full text-left px-4 py-3 text-sm hover:bg-white/5 transition-colors ${
-                value === opt.value ? 'text-crimson-500 font-semibold' : 'text-zinc-300'
+                value === opt.value ? 'text-brand-500 font-semibold' : 'text-zinc-300'
               }`}
             >
               {opt.label}

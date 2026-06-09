@@ -38,7 +38,7 @@ export function Footer() {
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px"
         style={{
-          background: 'linear-gradient(to right, transparent, rgba(229,9,20,0.5), transparent)',
+          background: 'linear-gradient(to right, transparent, rgba(var(--brand-500),0.5), transparent)',
         }}
       />
 
@@ -67,8 +67,8 @@ export function Footer() {
                   width: '22px',
                   height: '22px',
                   borderRadius: '50%',
-                  border: '2.5px solid rgba(229, 9, 20, 0.9)',
-                  boxShadow: '0 0 12px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.15)',
+                  border: '2.5px solid rgba(var(--brand-500), 0.9)',
+                  boxShadow: '0 0 12px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.15)',
                   WebkitTextFillColor: 'transparent',
                   flexShrink: 0,
                 }}
@@ -152,7 +152,7 @@ export function Footer() {
               Contact Us
             </h3>
             <div className="flex flex-col gap-3">
-              <a href="mailto:zivox.tv@proton.me" className="text-sm font-medium text-white hover:text-crimson-400 transition-colors">
+              <a href="mailto:zivox.tv@proton.me" className="text-sm font-medium text-white hover:text-brand-400 transition-colors">
                 zivox.tv@proton.me
               </a>
               <p className="text-xs text-white/40">

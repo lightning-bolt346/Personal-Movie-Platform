@@ -131,12 +131,12 @@ function ToastItem({ toast, onDismiss }: { toast: NotificationItem; onDismiss: (
             )}
           </div>
           
-          <h4 className="font-bold text-white text-sm leading-snug line-clamp-2 mb-2 pr-4 group-hover:text-crimson-400 transition-colors">
+          <h4 className="font-bold text-white text-sm leading-snug line-clamp-2 mb-2 pr-4 group-hover:text-brand-400 transition-colors">
             {toast.title}
           </h4>
           
           {isReleased ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-crimson-500">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-500">
               Watch Now <span aria-hidden="true">→</span>
             </span>
           ) : (

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface SectionTitleProps {
   title: string;
   subtitle?: string;
-  accent?: 'crimson' | 'gold' | 'blue';
+  accent?: 'brand' | 'gold' | 'blue';
   icon?: string | ReactNode;
   viewAllHref?: string;
   actionNode?: ReactNode;
@@ -17,7 +17,7 @@ interface SectionTitleProps {
 export function SectionTitle({
   title,
   subtitle,
-  accent = 'crimson',
+  accent = 'brand',
   icon,
   viewAllHref,
   actionNode,
@@ -26,7 +26,7 @@ export function SectionTitle({
   const router = useRouter();
   
   const accentColors = {
-    crimson: 'bg-[#e50914]',
+    brand: 'bg-brand-500',
     gold: 'bg-[#f59e0b]',
     blue: 'bg-[#3b82f6]'
   };

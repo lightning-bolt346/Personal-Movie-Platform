@@ -45,7 +45,7 @@ export default function GuidePage() {
             {/* Top Bar */}
             <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[-10px] group-hover:translate-y-0">
               <div className="flex flex-col drop-shadow-md">
-                <span className="text-xs text-crimson-400 font-bold uppercase tracking-widest">Watching Now</span>
+                <span className="text-xs text-brand-400 font-bold uppercase tracking-widest">Watching Now</span>
                 <h3 className="text-white font-display font-black text-lg md:text-2xl tracking-tight">Five Nights at Freddy's</h3>
               </div>
               <button className="flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-lg text-white hover:bg-white/10 hover:border-white/30 transition-all cursor-pointer">
@@ -56,7 +56,7 @@ export default function GuidePage() {
             
             {/* Center Play Button */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-90 group-hover:scale-100">
-              <button className="w-16 h-16 md:w-20 md:h-20 bg-crimson-600 rounded-full flex items-center justify-center pl-1 shadow-[0_0_30px_rgba(229,9,20,0.5)] hover:scale-110 active:scale-95 transition-all cursor-pointer">
+              <button className="w-16 h-16 md:w-20 md:h-20 bg-brand-600 rounded-full flex items-center justify-center pl-1 shadow-[0_0_30px_rgba(var(--brand-500),0.5)] hover:scale-110 active:scale-95 transition-all cursor-pointer">
                 <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
               </button>
             </div>
@@ -65,22 +65,22 @@ export default function GuidePage() {
             <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[10px] group-hover:translate-y-0">
               {/* Progress Bar */}
               <div className="w-full h-1.5 md:h-2 bg-white/20 rounded-full relative cursor-pointer overflow-hidden group/bar">
-                <div className="absolute top-0 left-0 bottom-0 w-[45%] bg-crimson-500 rounded-full shadow-[0_0_10px_rgba(229,9,20,0.8)]" />
+                <div className="absolute top-0 left-0 bottom-0 w-[45%] bg-brand-500 rounded-full shadow-[0_0_10px_rgba(var(--brand-500),0.8)]" />
                 <div className="absolute top-0 left-0 bottom-0 w-[60%] bg-white/30 rounded-full" />
               </div>
               
               {/* Controls */}
               <div className="flex justify-between items-center text-white">
                 <div className="flex items-center gap-4 md:gap-6">
-                  <Play className="w-5 h-5 md:w-6 md:h-6 fill-white cursor-pointer hover:text-crimson-400 transition-colors" />
-                  <Volume2 className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-crimson-400 transition-colors" />
+                  <Play className="w-5 h-5 md:w-6 md:h-6 fill-white cursor-pointer hover:text-brand-400 transition-colors" />
+                  <Volume2 className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-brand-400 transition-colors" />
                   <span className="text-xs md:text-sm font-mono tracking-wider opacity-80">45:21 / 1:49:00</span>
                 </div>
                 <div className="flex items-center gap-4 md:gap-6">
-                  <ListVideo className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-crimson-400 transition-colors hidden sm:block" />
-                  <Subtitles className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-crimson-400 transition-colors" />
-                  <Settings className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-crimson-400 transition-colors" />
-                  <Maximize className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-crimson-400 transition-colors" />
+                  <ListVideo className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-brand-400 transition-colors hidden sm:block" />
+                  <Subtitles className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-brand-400 transition-colors" />
+                  <Settings className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-brand-400 transition-colors" />
+                  <Maximize className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:text-brand-400 transition-colors" />
                 </div>
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function GuidePage() {
           
           <div className="p-6 rounded-2xl border border-white/5 bg-black/40 relative overflow-hidden flex flex-col gap-4">
             <h4 className="text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-crimson-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
               Try Hovering Below
             </h4>
             
@@ -294,7 +294,7 @@ export default function GuidePage() {
     <div className="min-h-screen bg-black text-white pt-32 pb-20 px-6 md:px-14">
       {/* Background Glows */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-crimson-600/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-600/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
       </div>
 
@@ -302,11 +302,11 @@ export default function GuidePage() {
         {/* Header */}
         <div className="text-center flex flex-col items-center gap-4">
           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-bold uppercase tracking-widest text-zinc-300 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 mr-2 text-crimson-400" />
+            <Sparkles className="w-3.5 h-3.5 mr-2 text-brand-400" />
             Zivox Master Guide
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-black tracking-tight">
-            Master the <span className="text-transparent bg-clip-text bg-gradient-to-r from-crimson-500 to-purple-400">Platform</span>
+            Master the <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-purple-400">Platform</span>
           </h1>
           <p className="text-zinc-400 max-w-2xl text-sm md:text-base leading-relaxed mt-2">
             Zivox isn't just another streaming site. It's a premium, ad-free cinema built specifically for power users. Explore the interactive modules below to learn exactly how the UI works.
@@ -326,12 +326,12 @@ export default function GuidePage() {
                   onClick={() => setActiveTab(idx)}
                   className={`flex flex-col items-start text-left p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive 
-                      ? 'bg-zinc-900 border-crimson-500/50 shadow-[0_0_30px_rgba(229,9,20,0.1)] scale-[1.02]' 
+                      ? 'bg-zinc-900 border-brand-500/50 shadow-[0_0_30px_rgba(var(--brand-500),0.1)] scale-[1.02]' 
                       : 'bg-black border-white/5 hover:border-white/20 hover:bg-zinc-900/50 text-zinc-500'
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 rounded-lg transition-colors ${isActive ? 'bg-crimson-500/20 text-crimson-400' : 'bg-white/5 text-zinc-400'}`}>
+                    <div className={`p-2 rounded-lg transition-colors ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-white/5 text-zinc-400'}`}>
                       {step.icon}
                     </div>
                     <h3 className={`font-bold text-sm md:text-base transition-colors ${isActive ? 'text-white' : 'text-zinc-400'}`}>
@@ -363,7 +363,7 @@ export default function GuidePage() {
                     <h2 className="text-2xl md:text-3xl font-display font-black text-white mb-3">
                       {steps[activeTab].title}
                     </h2>
-                    <div className="h-1 w-16 bg-gradient-to-r from-crimson-500 to-purple-500 rounded-full" />
+                    <div className="h-1 w-16 bg-gradient-to-r from-brand-500 to-purple-500 rounded-full" />
                   </div>
                   
                   {steps[activeTab].content}
@@ -393,7 +393,7 @@ export default function GuidePage() {
             <p className="text-zinc-500 text-xs">Scroll hijacking done right. We implemented Lenis for butter-smooth scrolling physics across the entire application.</p>
           </div>
           <div className="p-6 rounded-2xl border border-white/5 bg-zinc-900/50 hover:bg-zinc-900 transition-colors flex flex-col gap-3">
-            <Shield className="w-6 h-6 text-crimson-400" />
+            <Shield className="w-6 h-6 text-brand-400" />
             <h4 className="text-white font-bold text-sm">DMCA Compliant</h4>
             <p className="text-zinc-500 text-xs">Zivox does not host any files on its own servers. All content is provided by non-affiliated third parties.</p>
           </div>
@@ -402,7 +402,7 @@ export default function GuidePage() {
         {/* Call to Action */}
         <div className="mt-8 text-center p-12 md:p-20 rounded-3xl bg-[url('https://image.tmdb.org/t/p/original/1pdfLvkbY9ohJlCjQH2JGqqO9n.jpg')] bg-cover bg-center border border-white/10 shadow-2xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm group-hover:bg-black/60 transition-colors duration-700" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[2px] bg-gradient-to-r from-transparent via-crimson-500 to-transparent opacity-70" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[2px] bg-gradient-to-r from-transparent via-brand-500 to-transparent opacity-70" />
           
           <div className="relative z-10 flex flex-col items-center">
              <h2 className="text-3xl md:text-5xl font-display font-black text-white mb-4 drop-shadow-lg">Ready to dive in?</h2>
@@ -410,7 +410,7 @@ export default function GuidePage() {
              
              <Link 
                href="/"
-               className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-white text-black font-black uppercase tracking-widest text-sm transition-all hover:scale-110 active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(229,9,20,0.5)]"
+               className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-white text-black font-black uppercase tracking-widest text-sm transition-all hover:scale-110 active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(var(--brand-500),0.5)]"
              >
                Go to Homepage
                <Play className="w-5 h-5 fill-black" />

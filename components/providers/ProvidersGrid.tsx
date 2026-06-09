@@ -19,7 +19,7 @@ export function ProvidersGrid() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 md:px-14">
         <div className="flex items-center gap-3">
-          <div className="w-1 h-5 md:w-1.5 md:h-6 rounded-full bg-[#e50914]" />
+          <div className="w-1 h-5 md:w-1.5 md:h-6 rounded-full bg-brand-500" />
           <h2 className="text-lg md:text-2xl font-display font-bold text-white tracking-tight">
             Stream by Platform
           </h2>

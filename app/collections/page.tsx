@@ -50,7 +50,7 @@ function CollectionCard({ collection }: { collection: any }) {
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 flex flex-col items-start">
-        <h3 className="text-white font-display font-bold text-lg md:text-xl leading-tight line-clamp-1 group-hover/card:text-crimson-400 transition-colors">
+        <h3 className="text-white font-display font-bold text-lg md:text-xl leading-tight line-clamp-1 group-hover/card:text-brand-400 transition-colors">
           {collection.name.replace(' Collection', '')}
         </h3>
         {collection.overview && (
@@ -197,7 +197,7 @@ function CollectionsPageContent() {
                  <BackButton href="/" />
                </div>
                <h1 className="text-3xl md:text-5xl font-display font-black text-white flex items-center gap-3">
-                 <Sparkles className="text-crimson-500" size={32} />
+                 <Sparkles className="text-brand-500" size={32} />
                  Collections
                </h1>
                <p className="text-zinc-400 text-sm md:text-base mt-2 max-w-xl">
@@ -213,7 +213,7 @@ function CollectionsPageContent() {
                    value={query}
                    onChange={e => setQuery(e.target.value)}
                    placeholder="Search franchises..."
-                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-11 pr-10 text-white placeholder-white/40 focus:outline-none focus:border-crimson-500/50 focus:bg-white/10 transition-all text-base shadow-inner"
+                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-11 pr-10 text-white placeholder-white/40 focus:outline-none focus:border-brand-500/50 focus:bg-white/10 transition-all text-base shadow-inner"
                 />
                 {query && (
                    <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10">
@@ -260,7 +260,7 @@ function CollectionsPageContent() {
                {hasMore && (
                  <div ref={sentinelRef} className="flex flex-col items-center justify-center mt-16 pb-12 w-full">
                    <div className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-full border border-white/10">
-                     <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin border-crimson-500" />
+                     <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin border-brand-500" />
                      <span className="text-sm font-semibold text-white/50">Generating more collections...</span>
                    </div>
                  </div>

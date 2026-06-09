@@ -13,16 +13,55 @@
   --color-void-900: #0a0a0a;
   --color-void-950: #050505;
 
+  --color-brand-300: rgb(var(--brand-300) / <alpha-value>);
+  --color-brand-400: rgb(var(--brand-400) / <alpha-value>);
+  --color-brand-500: rgb(var(--brand-500) / <alpha-value>);
+  --color-brand-600: rgb(var(--brand-600) / <alpha-value>);
+
   --color-crimson-400: #ef4444;
   --color-crimson-500: #e50914;
   --color-crimson-600: #dc2626;
-
-  --color-crimson-900: #450a0a;
 
   --font-sans: "Inter", sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --font-body: "Inter", sans-serif;
+}
+
+:root {
+  /* Crimson (Default) */
+  --brand-300: 252, 165, 165;
+  --brand-400: 239, 68, 68;
+  --brand-500: 229, 9, 20;
+  --brand-600: 220, 38, 38;
+}
+
+[data-theme='violet'] {
+  --brand-300: 196, 181, 253;
+  --brand-400: 167, 139, 250;
+  --brand-500: 139, 92, 246;
+  --brand-600: 124, 58, 237;
+}
+
+[data-theme='cyan'] {
+  --brand-300: 103, 232, 249;
+  --brand-400: 34, 211, 238;
+  --brand-500: 6, 182, 214;
+  --brand-600: 8, 145, 178;
+}
+
+[data-theme='emerald'] {
+  --brand-300: 110, 231, 183;
+  --brand-400: 52, 211, 153;
+  --brand-500: 16, 185, 129;
+  --brand-600: 5, 150, 105;
+}
+
+[data-theme='amber'] {
+  --brand-300: 252, 211, 77;
+  --brand-400: 251, 191, 36;
+  --brand-500: 245, 158, 11;
+  --brand-600: 217, 119, 6;
 }
 
 /* ============================================================
@@ -262,7 +301,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-  background-color: var(--color-void-950);
+  background-color: #0a0a0f;
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

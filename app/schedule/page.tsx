@@ -477,7 +477,7 @@ function SchedulePageContent() {
                 : 'text-white/45 hover:text-white/80 hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Icon size={16} className={isActive ? 'text-crimson-500' : 'text-white/30'} />
+            <Icon size={16} className={isActive ? 'text-brand-500' : 'text-white/30'} />
             {label}
           </button>
         );
@@ -574,7 +574,7 @@ function SchedulePageContent() {
                     sidebarTab === id ? 'bg-white/10 border-white/12 text-white' : 'border-transparent text-white/50 bg-white/5'
                   }`}
                 >
-                  <Icon size={14} className={sidebarTab === id ? 'text-crimson-500' : 'text-white/30'} />
+                  <Icon size={14} className={sidebarTab === id ? 'text-brand-500' : 'text-white/30'} />
                   {label}
                 </button>
               ))}
@@ -643,7 +643,7 @@ function SchedulePageContent() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     className="ml-auto flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
                   >
-                    <div className="w-3 h-3 rounded-full border border-crimson-500 border-t-transparent animate-spin" />
+                    <div className="w-3 h-3 rounded-full border border-brand-500 border-t-transparent animate-spin" />
                     <span className="text-[11px] text-white/50 font-semibold">
                       Fetching {[...loadingCountries].map(c => COUNTRY_CHIPS.find(x => x.id === c)?.flag).join(' ')}
                     </span>
@@ -681,7 +681,7 @@ function SchedulePageContent() {
             <div ref={sentinelRef} className="flex justify-center items-center py-12 w-full">
               {loadingMore && (
                 <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md">
-                  <div className="w-4 h-4 rounded-full border-2 border-crimson-500 border-t-transparent animate-spin" />
+                  <div className="w-4 h-4 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
                   <span className="text-[13px] font-bold text-white/60">Loading more...</span>
                 </div>
               )}

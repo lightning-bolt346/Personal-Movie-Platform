@@ -126,8 +126,8 @@ export function Navbar() {
                  width: '16px',
                  height: '16px',
                  borderRadius: '50%',
-                 border: '2px solid rgba(229, 9, 20, 0.9)',
-                 boxShadow: '0 0 10px rgba(229,9,20,0.5)',
+                 border: '2px solid rgba(var(--brand-500), 0.9)',
+                 boxShadow: '0 0 10px rgba(var(--brand-500),0.5)',
                  WebkitTextFillColor: 'transparent',
                }}
              >
@@ -184,8 +184,8 @@ export function Navbar() {
                 width: '18px',
                 height: '18px',
                 borderRadius: '50%',
-                border: '2px solid rgba(229, 9, 20, 0.9)',
-                boxShadow: '0 0 10px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.2)',
+                border: '2px solid rgba(var(--brand-500), 0.9)',
+                boxShadow: '0 0 10px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.2)',
                 WebkitTextFillColor: 'transparent',
               }}
             >
@@ -263,8 +263,8 @@ export function Navbar() {
                 width: '18px',
                 height: '18px',
                 borderRadius: '50%',
-                border: '2px solid rgba(229, 9, 20, 0.9)',
-                boxShadow: '0 0 10px rgba(229,9,20,0.5), inset 0 0 6px rgba(229,9,20,0.2)',
+                border: '2px solid rgba(var(--brand-500), 0.9)',
+                boxShadow: '0 0 10px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.2)',
                 WebkitTextFillColor: 'transparent',
               }}
             >
@@ -302,7 +302,7 @@ export function Navbar() {
                   {active && (
                     <span
                       className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full"
-                      style={{ background: 'linear-gradient(to right, #e50914, transparent)' }}
+                      style={{ background: 'linear-gradient(to right, rgb(var(--brand-500)), transparent)' }}
                     />
                   )}
                 </Link>
@@ -366,7 +366,7 @@ export function Navbar() {
                   clearIframes();
                   setRandomMoviePreview(null);
                 }}
-                className="text-white/60 hover:text-crimson-400 transition-all duration-300 hover:scale-110 active:scale-95 group relative"
+                className="text-white/60 hover:text-brand-400 transition-all duration-300 hover:scale-110 active:scale-95 group relative"
                 aria-label="Random Movie"
               >
                 <Dices size={17} strokeWidth={2} className="group-hover:animate-spin" />
@@ -388,7 +388,7 @@ export function Navbar() {
                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                        <div className="absolute bottom-0 left-0 right-0 p-3 flex flex-col">
                          <span className="text-xs font-bold text-white leading-tight mb-1">{randomMoviePreview.title}</span>
-                         <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider text-crimson-400">Play Random</span>
+                         <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider text-brand-400">Play Random</span>
                        </div>
                     </div>
                   </motion.div>
@@ -454,11 +454,11 @@ export function Navbar() {
                   }
                 }}
                 className={`relative flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-200 ${
-                  active ? 'text-crimson-500' : 'text-white/35 hover:text-white/70'
+                  active ? 'text-brand-500' : 'text-white/35 hover:text-white/70'
                 }`}
               >
                 {active && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-crimson-500 shadow-[0_0_8px_rgba(229,9,20,0.8)] rounded-b-sm" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-brand-500 shadow-[0_0_8px_rgba(var(--brand-500),0.8)] rounded-b-sm" />
                 )}
                 <Icon size={24} strokeWidth={active ? 2.5 : 1.5} />
                 <span className="text-[10px] font-medium tracking-[0.02em]">{label}</span>

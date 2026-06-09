@@ -149,7 +149,7 @@ async function HomeDataFetcher() {
             <h2 className="text-xl md:text-2xl font-bold font-display text-white mb-4">Watch Movies & TV Shows Free Online in HD</h2>
             <div className="prose prose-sm prose-invert max-w-none text-zinc-400 space-y-4">
               <p>
-                Welcome to <strong>ZIVOX</strong>, your premier destination to <a href="/movies" className="text-[#e50914] hover:underline">watch free movies online</a> and stream the latest TV series in stunning 1080p and 4K HD quality.
+                Welcome to <strong>ZIVOX</strong>, your premier destination to <a href="/movies" className="text-brand-500 hover:underline">watch free movies online</a> and stream the latest TV series in stunning 1080p and 4K HD quality.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>

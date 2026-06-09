@@ -116,10 +116,10 @@ export default function DiscoverPage() {
           <div className="flex flex-wrap items-center gap-3">
             <button 
               onClick={() => setIsDrawerOpen(true)}
-              className={`flex items-center gap-2 bg-void-900 border border-zinc-700 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all shadow-md hover:bg-zinc-800 active:scale-95 ${genres.length > 0 || year !== 'all' ? 'border-crimson-500 text-crimson-500' : ''}`}
+              className={`flex items-center gap-2 bg-void-900 border border-zinc-700 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all shadow-md hover:bg-zinc-800 active:scale-95 ${genres.length > 0 || year !== 'all' ? 'border-brand-500 text-brand-500' : ''}`}
             >
               <SlidersHorizontal size={16} />
-              Filters {(genres.length > 0 || year !== 'all') && <span className="bg-crimson-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full ml-1">!</span>}
+              Filters {(genres.length > 0 || year !== 'all') && <span className="bg-brand-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full ml-1">!</span>}
             </button>
             <button 
               onClick={handleSurpriseMe}
@@ -133,17 +133,14 @@ export default function DiscoverPage() {
       </div>
 
       <div className="max-w-[1800px] mx-auto">
-        <MoodBoard onSelectMood={(genreId) => {
-          setGenres([genreId.toString()]);
-          setPage(1);
-        }} />
+        <MoodBoard />
       </div>
 
       {/* Content Grid */}
       <div className="relative z-10 max-w-[1800px] mx-auto min-h-[50vh]">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin border-crimson-500/30 border-t-crimson-500" />
+            <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin border-brand-500/30 border-t-brand-500" />
           </div>
         ) : results.length > 0 ? (
           <>

@@ -35,7 +35,7 @@ const formatOverview = (text: string) => {
 
 export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetProps) {
   const [greeting, setGreeting] = useState('Good Evening');
-  const [icon, setIcon] = useState(<Moon size={18} className="text-crimson-400" />);
+  const [icon, setIcon] = useState(<Moon size={18} className="text-brand-400" />);
   const [timeContext, setTimeContext] = useState('trending tonight');
   const [mounted, setMounted] = useState(false);
 
@@ -53,7 +53,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
       setTimeContext('for your afternoon break');
     } else if (hour >= 17 && hour < 22) {
       setGreeting('Good Evening');
-      setIcon(<Moon size={18} className="text-crimson-400" />);
+      setIcon(<Moon size={18} className="text-brand-400" />);
       setTimeContext('trending tonight');
     } else {
       setGreeting('Late Night');
@@ -75,7 +75,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
     return (
       <Link href={href} className="block px-4 mb-2">
         <div className="w-full h-[48px] bg-void-900 border border-white/5 rounded-lg flex items-center justify-between px-3 relative overflow-hidden transition-all active:scale-[0.98]">
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-crimson-500" />
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-500" />
           
           <div className="flex items-center gap-2.5 z-10">
             {icon}
@@ -85,8 +85,8 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
             </div>
           </div>
           
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-crimson-500/20 z-10">
-            <Play size={12} className="text-crimson-400 fill-crimson-400 ml-0.5" />
+          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-500/20 z-10">
+            <Play size={12} className="text-brand-400 fill-brand-400 ml-0.5" />
           </div>
           
           {/* Subtle background glow from the poster */}
@@ -126,7 +126,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
         className="group relative w-full h-[280px] rounded-2xl overflow-hidden bg-void-900 border border-white/5 hover:border-white/10 transition-all duration-500 shadow-2xl block"
       >
         {/* Animated Background Glow */}
-        <div className="absolute inset-0 bg-crimson-500/20 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700" />
+        <div className="absolute inset-0 bg-brand-500/20 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700" />
 
         <Image
           src={getImageUrl(randomItem.backdrop_path || randomItem.poster_path, 'original')}
@@ -144,7 +144,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-xs font-bold text-crimson-400 uppercase tracking-widest mb-3 flex items-center gap-2"
+            className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-3 flex items-center gap-2"
           >
             <Sparkles size={14} className="animate-pulse" /> Featured Pick
           </motion.div>

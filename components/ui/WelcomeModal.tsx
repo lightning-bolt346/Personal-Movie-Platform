@@ -113,7 +113,7 @@ export function WelcomeModal() {
               animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-              className="relative w-full max-w-4xl bg-void-950 border border-white/10 rounded-3xl md:rounded-[32px] overflow-hidden shadow-[0_30px_100px_-20px_rgba(229,9,20,0.3)] flex flex-col md:flex-row z-10 max-h-[95vh] overflow-y-auto custom-scrollbar"
+              className="relative w-full max-w-4xl bg-void-950 border border-white/10 rounded-3xl md:rounded-[32px] overflow-hidden shadow-[0_30px_100px_-20px_rgba(var(--brand-500),0.3)] flex flex-col md:flex-row z-10 max-h-[95vh] overflow-y-auto custom-scrollbar"
             >
               {/* Left Column: Visuals & Movie Pitch */}
               <div className="md:w-[45%] shrink-0 relative h-[180px] sm:h-[220px] md:h-auto overflow-hidden group">
@@ -128,8 +128,8 @@ export function WelcomeModal() {
                 </div>
 
                 <div className="absolute inset-0 z-10 p-5 sm:p-8 flex flex-col justify-end md:justify-center text-left">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-crimson-500/20 border border-crimson-500/30 text-crimson-400 text-xs font-bold uppercase tracking-wider mb-2 md:mb-4 w-fit backdrop-blur-md">
-                    <Star size={12} className="fill-crimson-400" /> Start Here
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-500/30 text-brand-400 text-xs font-bold uppercase tracking-wider mb-2 md:mb-4 w-fit backdrop-blur-md">
+                    <Star size={12} className="fill-brand-400" /> Start Here
                   </div>
                   
                   <h3 className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white mb-1.5 md:mb-2 leading-tight drop-shadow-xl">
@@ -162,9 +162,9 @@ export function WelcomeModal() {
 
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2 md:mb-3">
-                    <Gem className="text-crimson-500 w-6 h-6 md:w-7 md:h-7" />
+                    <Gem className="text-brand-500 w-6 h-6 md:w-7 md:h-7" />
                     <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-white leading-none">
-                      Premium Streaming. <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-crimson-500 to-purple-400">Zero Compromise.</span>
+                      Premium Streaming. <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-purple-400">Zero Compromise.</span>
                     </h2>
                   </div>
                   <p className="text-zinc-400 text-xs md:text-sm leading-relaxed mt-2 md:mt-4 font-medium hidden sm:block">
@@ -184,17 +184,17 @@ export function WelcomeModal() {
                   </div>
 
                   {/* Donation Box */}
-                  <div className="flex items-start gap-3 md:gap-4 p-4 md:p-5 rounded-xl md:rounded-2xl bg-crimson-500/5 border border-crimson-500/20 backdrop-blur-sm relative overflow-hidden group/donate">
-                    <div className="absolute inset-0 bg-gradient-to-r from-crimson-500/0 via-crimson-500/10 to-crimson-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                    <div className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-crimson-500/10 text-crimson-400 shrink-0">
-                      <Heart size={20} className="md:w-[22px] md:h-[22px] fill-crimson-400/20" />
+                  <div className="flex items-start gap-3 md:gap-4 p-4 md:p-5 rounded-xl md:rounded-2xl bg-brand-500/5 border border-brand-500/20 backdrop-blur-sm relative overflow-hidden group/donate">
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-500/0 via-brand-500/10 to-brand-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                    <div className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-brand-500/10 text-brand-400 shrink-0">
+                      <Heart size={20} className="md:w-[22px] md:h-[22px] fill-brand-400/20" />
                     </div>
                     <div className="pr-2 md:pr-4 relative z-10">
                       <h4 className="text-white font-bold text-sm md:text-[15px] flex items-center gap-2">
-                        Keep ZIVOX Alive <span className="text-[9px] md:text-[10px] bg-crimson-500/20 text-crimson-400 px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Optional</span>
+                        Keep ZIVOX Alive <span className="text-[9px] md:text-[10px] bg-brand-500/20 text-brand-400 px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Optional</span>
                       </h4>
                       <p className="text-zinc-400 text-xs mt-1 md:mt-1.5 leading-relaxed hidden sm:block">We refuse to run ads. We pay heavily out of pocket to keep our servers lightning fast. If you love this project, consider making a small donation to help us survive.</p>
-                      <button type="button" onClick={(e) => e.preventDefault()} className="inline-flex items-center gap-1.5 md:gap-2 mt-1 sm:mt-2 md:mt-4 text-xs font-bold text-crimson-400 hover:text-crimson-300 transition-colors cursor-default">
+                      <button type="button" onClick={(e) => e.preventDefault()} className="inline-flex items-center gap-1.5 md:gap-2 mt-1 sm:mt-2 md:mt-4 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors cursor-default">
                         <Coffee size={14} /> Donate to Server Costs <span aria-hidden="true">→</span>
                       </button>
                     </div>
@@ -217,7 +217,7 @@ export function WelcomeModal() {
                   </button>
                   <button
                     onClick={closeModal}
-                    className="w-full sm:flex-1 py-3 md:py-4 rounded-xl bg-crimson-600 hover:bg-crimson-500 border border-crimson-500/50 text-white font-bold text-xs md:text-sm transition-colors shadow-[0_0_20px_rgba(229,9,20,0.2)]"
+                    className="w-full sm:flex-1 py-3 md:py-4 rounded-xl bg-brand-600 hover:bg-brand-500 border border-brand-500/50 text-white font-bold text-xs md:text-sm transition-colors shadow-[0_0_20px_rgba(var(--brand-500),0.2)]"
                   >
                     Enter Platform
                   </button>

@@ -199,7 +199,7 @@ function SearchPageContent() {
 
         {/* Search Mode Pills */}
         <div className="flex items-center p-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/15 mb-10 shadow-lg">
-          <button className="flex items-center gap-2 bg-crimson-500 hover:bg-crimson-600 px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all shadow-md shadow-crimson-500/25">
+          <button className="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all shadow-md shadow-brand-500/25">
             <Search size={16} /> Title Search
           </button>
           <button className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-white/50 hover:text-white/90 hover:bg-white/5 transition-all">
@@ -224,8 +224,8 @@ function SearchPageContent() {
             style={{
               background: focused ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.07)',
               backdropFilter: 'blur(30px)',
-              border: focused ? '1px solid rgba(229, 9, 20, 0.45)' : '1px solid rgba(255, 255, 255, 0.15)',
-              boxShadow: focused ? '0 0 40px rgba(229, 9, 20, 0.25)' : '0 20px 40px rgba(0,0,0,0.4)',
+              border: focused ? '1px solid rgba(var(--brand-500), 0.45)' : '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: focused ? '0 0 40px rgba(var(--brand-500), 0.25)' : '0 20px 40px rgba(0,0,0,0.4)',
               transition: 'all 0.3s ease',
             }}
           />
@@ -303,8 +303,8 @@ function SearchPageContent() {
       {/* History Area */}
       {!query && history.length > 0 && (
         <div className="max-w-3xl mx-auto w-full mt-12 px-8 relative z-10">
-          <h3 className="flex items-center gap-2 text-xs font-bold text-crimson-500 uppercase tracking-widest mb-6">
-            <History size={14} className="text-crimson-500" /> Recent Searches
+          <h3 className="flex items-center gap-2 text-xs font-bold text-brand-500 uppercase tracking-widest mb-6">
+            <History size={14} className="text-brand-500" /> Recent Searches
           </h3>
           <div className="flex flex-wrap gap-3">
             {history.map(item => (
@@ -316,7 +316,7 @@ function SearchPageContent() {
                 <span className="text-sm font-medium text-white/85 group-hover:text-white">{item}</span>
                 <button
                   onClick={(e) => removeFromHistory(item, e)}
-                  className="text-white/30 hover:text-crimson-500 p-0.5 rounded-full transition-colors"
+                  className="text-white/30 hover:text-brand-500 p-0.5 rounded-full transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -338,8 +338,8 @@ function SearchPageContent() {
             
             {suggestions.length > 0 && (
               <div className="w-full max-w-6xl border-t border-white/5 pt-10">
-                <h3 className="flex items-center gap-2 text-xs font-bold text-crimson-500 uppercase tracking-widest mb-6 px-2">
-                  <Sparkles size={14} className="text-crimson-500" /> Trending Right Now
+                <h3 className="flex items-center gap-2 text-xs font-bold text-brand-500 uppercase tracking-widest mb-6 px-2">
+                  <Sparkles size={14} className="text-brand-500" /> Trending Right Now
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                   {suggestions.slice(0, 12).map((item, i) => (
@@ -374,8 +374,8 @@ function SearchPageContent() {
             
             {suggestions.length > 0 && (
               <div className="w-full max-w-6xl border-t border-white/5 pt-10">
-                <h3 className="flex items-center gap-2 text-xs font-bold text-crimson-500 uppercase tracking-widest mb-6 px-2">
-                  <Sparkles size={14} className="text-crimson-500" /> Trending Right Now
+                <h3 className="flex items-center gap-2 text-xs font-bold text-brand-500 uppercase tracking-widest mb-6 px-2">
+                  <Sparkles size={14} className="text-brand-500" /> Trending Right Now
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                   {suggestions.slice(0, 12).map((item, i) => (
@@ -419,7 +419,7 @@ function SearchPageContent() {
               <div ref={sentinelRef} className="flex flex-col items-center justify-center mt-12 pb-8 w-full">
                 {loadingMore ? (
                   <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-6 py-3 rounded-full shadow-lg">
-                    <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin border-crimson-500" />
+                    <div className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin border-brand-500" />
                     <span className="text-xs font-semibold text-white/70">Loading more titles...</span>
                   </div>
                 ) : (

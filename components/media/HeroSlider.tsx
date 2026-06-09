@@ -175,7 +175,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
             {/* Genre + Year + Rating Row - Pill Badges */}
             <div className="flex items-center gap-3 mb-5 flex-wrap">
               {isMovie && (
-                <div className="flex items-center gap-1.5 bg-[#e50914] px-2 py-0.5 rounded-full shadow-lg">
+                <div className="flex items-center gap-1.5 bg-brand-500 px-2 py-0.5 rounded-full shadow-lg">
                   <span className="text-white text-[10px] font-bold uppercase tracking-[0.1em]">Movie</span>
                 </div>
               )}
@@ -265,8 +265,8 @@ export function HeroSlider({ items }: { items: Media[] }) {
                 style={{
                   width: idx === currentIndex ? '40px' : '8px',
                   height: '8px',
-                  background: idx === currentIndex ? '#e50914' : 'rgba(255,255,255,0.3)',
-                  boxShadow: idx === currentIndex ? '0 0 12px rgba(229,9,20,0.8)' : 'none',
+                  background: idx === currentIndex ? 'rgb(var(--brand-500))' : 'rgba(255,255,255,0.3)',
+                  boxShadow: idx === currentIndex ? '0 0 12px rgba(var(--brand-500),0.8)' : 'none',
                 }}
               />
             ))}

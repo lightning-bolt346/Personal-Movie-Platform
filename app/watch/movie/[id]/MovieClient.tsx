@@ -151,8 +151,8 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                         <div
                           className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl pointer-events-auto"
                           style={{
-                            background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
-                            boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,
+                            background: `radial-gradient(circle, ${bgColor || 'rgba(var(--brand-500),0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
+                            boxShadow: `0 0 40px 10px ${bgColor || 'rgba(var(--brand-500),0.3)'}`,
                           }}
                         >
                           <Play size={28} fill="white" className="text-white ml-1" />
@@ -210,7 +210,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                       onClick={() => setIsPlaying(true)}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all font-bold uppercase tracking-wider text-sm shadow-xl active:scale-95 ${
                         continueWatching
-                          ? 'bg-crimson-500 hover:bg-crimson-600 text-white shadow-crimson-500/20'
+                          ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20'
                           : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                       }`}
                     >
@@ -229,9 +229,9 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                     )}
                     <button
                       onClick={() => toggleWatchlist({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path, release_date: movie.release_date })}
-                      className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
+                      className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-brand-500/10 border-brand-500/20 text-brand-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                     >
-                      <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
+                      <Bookmark size={14} className={onWatchlist ? 'fill-brand-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                     </button>
                     <button
                       onClick={() => toggleFavorite({ id: idStr, type: 'movie', title: movie.title || '', poster: movie.poster_path, release_date: movie.release_date })}
@@ -246,11 +246,11 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
               {movie.belongs_to_collection && (
                 <Link
                   href={`/collection/${generateSlug(movie.belongs_to_collection.id.toString(), movie.belongs_to_collection.name)}`}
-                  className="inline-flex items-center gap-2 text-sm font-bold bg-crimson-500/10 hover:bg-crimson-500/15 border border-crimson-500/25 px-4 py-2 rounded-full text-crimson-400 hover:text-crimson-300 transition-all w-fit shadow-md mt-2 active:scale-95"
+                  className="inline-flex items-center gap-2 text-sm font-bold bg-brand-500/10 hover:bg-brand-500/15 border border-brand-500/25 px-4 py-2 rounded-full text-brand-400 hover:text-brand-300 transition-all w-fit shadow-md mt-2 active:scale-95"
                 >
                   <span>🎬</span>
                   <span>Part of <span className="text-white">{movie.belongs_to_collection.name}</span></span>
-                  <span className="text-crimson-500/60 text-xs">→</span>
+                  <span className="text-brand-500/60 text-xs">→</span>
                 </Link>
               )}
             </div>

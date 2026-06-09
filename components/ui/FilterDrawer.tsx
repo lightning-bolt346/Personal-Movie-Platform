@@ -128,7 +128,7 @@ export function FilterDrawer({
           >
             <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
               <h2 className="text-xl font-display font-bold flex items-center gap-2">
-                <Filter size={20} className="text-crimson-500" /> Advanced Filters
+                <Filter size={20} className="text-brand-500" /> Advanced Filters
               </h2>
               <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
                 <X size={20} />
@@ -161,10 +161,10 @@ export function FilterDrawer({
                     <button
                       key={s.value}
                       onClick={() => setLocalSort(s.value)}
-                      className={`flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-bold transition-all ${localSort === s.value ? 'bg-crimson-500/10 border-crimson-500/30 text-white' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+                      className={`flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-bold transition-all ${localSort === s.value ? 'bg-brand-500/10 border-brand-500/30 text-white' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
                     >
                       {s.label}
-                      {localSort === s.value && <Check size={16} className="text-crimson-500" />}
+                      {localSort === s.value && <Check size={16} className="text-brand-500" />}
                     </button>
                   ))}
                 </div>
@@ -196,7 +196,7 @@ export function FilterDrawer({
                       <button
                         key={g.value}
                         onClick={() => handleToggleGenre(g.value)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-crimson-500 border-crimson-500 text-white shadow-[0_0_10px_rgba(229,9,20,0.3)]' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-brand-500 border-brand-500 text-white shadow-[0_0_10px_rgba(var(--brand-500),0.3)]' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                       >
                         {g.label}
                       </button>
@@ -216,7 +216,7 @@ export function FilterDrawer({
               </button>
               <button 
                 onClick={handleApply}
-                className="flex-1 bg-crimson-500 hover:bg-crimson-600 text-white rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-crimson-500/20 active:scale-95"
+                className="flex-1 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/20 active:scale-95"
               >
                 Apply Filters
               </button>

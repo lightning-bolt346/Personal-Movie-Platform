@@ -317,8 +317,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         <div
                           className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 opacity-80 shadow-2xl pointer-events-auto"
                           style={{
-                            background: `radial-gradient(circle, ${bgColor || 'rgba(229,9,20,0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
-                            boxShadow: `0 0 40px 10px ${bgColor || 'rgba(229,9,20,0.3)'}`,
+                            background: `radial-gradient(circle, ${bgColor || 'rgba(var(--brand-500),0.9)'} 0%, rgba(0,0,0,0.7) 100%)`,
+                            boxShadow: `0 0 40px 10px ${bgColor || 'rgba(var(--brand-500),0.3)'}`,
                           }}
                         >
                           <Play size={28} fill="white" className="text-white ml-1" />
@@ -377,12 +377,12 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       )}
                       
                       {tvState === 'mid_season' && meta.nextEpisodeDate && (
-                        <div className="flex items-center gap-1.5 border border-crimson-500/30 bg-crimson-500/10 px-2 py-0.5 rounded">
-                           <CalendarDays size={12} className="text-crimson-400" />
-                           <span className="text-[10px] uppercase font-bold text-crimson-400">
+                        <div className="flex items-center gap-1.5 border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 rounded">
+                           <CalendarDays size={12} className="text-brand-400" />
+                           <span className="text-[10px] uppercase font-bold text-brand-400">
                              Ep {meta.nextEpisodeNumber} in {Math.max(1, Math.ceil((new Date(meta.nextEpisodeDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)))}d
                            </span>
-                           <div className="w-[1px] h-3 bg-crimson-500/30 mx-0.5" />
+                           <div className="w-[1px] h-3 bg-brand-500/30 mx-0.5" />
                            <button 
                              onClick={() => toggleNotification({
                                id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, releaseDate: meta.nextEpisodeDate!
@@ -414,7 +414,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         onClick={() => setIsPlaying(true)}
                         className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-sm shadow-xl ${
                           continueWatching
-                            ? 'bg-crimson-500 hover:bg-crimson-600 text-white shadow-crimson-500/20'
+                            ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20'
                             : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                         }`}
                       >
@@ -433,9 +433,9 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       )}
                       <button
                         onClick={() => toggleWatchlist({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, first_air_date: show.first_air_date })}
-                        className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-crimson-500/10 border-crimson-500/20 text-crimson-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
+                        className={`flex items-center justify-center gap-1.5 border px-3 py-2.5 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-[10px] ${onWatchlist ? 'bg-brand-500/10 border-brand-500/20 text-brand-500' : 'bg-void-900 border-zinc-800 hover:bg-void-800 text-zinc-300'}`}
                       >
-                        <Bookmark size={14} className={onWatchlist ? 'fill-crimson-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
+                        <Bookmark size={14} className={onWatchlist ? 'fill-brand-500' : ''} /> {onWatchlist ? 'Watchlisted' : 'Watchlist'}
                       </button>
                       <button
                         onClick={() => toggleFavorite({ id: idStr, type: 'tv', title: show.name || '', poster: show.poster_path, first_air_date: show.first_air_date })}
@@ -468,7 +468,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                     <h3 className="text-[10px] uppercase tracking-widest font-bold text-zinc-500">
                       Episodes
                       {tvState === 'mid_season' && (
-                        <span className="ml-2 text-crimson-500 normal-case font-normal">(Aired only)</span>
+                        <span className="ml-2 text-brand-500 normal-case font-normal">(Aired only)</span>
                       )}
                     </h3>
                   </div>
@@ -497,11 +497,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                               <div className="relative w-32 aspect-video bg-void-950 rounded overflow-hidden flex-shrink-0 border border-zinc-800">
                                 <Image src={getImageUrl(ep.still_path, 'w500')} alt={ep.name} fill sizes="128px" className="object-cover opacity-80" referrerPolicy="no-referrer" />
                                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                  <Play size={16} className={isActive ? 'text-crimson-500 fill-crimson-500' : 'text-white opacity-0 group-hover:opacity-100 transition-opacity'} />
+                                  <Play size={16} className={isActive ? 'text-brand-500 fill-brand-500' : 'text-white opacity-0 group-hover:opacity-100 transition-opacity'} />
                                 </div>
                                 {epProgress > 0 && !epWatched && (
                                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-900 opacity-80">
-                                    <div className="h-full bg-crimson-500" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
+                                    <div className="h-full bg-brand-500" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
                                   </div>
                                 )}
                               </div>
@@ -511,7 +511,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                                     {ep.episode_number}. {ep.name}
                                   </h4>
                                   <button onClick={(e) => toggleWatched(ep, e)} className="text-zinc-500 hover:text-white transition-colors" title={epWatched ? 'Mark Unwatched' : 'Mark Watched'}>
-                                    {epWatched ? <CheckCircle2 size={16} className="text-crimson-500" /> : <Circle size={16} />}
+                                    {epWatched ? <CheckCircle2 size={16} className="text-brand-500" /> : <Circle size={16} />}
                                   </button>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 mt-1 line-clamp-2 flex-1">{ep.overview}</p>

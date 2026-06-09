@@ -13,12 +13,12 @@ export default function DmcaPage() {
       
       {/* Header */}
       <div className="mb-12 text-center md:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-crimson-500/10 text-crimson-500 text-sm font-semibold mb-6 border border-crimson-500/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-500 text-sm font-semibold mb-6 border border-brand-500/20">
           <ShieldAlert size={16} />
           Legal Policy
         </div>
         <h1 className="text-4xl md:text-5xl font-display font-black tracking-tighter text-white mb-4">
-          DMCA <span className="text-crimson-500">Policy</span>
+          DMCA <span className="text-brand-500">Policy</span>
         </h1>
         <p className="text-zinc-400 font-mono text-sm">Last updated: June 2026</p>
       </div>
@@ -27,9 +27,9 @@ export default function DmcaPage() {
         
         {/* Important Disclaimer Card */}
         <div className="bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 rounded-2xl p-6 md:p-8 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-crimson-500"></div>
+          <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-crimson-500/10 rounded-xl text-crimson-500 shrink-0">
+            <div className="p-3 bg-brand-500/10 rounded-xl text-brand-500 shrink-0">
               <AlertTriangle size={24} />
             </div>
             <div>
@@ -48,7 +48,7 @@ export default function DmcaPage() {
         <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 md:p-8 space-y-8">
           <section>
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-crimson-500"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
               Intermediary Disclaimer (India IT Act Section 79)
             </h2>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">
@@ -59,7 +59,7 @@ export default function DmcaPage() {
 
           <section>
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-crimson-500"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
               Copyright Infringement
             </h2>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">
@@ -69,7 +69,7 @@ export default function DmcaPage() {
             </p>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
               If you are a copyright owner and believe your content has been infringed,
-              please contact us at <a href="mailto:zivox.tv@proton.me" className="text-crimson-500 hover:underline">zivox.tv@proton.me</a> for immediate removal of the indexing link.
+              please contact us at <a href="mailto:zivox.tv@proton.me" className="text-brand-500 hover:underline">zivox.tv@proton.me</a> for immediate removal of the indexing link.
             </p>
           </section>
         </div>

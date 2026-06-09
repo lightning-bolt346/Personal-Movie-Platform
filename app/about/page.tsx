@@ -94,7 +94,7 @@ export default function AboutPage() {
       {/* Hero */}
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-6xl font-display font-black tracking-tighter text-white mb-6">
-          About <span className="bg-gradient-to-r from-crimson-500 to-purple-500 bg-clip-text text-transparent">ZIVOX</span>
+          About <span className="bg-gradient-to-r from-brand-500 to-purple-500 bg-clip-text text-transparent">ZIVOX</span>
         </h1>
         <p className="text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
           ZIVOX is a free, premium streaming platform built for people who love movies, TV shows, and anime. 
@@ -106,7 +106,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
         {features.map((f, i) => (
           <div key={i} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 hover:border-zinc-700 transition-all group">
-            <f.icon size={24} className="text-crimson-500 mb-4 group-hover:scale-110 transition-transform" />
+            <f.icon size={24} className="text-brand-500 mb-4 group-hover:scale-110 transition-transform" />
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-2">{f.title}</h3>
             <p className="text-zinc-400 text-sm leading-relaxed">{f.desc}</p>
           </div>
@@ -123,7 +123,7 @@ export default function AboutPage() {
             <details key={i} className="group bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-all">
               <summary className="cursor-pointer p-5 text-white font-semibold text-sm flex items-center justify-between list-none">
                 {faq.question}
-                <Sparkles size={16} className="text-zinc-500 group-open:text-crimson-500 transition-colors flex-shrink-0 ml-4" />
+                <Sparkles size={16} className="text-zinc-500 group-open:text-brand-500 transition-colors flex-shrink-0 ml-4" />
               </summary>
               <div className="px-5 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-zinc-800/50 pt-4">
                 {faq.answer}
@@ -149,7 +149,7 @@ export default function AboutPage() {
         </h2>
         <p className="text-zinc-400 text-sm leading-relaxed">
           For general inquiries, feature requests, or DMCA notices, please contact us at:<br/>
-          <a href="mailto:zivox.tv@proton.me" className="text-crimson-500 hover:text-crimson-400 font-bold mt-2 inline-block">zivox.tv@proton.me</a>
+          <a href="mailto:zivox.tv@proton.me" className="text-brand-500 hover:text-brand-400 font-bold mt-2 inline-block">zivox.tv@proton.me</a>
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export default function AboutPage() {
       <div className="text-center">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 bg-crimson-500 hover:bg-crimson-600 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-crimson-500/20"
+          className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-brand-500/20"
         >
           <Play size={18} className="fill-white" /> Start Watching Now
         </Link>

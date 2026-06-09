@@ -41,7 +41,7 @@ export default function BlogIndex() {
       
       <div className="mb-12 text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tighter text-white drop-shadow-xl mb-4">
-          ZIVOX <span className="text-crimson-500">Blog</span>
+          ZIVOX <span className="text-brand-500">Blog</span>
         </h1>
         <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
           Discover genuine articles, movie recommendations, and streaming guides.
@@ -60,14 +60,14 @@ export default function BlogIndex() {
             </div>
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-crimson-500 bg-crimson-500/10 px-2 py-1 rounded">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-500 bg-brand-500/10 px-2 py-1 rounded">
                   {post.tags[0]}
                 </span>
                 <span className="text-xs text-zinc-500 font-medium">
                   {new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-white mb-2 group-hover:text-crimson-500 transition-colors line-clamp-2">
+              <h2 className="text-xl font-bold text-white mb-2 group-hover:text-brand-500 transition-colors line-clamp-2">
                 {post.title}
               </h2>
               <p className="text-sm text-zinc-400 line-clamp-3 mb-4 flex-grow">

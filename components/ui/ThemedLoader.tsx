@@ -132,8 +132,8 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
         <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIiAvPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSIxIiBmaWxsPSIjZmZmIiAvPgo8L3N2Zz4=')] animate-[slide-down_20s_linear_infinite]" />
         
         {/* REC Indicator */}
-        <div className="absolute top-8 left-8 flex items-center gap-2 font-mono text-xl text-red-500 tracking-widest font-bold">
-           <div className="w-4 h-4 bg-red-500 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
+        <div className="absolute top-8 left-8 flex items-center gap-2 font-mono text-xl text-brand- tracking-widest font-bold">
+           <div className="w-4 h-4 bg-brand- rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
            REC
         </div>
 
@@ -195,7 +195,7 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
   // DEFAULT / HOME THEME
   return (
     <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#050505] w-screen h-screen overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-crimson-500/5 blur-[120px] rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-brand-500/5 blur-[120px] rounded-full" />
 
       <div className="relative z-10 flex flex-col items-center justify-center">
         <div className="relative overflow-hidden mb-8">
@@ -204,7 +204,7 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
           </h1>
           <motion.h1 
             className="absolute top-0 left-0 text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-transparent uppercase bg-clip-text pl-[0.4em]"
-            style={{ backgroundImage: 'linear-gradient(to right, #e50914, #ef4444)' }}
+            style={{ backgroundImage: 'linear-gradient(to right, rgb(var(--brand-500)), rgb(var(--brand-400)))' }}
             initial={{ clipPath: 'inset(0 100% 0 0)', scale: 0.95, opacity: 0 }}
             animate={{ clipPath: 'inset(0 0% 0 0)', scale: 1, opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.85, 0, 0.15, 1], delay: 0.1 }}
@@ -215,7 +215,7 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
 
         <div className="w-16 md:w-24 h-[2px] bg-void-800 rounded-full overflow-hidden relative">
           <motion.div 
-            className="absolute top-0 left-0 h-full bg-crimson-500 rounded-full"
+            className="absolute top-0 left-0 h-full bg-brand-500 rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
             transition={{ duration: 1.6, ease: [0.65, 0, 0.35, 1], delay: 0.2 }}

@@ -1,4 +1,5 @@
 'use client';
+// Force Next.js HMR rebuild 2
 import { useState, useEffect } from 'react';
 import { MediaDetails } from '@/types/tmdb';
 import { VideoPlayer } from '@/components/media/VideoPlayer';

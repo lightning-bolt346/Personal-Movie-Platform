@@ -1,4 +1,5 @@
 'use client';
+// Force Next.js HMR rebuild 2
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { MediaDetails } from '@/types/tmdb';
 import { getImageUrl } from '@/lib/tmdb';

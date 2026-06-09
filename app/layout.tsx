@@ -8,7 +8,6 @@ import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { WelcomeModal } from '@/components/ui/WelcomeModal';
 import { NotificationToaster } from '@/components/ui/NotificationToaster';
 import { GlobalLoader } from '@/components/ui/GlobalLoader';
-import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
 import { getSiteUrl } from '@/lib/utils';
@@ -185,7 +184,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WelcomeModal />
         <NotificationToaster />
         <SecurityGuard />
-        <Analytics />
       </body>
     </html>
   );

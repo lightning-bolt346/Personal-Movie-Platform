@@ -845,12 +845,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         title={title || ''}
-        shareUrl={(() => {
+        shareUrl={typeof window !== 'undefined' ? (() => {
           const u = new URL(window.location.href);
           u.searchParams.set('play', '1');
           u.searchParams.delete('t');
           return u.toString();
-        })()}
+        })() : ''}
         subtitle={`Via ${source.publicName}`}
       >
         {/* ── Copy with Autoplay */}

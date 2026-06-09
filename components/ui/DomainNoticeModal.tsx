@@ -101,7 +101,7 @@ export function DomainNoticeModal({ triggerShow }: DomainNoticeModalProps) {
       />
 
       {/* Modal Dialog Box */}
-      <div className="relative w-full max-w-md max-h-[90vh] bg-[#05070f]/95 border border-blue-500/20 rounded-3xl p-5 sm:p-6 md:p-7 shadow-[0_0_50px_rgba(59,130,246,0.15)] flex flex-col overflow-y-auto modal-scrollbar overscroll-contain animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md max-h-[90vh] bg-[#05070f]/95 border border-blue-500/20 rounded-3xl pt-5 pb-4 px-5 sm:pt-6 sm:pb-4 sm:px-6 md:pt-7 md:pb-5 md:px-7 shadow-[0_0_50px_rgba(59,130,246,0.15)] flex flex-col overflow-y-auto modal-scrollbar overscroll-contain animate-in fade-in zoom-in-95 duration-200">
         
         {/* Cinematic Ambient Blue Glow */}
         <div className="absolute top-[-25%] left-[50%] -translate-x-[50%] w-[90%] h-[60%] bg-blue-600/10 rounded-full blur-[90px] pointer-events-none" />

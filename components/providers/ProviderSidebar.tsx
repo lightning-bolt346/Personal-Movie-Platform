@@ -2,8 +2,8 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Provider } from '@/lib/providers';
 import { usePreferences } from '@/hooks/usePreferences';
-import { Film, Tv, Globe } from 'lucide-react';
-import React from 'react';
+import { Film, Tv, Globe, Search, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
 
 interface ProviderSidebarProps {
@@ -86,8 +86,49 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
+  const activeSearch = searchParams.get('q') || '';
+  const [searchValue, setSearchValue] = useState(activeSearch);
+
+  useEffect(() => {
+    setSearchValue(activeSearch);
+  }, [activeSearch]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateParam('q', searchValue);
+  };
+
+  const clearSearch = () => {
+    setSearchValue('');
+    updateParam('q', '');
+  };
+
   return (
     <div className="w-full md:w-64 shrink-0 flex flex-col gap-8 md:sticky md:top-24 h-max pb-8 z-20">
+      
+      {/* Search Input */}
+      <form onSubmit={handleSearchSubmit} className="relative w-full group">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search size={18} className="text-white/40 group-focus-within:text-white transition-colors" />
+        </div>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder={`Search ${provider.name}...`}
+          className="w-full bg-zinc-900/50 border border-white/5 rounded-2xl py-3.5 pl-11 pr-10 text-sm text-white placeholder-white/40 outline-none transition-all focus:bg-zinc-900/80 focus:border-white/20"
+          style={{ boxShadow: activeSearch ? `0 0 20px ${provider.color}15` : undefined }}
+        />
+        {searchValue && (
+          <button
+            type="button"
+            onClick={clearSearch}
+            className="absolute inset-y-0 right-3 flex items-center justify-center w-8 h-full text-white/40 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </form>
       
       {/* Media Type Tabs */}
       <div className="flex flex-col gap-2">

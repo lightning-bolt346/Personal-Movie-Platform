@@ -374,44 +374,61 @@ export async function getDynamicCollectionsAction(pageChunk: number) {
 export async function searchCollectionsAction(query: string, page: number = 1) {
   // 1. Hit the standard Collection search
   const collectionRes = await tmdb.searchCollections(query, page);
-  let results = collectionRes.results || [];
+  let nativeResults = collectionRes.results || [];
   
-  // 2. The "Supercharged" Phase: Only on Page 1, we also search for Movies matching the query
-  // This solves the problem where TMDB's collection search is bad, but movie search is great.
+  let finalCollections: any[] = [];
+  
+  // 2. The "Supercharged" Phase: Only on Page 1
   if (page === 1) {
     try {
       // Search for movies with the query
       const movieRes = await fetchTMDB<TMDBResponse<Media>>("/search/movie", { query, page: '1' });
-      const topMovies = (movieRes.results || []).slice(0, 5); // Take top 5 most relevant movies
+      // Take top 20 most relevant movies to cast a wide net
+      const topMovies = (movieRes.results || []).slice(0, 20);
       
-      // Fetch full details for these 5 movies in parallel to find hidden collections
+      // Fetch full details for these 20 movies in parallel to find hidden collections
       const movieDetailsPromises = topMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`).catch(() => null));
       const movieDetails = await Promise.all(movieDetailsPromises);
       
-      // Extract unique collection IDs that we haven't already found in collectionRes
-      const existingIds = new Set(results.map((c: any) => c.id));
+      // Extract unique collection IDs from the movies
       const newCollectionIds = new Set<number>();
-      
       movieDetails.forEach(movie => {
-        if (movie && movie.belongs_to_collection && !existingIds.has(movie.belongs_to_collection.id)) {
+        if (movie && movie.belongs_to_collection) {
           newCollectionIds.add(movie.belongs_to_collection.id);
         }
       });
       
-      // Fetch the actual collection data for these new hidden collections
+      // Add the native collection IDs too
+      nativeResults.forEach((c: any) => newCollectionIds.add(c.id));
+      
+      // Fetch the ACTUAL rich collection data for ALL found collections
       if (newCollectionIds.size > 0) {
-        const newCollections = await getCollectionsAction(Array.from(newCollectionIds));
-        // Prepend them to the results (since they are highly relevant from movie search)
-        results = [...newCollections, ...results];
+        finalCollections = await getCollectionsAction(Array.from(newCollectionIds));
+        
+        // ULTIMATE SORTING: Sort by the number of movies in the franchise (largest first)
+        finalCollections.sort((a, b) => {
+          const aCount = a.parts ? a.parts.length : 0;
+          const bCount = b.parts ? b.parts.length : 0;
+          return bCount - aCount; // Descending
+        });
       }
     } catch (e) {
       console.error("Supercharged search failed gracefully:", e);
+      finalCollections = nativeResults; // fallback
     }
+  } else {
+    // For page 2+, just use native results
+    finalCollections = nativeResults;
   }
+
+  // Deduplicate just to be safe
+  finalCollections = finalCollections.filter((item: any, index: number, self: any[]) => 
+    index === self.findIndex((t: any) => t.id === item.id)
+  );
 
   return {
     ...collectionRes,
-    results
+    results: finalCollections
   };
 }
 
@@ -458,6 +475,68 @@ export async function discoverGlobalProviderAction(
     };
   } catch (e) {
     console.error("Global provider fetch failed:", e);
+    return { page: 1, results: [], total_pages: 1, total_results: 0 };
+  }
+}
+
+export async function searchProviderAction(
+  query: string,
+  providerId: string,
+  type: 'movie' | 'tv',
+  region: string,
+  page: number = 1
+) {
+  try {
+    // 1. Fetch search results for the given type
+    const searchRes = await fetchTMDB<TMDBResponse<Media>>(`/search/${type}`, {
+      query,
+      page: page.toString(),
+      include_adult: 'false'
+    }).catch(() => null);
+
+    if (!searchRes || !searchRes.results || searchRes.results.length === 0) {
+      return { page, results: [], total_pages: 1, total_results: 0 };
+    }
+
+    // 2. For each result, fetch its watch providers
+    const items = searchRes.results;
+    const providerPromises = items.map(item => tmdb.getWatchProviders(type, item.id.toString()));
+    const providersArray = await Promise.all(providerPromises);
+
+    // 3. Filter items that are available on the requested provider
+    const filteredItems = items.filter((item, index) => {
+      const providers = providersArray[index];
+      if (!providers || !providers.results) return false;
+
+      const targetProviderId = parseInt(providerId, 10);
+
+      const checkRegion = (regData: any) => {
+        if (!regData) return false;
+        const allOptions = [
+          ...(regData.flatrate || []),
+          ...(regData.free || []),
+          ...(regData.ads || [])
+        ];
+        return allOptions.some(p => p.provider_id === targetProviderId);
+      };
+
+      if (region === 'ALL') {
+        // Global search: check if ANY region has this provider
+        return Object.values(providers.results).some(regData => checkRegion(regData));
+      } else {
+        // Specific region search
+        return checkRegion(providers.results[region]);
+      }
+    });
+
+    return {
+      page: searchRes.page,
+      results: filteredItems,
+      total_pages: searchRes.total_pages,
+      total_results: searchRes.total_results // Note: this is the unfiltered total, used for pagination boundary
+    };
+  } catch (e) {
+    console.error("Provider search failed:", e);
     return { page: 1, results: [], total_pages: 1, total_results: 0 };
   }
 }

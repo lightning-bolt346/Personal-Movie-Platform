@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Provider } from '@/lib/providers';
 import { Media } from '@/types/tmdb';
 import { MediaCard } from '@/components/media/MediaCard';
-import { discoverGlobalProviderAction } from '@/app/actions';
+import { discoverGlobalProviderAction, searchProviderAction } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
 
 // Use a subset of regions for global fetch to avoid rate limits
@@ -23,6 +23,7 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
   const activeGenre = searchParams.get('genre') || '';
   const activeSort = searchParams.get('sort') || 'popularity.desc';
   const activeRegion = searchParams.get('region') || 'ALL';
+  const activeSearch = searchParams.get('q') || '';
   
   const [items, setItems] = useState<Media[]>([]);
   const [page, setPage] = useState(1);
@@ -44,7 +45,10 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
 
       let data;
       
-      if (activeRegion === 'ALL') {
+      if (activeSearch) {
+        // Run provider search
+        data = await searchProviderAction(activeSearch, provider.id.toString(), activeType, activeRegion, pageNum);
+      } else if (activeRegion === 'ALL') {
         // Fetch from multiple regions concurrently
         // Include provider's native region in the list to ensure local hits
         const regionsToHit = Array.from(new Set([provider.region, ...GLOBAL_REGIONS]));
@@ -68,7 +72,7 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
     } finally {
       setLoading(false);
     }
-  }, [activeType, activeLang, activeGenre, activeSort, provider.id, activeRegion, provider.region]);
+  }, [activeType, activeLang, activeGenre, activeSort, provider.id, activeRegion, provider.region, activeSearch]);
 
   useEffect(() => {
     setPage(1);

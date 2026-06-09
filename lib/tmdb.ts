@@ -26,8 +26,9 @@ export async function fetchTMDB<T>(
   const executeFetch = async (baseUrl: string, isFallback = false): Promise<T> => {
     const url = `${baseUrl}${path}?${queryString}`;
     try {
+      const isSearch = path.startsWith('/search');
       const res = await fetch(url, {
-        next: { revalidate: 3600 },
+        next: { revalidate: isSearch ? 0 : 3600 },
         signal: controller.signal,
       });
       
@@ -292,6 +293,8 @@ export const tmdb = {
       total_pages: 1,
       total_results: 0,
     })),
+  getWatchProviders: async (type: "movie" | "tv", id: string) =>
+    fetchTMDB<any>(`/${type}/${id}/watch/providers`).catch(() => null),
 };
 
 export const getImageUrl = (

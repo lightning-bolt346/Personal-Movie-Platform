@@ -66,7 +66,7 @@ export default async function ProviderPage({ params }: { params: Promise<{ slug:
           filter: 'blur(100px)'
         }}
       />
-      <div className="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[150vw] md:w-[80vw] h-[80vh] pointer-events-none z-0 opacity-10 mix-blend-screen blur-[30px] md:blur-[60px]">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150vw] md:w-[80vw] h-[80vh] pointer-events-none z-0 opacity-10 mix-blend-screen blur-[30px] md:blur-[60px]">
         <Image
           src={provider.logo}
           alt=""
@@ -81,12 +81,12 @@ export default async function ProviderPage({ params }: { params: Promise<{ slug:
       <div className="relative w-full pt-32 pb-12 md:pt-40 md:pb-20 flex flex-col items-center justify-center z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black z-0"></div>
         
-        {/* Back Button */}
-        <div className="absolute top-[90px] md:top-[110px] w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 z-50">
-          <BackButton href="/providers" />
-        </div>
+        <div className="relative z-10 flex flex-col items-center w-full mt-6 md:mt-10">
+          {/* Back Button in normal flow */}
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 mb-8 flex justify-start">
+            <BackButton href="/providers" />
+          </div>
 
-        <div className="relative z-10 flex flex-col items-center mt-6 md:mt-10">
           <div className="w-[160px] h-[80px] md:w-[280px] md:h-[140px] relative mb-6">
             <Image
               src={provider.logo}

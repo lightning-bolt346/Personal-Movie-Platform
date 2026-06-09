@@ -399,6 +399,12 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         <span key={g.id} className="text-xs font-medium text-zinc-300 bg-void-900 border border-zinc-800 px-2 py-1 rounded-md">{g.name}</span>
                       ))}
                     </div>
+
+                    {show.overview && (
+                      <p className="mt-6 text-zinc-300 text-sm md:text-base leading-relaxed max-w-3xl font-light">
+                        {show.overview}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-3 min-w-[200px] shrink-0">
@@ -535,23 +541,6 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             }}
             className="flex flex-col gap-12"
           >
-            {/* Professional About Section */}
-            {show.overview && (
-              <div className="flex flex-col gap-4 max-w-5xl">
-                <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
-                  <span className="w-1.5 h-6 rounded-full bg-crimson-500" />
-                  About {show.name}
-                </h2>
-                <div className="p-6 md:p-8 rounded-3xl bg-void-950 border border-white/5 shadow-2xl relative overflow-hidden">
-                  <div 
-                    className="absolute top-0 left-0 w-full h-1 opacity-50 bg-gradient-to-r from-crimson-500 to-transparent"
-                  />
-                  <p className="text-zinc-300 text-base md:text-lg leading-relaxed md:leading-loose">
-                    {show.overview}
-                  </p>
-                </div>
-              </div>
-            )}
 
             <CastSection cast={show.credits?.cast} crew={show.credits?.crew} createdBy={show.created_by} />
           </div>

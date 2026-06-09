@@ -161,7 +161,7 @@ export function Navbar() {
   return (
     <>
       {/* ── MOBILE TOP NAV ── */}
-      <nav className="md:hidden fixed top-0 left-0 right-0 z-[200] px-5 py-4 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.8) 60%, transparent)' }}>
+      <nav className={`md:hidden fixed top-0 left-0 right-0 z-[200] px-4 h-[52px] flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-[#050505]/70 backdrop-blur-[20px] saturate-[1.6]' : 'bg-transparent'}`}>
         <Link href="/" onClick={(e) => handleNavigation(e, '/')} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
             <span
               className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
@@ -204,9 +204,7 @@ export function Navbar() {
             </span>
         </Link>
         <div className="flex items-center gap-4 z-10">
-          <Link href="/api/random" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Dices size={20} strokeWidth={2.5} /></Link>
           <Link href="/search" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Search size={20} strokeWidth={2.5} /></Link>
-          <div className="w-[1px] h-5 bg-white/30" />
           <button onClick={() => setIsSettingsOpen(true)} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Settings size={20} strokeWidth={2.5} /></button>
           <Link href="/profile" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><User size={20} strokeWidth={2.5} /></Link>
         </div>
@@ -214,10 +212,10 @@ export function Navbar() {
 
       {/* ── DESKTOP FLOATING PILL NAV ── */}
       <nav
-        className={`hidden md:flex fixed z-[200] left-0 right-0 justify-center px-4 transition-all duration-500 ${scrolled ? 'top-3' : 'top-6'}`}
+        className={`hidden md:flex fixed z-[200] left-0 right-0 justify-center px-4 transition-all duration-500 pointer-events-none ${scrolled ? 'top-3' : 'top-6'}`}
       >
         <div
-          className="group relative flex items-center px-5 py-2.5 gap-5 rounded-full transition-all duration-300"
+          className="group relative flex items-center px-5 py-2.5 gap-5 rounded-full transition-all duration-300 pointer-events-auto"
           style={{
             backgroundColor: 'rgba(10, 8, 12, 0.45)',
             backdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
@@ -426,17 +424,16 @@ export function Navbar() {
 
       {/* ── MOBILE BOTTOM DOCK ── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-[200]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-[100] h-[64px]"
         style={{
-          background: 'rgba(10, 8, 12, 0.45)',
-          backdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%) contrast(120%) brightness(1.1)',
-          borderTop: '1px solid rgba(255, 165, 80, 0.15)',
-          boxShadow: '0 -10px 30px -10px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2)',
+          background: 'rgba(5, 5, 5, 0.85)',
+          backdropFilter: 'blur(20px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <div className="flex items-center justify-around py-2 px-2">
+        <div className="flex items-center justify-around h-full">
           {MOBILE_DOCK_ITEMS.map(({ href, label, Icon }) => {
             const active = isActive(href);
             return (
@@ -456,20 +453,15 @@ export function Navbar() {
                      handleNavigation(e, href);
                   }
                 }}
-                className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all duration-200 ${
-                  active ? 'text-white' : 'text-white/35 hover:text-white/70'
+                className={`relative flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-200 ${
+                  active ? 'text-crimson-500' : 'text-white/35 hover:text-white/70'
                 }`}
               >
-                <div className="relative">
-                  <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
-                  {active && (
-                    <span
-                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-crimson-500"
-                      style={{ boxShadow: '0 0 6px rgba(229,9,20,0.8)' }}
-                    />
-                  )}
-                </div>
-                <span className="text-[10px] font-semibold tracking-wide">{label}</span>
+                {active && (
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-crimson-500 shadow-[0_0_8px_rgba(229,9,20,0.8)] rounded-b-sm" />
+                )}
+                <Icon size={24} strokeWidth={active ? 2.5 : 1.5} />
+                <span className="text-[10px] font-medium tracking-[0.02em]">{label}</span>
               </Link>
             );
           })}

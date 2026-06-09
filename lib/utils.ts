@@ -22,3 +22,13 @@ export function generateSlug(id: number | string, title?: string): string {
     .replace(/(^-|-$)+/g, '');
   return `${id}-${cleanTitle}`;
 }
+
+export function getSiteUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+  }
+  return 'http://localhost:3000';
+}

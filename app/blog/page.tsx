@@ -2,8 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { blogPosts } from '@/lib/blog';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getSiteUrl } from '@/lib/utils';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: 'Blog & Guides — ZIVOX',

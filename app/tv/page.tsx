@@ -5,6 +5,7 @@ import { HorizontalRow } from '@/components/media/HorizontalRow';
 import { HeroSlider } from '@/components/media/HeroSlider';
 import { Top10Row } from '@/components/media/Top10Row';
 import { RecommendedForYou } from '@/components/media/RecommendedForYou';
+import { getSiteUrl } from '@/lib/utils';
 
 export const revalidate = 3600;
 
@@ -30,7 +31,7 @@ async function TvDataFetcher() {
   const top6Trending = trendingTv.results?.slice(0, 6) || [];
   const heroItemsWithLogos = await getHeroItemsWithLogos(top6Trending);
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+  const siteUrl = getSiteUrl();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -60,6 +61,16 @@ async function TvDataFetcher() {
           items={topTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />
+
+
+
+        {/* Filterable sections */}
+        <div className="mt-4 px-2">
+          <FilterableContent sections={[
+            { title: "📺 Popular TV Shows", items: popTv.results || [] },
+            { title: "💎 Top Rated", items: topTv.results || [] },
+          ]} />
+        </div>
 
         {/* Semantic SEO Block for TV Page */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full mt-12 mb-8">
@@ -93,14 +104,6 @@ async function TvDataFetcher() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Filterable sections */}
-        <div className="mt-4 px-2">
-          <FilterableContent sections={[
-            { title: "📺 Popular TV Shows", items: popTv.results || [] },
-            { title: "💎 Top Rated", items: topTv.results || [] },
-          ]} />
         </div>
       </div>
     </div>

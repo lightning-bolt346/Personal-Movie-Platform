@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { JsonLd } from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { Shield, Zap, Monitor, Heart, Play, Search, Sparkles, Server } from 'lucide-react';
+import { getSiteUrl } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'About ZIVOX — Free Premium Streaming Platform',
@@ -65,7 +66,7 @@ export default function AboutPage() {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'ZIVOX',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app',
+    url: getSiteUrl(),
     description: 'Free premium streaming platform for movies, TV shows, and anime in HD quality.',
     applicationCategory: 'EntertainmentApplication',
     operatingSystem: 'Web',

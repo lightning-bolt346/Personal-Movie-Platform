@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Film, ArrowRight } from 'lucide-react';
 import { generateSlug } from '@/lib/utils';
+import { SectionTitle } from '@/components/ui/SectionTitle';
 
 export interface CollectionData {
   id: number;
@@ -39,9 +40,19 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+    setCanScrollLeft(el.scrollLeft > 20);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 15);
   }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 500);
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll, collections]);
 
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
@@ -53,20 +64,11 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
   return (
     <section ref={sectionRef} className="relative group/row row-hidden">
       {/* Header */}
-      <div className="w-full max-w-[1800px] mx-auto px-4 md:px-14 mb-3 flex items-center justify-between">
-        <Link href="/collections" className="hover:opacity-80 transition-opacity">
-          <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2 group">
-            🎬 Iconic Collections
-          </h2>
-        </Link>
-        <Link
-          href="/collections"
-          className="flex items-center gap-1 text-sm font-semibold text-white/35 hover:text-white/80 transition-colors duration-200 group"
-        >
-          View All
-          <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-        </Link>
-      </div>
+      <SectionTitle
+        title="Iconic Collections"
+        viewAllHref="/collections"
+        className="!px-4 md:!px-14 !mt-0 !mb-3"
+      />
 
       {/* Scroll buttons */}
       <button
@@ -87,9 +89,7 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
       </button>
 
       {/* Edge fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to right, #05010a, transparent)', opacity: canScrollLeft ? 1 : 0 }} />
-      <div className="absolute right-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
+      <div className="absolute right-0 top-[60px] bottom-0 w-16 z-20 pointer-events-none transition-opacity duration-300"
         style={{ background: 'linear-gradient(to left, #05010a, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
       {/* Scroll track */}
@@ -98,8 +98,8 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
         onScroll={checkScroll}
         className="flex gap-4 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth"
         style={{
-          paddingLeft: 'max(1rem, calc((100vw - 1800px) / 2 + 3.5rem))',
-          paddingRight: 'max(1rem, calc((100vw - 1800px) / 2 + 3.5rem))',
+          paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)',
+          paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)',
           paddingTop: '8px',
           paddingBottom: '24px',
           touchAction: 'pan-x pan-y',
@@ -134,13 +134,18 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
             </div>
 
             {/* Bottom text */}
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-              <h3 className="text-white font-display font-bold text-sm md:text-base leading-tight">
-                {col.name}
-              </h3>
-              <p className="text-zinc-400 text-[11px] mt-0.5 leading-tight opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                {col.tagline}
-              </p>
+            <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end">
+              <div>
+                <h3 className="text-white font-display font-bold text-sm md:text-base leading-tight">
+                  {col.name}
+                </h3>
+                <p className="text-zinc-400 text-[11px] mt-0.5 leading-tight opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                  {col.tagline}
+                </p>
+              </div>
+              <div className="opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center gap-1 text-[#e50914] text-xs font-bold">
+                Explore <ArrowRight size={12} />
+              </div>
             </div>
           </Link>
         ))}

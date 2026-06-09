@@ -33,7 +33,7 @@ export function RegionSelector() {
         <Globe size={14} />
         <span className="text-xs font-medium uppercase tracking-wider">Region</span>
       </div>
-      <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 overflow-x-auto hide-scrollbar">
+      <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 overflow-x-auto no-scrollbar">
         {REGIONS.map((r) => (
           <button
             key={r.code}

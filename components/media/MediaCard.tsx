@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Media } from "@/types/tmdb";
 import { getImageUrl } from "@/lib/tmdb";
 import { cn, generateSlug } from "@/lib/utils";
-import { Bookmark, Trash2, Heart, Play, Star, Plus, Check, ArrowRight, Bell, BellOff } from "lucide-react";
+import { Bookmark, Trash2, Heart, Play, Pause, Volume2, VolumeX, Star, Plus, Check, ArrowRight, Bell, BellOff } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { getTrailerAction } from "@/app/actions";
 
@@ -47,6 +47,24 @@ export const MediaCard = memo(function MediaCard({
   const [expandOrigin, setExpandOrigin] = useState<'center' | 'left' | 'right'>('center');
   const [trailerPlaying, setTrailerPlaying] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [trailerPaused, setTrailerPaused] = useState(false);
+  const [trailerMuted, setTrailerMuted] = useState(true);
+
+  const toggleTrailerPlayPause = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const nextState = !trailerPaused;
+    setTrailerPaused(nextState);
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: nextState ? 'pauseVideo' : 'playVideo', args: '' }), '*');
+  };
+
+  const toggleTrailerMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const nextState = !trailerMuted;
+    setTrailerMuted(nextState);
+    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: nextState ? 'mute' : 'unMute', args: '' }), '*');
+  };
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -89,6 +107,8 @@ export const MediaCard = memo(function MediaCard({
       setIsExpanded(false);
       setTrailerPlaying(false);
       setMinTimeElapsed(false);
+      setTrailerPaused(false);
+      setTrailerMuted(true);
     }
     
     return () => {
@@ -227,6 +247,8 @@ export const MediaCard = memo(function MediaCard({
             referrerPolicy="no-referrer"
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAYAAABLLYUHAAAAGklEQVQI12NgYGD4z8BQDwAEgAF/QualIQAAAABJRU5ErkJggg=="
+            draggable={false}
+            style={{ userSelect: 'none' }}
           />
 
           {/* Top Left Badges */}
@@ -365,6 +387,15 @@ export const MediaCard = memo(function MediaCard({
         </div>
       </Link>
 
+      {/* Continue Watching Episode Label (Mobile) */}
+      {media.contextType === 'history' && media.season && media.episode && (
+        <div className="mt-1.5 px-1 md:hidden">
+          <span className="text-[10px] text-white/50 font-medium tracking-wide">
+            S{media.season} E{media.episode}
+          </span>
+        </div>
+      )}
+
       {/* Remove button (history / notifications) */}
       {onRemove && (media.contextType === 'history' || media.contextType === 'notifications') && (
         <button
@@ -399,6 +430,8 @@ export const MediaCard = memo(function MediaCard({
                 fill
                 className={`object-cover transition-opacity duration-700 ${trailerPlaying && minTimeElapsed && !trailerFailed ? 'opacity-0' : 'opacity-60'}`}
                 sizes="30vw"
+                draggable={false}
+                style={{ userSelect: 'none' }}
               />
               {trailerKey && !trailerFailed && (
                 <div className={`absolute inset-0 bg-black overflow-hidden pointer-events-none transition-opacity duration-700 ${trailerPlaying && minTimeElapsed ? 'opacity-100' : 'opacity-0'}`}>
@@ -419,6 +452,24 @@ export const MediaCard = memo(function MediaCard({
                     }}
                   />
                 </div>
+              )}
+              {trailerKey && trailerPlaying && !trailerFailed && (
+                 <div className="absolute top-2 right-2 flex items-center gap-1.5 z-50 animate-in fade-in duration-300">
+                    <button 
+                      onClick={toggleTrailerMute} 
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all active:scale-90"
+                      title={trailerMuted ? "Unmute" : "Mute"}
+                    >
+                       {trailerMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                    </button>
+                    <button 
+                      onClick={toggleTrailerPlayPause} 
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all active:scale-90"
+                      title={trailerPaused ? "Play" : "Pause"}
+                    >
+                       {trailerPaused ? <Play size={12} className="ml-0.5 fill-white" /> : <Pause size={12} className="fill-white" />}
+                    </button>
+                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-transparent to-transparent pointer-events-none" />
             </div>

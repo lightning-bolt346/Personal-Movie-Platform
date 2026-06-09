@@ -4,7 +4,7 @@
 
 ## What is ZIVOX?
 
-ZIVOX (accessible at https://zivox-streaming.vercel.app) is a state-of-the-art, completely free streaming platform that allows users to watch thousands of movies, TV shows, and anime online without any registration or subscription fees. 
+ZIVOX is a state-of-the-art, completely free streaming platform that allows users to watch thousands of movies, TV shows, and anime online without any registration or subscription fees. 
 
 Designed with a cinematic, mobile-first dark UI, ZIVOX aggregates the best publicly available streaming links on the internet into a single, beautiful interface. It leverages the TMDB API to provide incredibly rich metadata, cast information, trailers, and discovery tools.
 
@@ -20,7 +20,7 @@ Designed with a cinematic, mobile-first dark UI, ZIVOX aggregates the best publi
 
 ## How to Use ZIVOX
 
-1. **Visit the site:** Go to https://zivox-streaming.vercel.app.
+1. **Visit the site:** Go to the homepage.
 2. **Discover or Search:** Browse the homepage for trending titles, explore the 20+ genre categories, or use the real-time search bar.
 3. **Select your content:** Click on any movie or TV show to see the overview, rating, cast, and trailer.
 4. **Hit Play:** Click the "Play" button. ZIVOX will automatically select the best server and begin streaming in HD. 
@@ -37,10 +37,10 @@ ZIVOX features an immense library across all major categories:
 
 ## Helpful URLs
 
-- Homepage: https://zivox-streaming.vercel.app/
-- Movies Catalog: https://zivox-streaming.vercel.app/movies
-- TV Shows Catalog: https://zivox-streaming.vercel.app/tv
-- Anime Hub: https://zivox-streaming.vercel.app/anime
-- Discovery Engine: https://zivox-streaming.vercel.app/discover
-- Search Engine: https://zivox-streaming.vercel.app/search
-- Provider Status: https://zivox-streaming.vercel.app/providers
+- Homepage: /
+- Movies Catalog: /movies
+- TV Shows Catalog: /tv
+- Anime Hub: /anime
+- Discovery Engine: /discover
+- Search Engine: /search
+- Provider Status: /providers

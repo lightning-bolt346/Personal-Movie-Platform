@@ -17,7 +17,8 @@ export function ContinueWatching() {
     popularity: 0,
     vote_average: 0,
     vote_count: 0,
-    overview: ''
+    overview: '',
+    contextType: 'history',
   })) as unknown as Media[];
 
   return <HorizontalRow title="Continue Watching" items={historyMedia} />;

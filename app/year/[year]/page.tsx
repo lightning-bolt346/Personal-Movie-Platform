@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { tmdb } from '@/lib/tmdb';
 import { MediaGrid } from '@/components/media/MediaGrid';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getSiteUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,7 +45,7 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
     '@type': 'CollectionPage',
     name: `Best Movies and TV Shows of ${year}`,
     description: `A collection of the top movies and TV shows released in ${year}, available to stream on ZIVOX.`,
-    url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/year/${year}`,
+    url: `${getSiteUrl()}/year/${year}`,
   };
 
   return (

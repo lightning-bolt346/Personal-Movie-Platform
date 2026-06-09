@@ -5,7 +5,7 @@
   <p><strong>Your Ultimate Cinematic Streaming Experience.</strong></p>
 
   <p>
-    <a href="https://zivox-streaming.vercel.app/"><strong>Visit ZIVOX Now &rarr;</strong></a>
+    <strong>Visit ZIVOX Now &rarr;</strong>
   </p>
 </div>
 
@@ -48,10 +48,10 @@ Watching alone is boring. Generate a unique Watch Party link directly from the v
 This platform serves strictly as a content aggregator and does not host any media files directly. All content is streamed through trusted third-party services. ZIVOX bears no responsibility for the media files displayed by these providers. Legal issues regarding content should be taken up with the respective file hosts.
 
 For more information on how we handle privacy and copyright, please review our platform policies:
-*   [About Us](https://zivox-streaming.vercel.app/about)
-*   [Privacy Policy](https://zivox-streaming.vercel.app/privacy)
-*   [DMCA / Copyright Policy](https://zivox-streaming.vercel.app/dmca)
-*   [Terms of Service](https://zivox-streaming.vercel.app/terms)
+*   [About Us](/about)
+*   [Privacy Policy](/privacy)
+*   [DMCA / Copyright Policy](/dmca)
+*   [Terms of Service](/terms)
 
 ---
 

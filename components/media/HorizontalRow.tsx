@@ -4,15 +4,19 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Media } from '@/types/tmdb';
 import { MediaCard } from './MediaCard';
+import { SectionTitle } from '@/components/ui/SectionTitle';
+import { ReactNode } from 'react';
 
 interface HorizontalRowProps {
   title: string;
+  subtitle?: string;
   items: Media[];
   seeAllHref?: string;
   variant?: 'default' | 'numbered';
+  actionNode?: ReactNode;
 }
 
-export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }: HorizontalRowProps) {
+export function HorizontalRow({ title, subtitle, items, seeAllHref, variant = 'default', actionNode }: HorizontalRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -40,9 +44,19 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+    setCanScrollLeft(el.scrollLeft > 20);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 15);
   }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 500);
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll, items]);
 
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
@@ -59,28 +73,13 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
       className="relative group/row row-hidden"
     >
       {/* Header */}
-      <div className="w-full max-w-[1800px] mx-auto px-4 md:px-14 mb-3 flex items-center justify-between">
-        {seeAllHref ? (
-          <Link href={seeAllHref} className="hover:opacity-80 transition-opacity">
-            <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2 group">
-              {title}
-            </h2>
-          </Link>
-        ) : (
-          <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight">
-            {title}
-          </h2>
-        )}
-        {seeAllHref && (
-          <Link
-            href={seeAllHref}
-            className="flex items-center gap-1 text-sm font-semibold text-white/35 hover:text-white/80 transition-colors duration-200 group"
-          >
-            View All
-            <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-          </Link>
-        )}
-      </div>
+      <SectionTitle
+        title={title}
+        subtitle={subtitle}
+        viewAllHref={seeAllHref}
+        actionNode={actionNode}
+        className="!mt-0 !mb-3"
+      />
 
       {/* Scroll buttons */}
       <button
@@ -88,7 +87,7 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
         aria-label="Scroll left"
         className={`absolute left-4 md:left-14 top-[55%] -translate-y-1/2 z-30 w-10 h-10
           flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
-          ${canScrollLeft ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
+          ${canScrollLeft ? 'opacity-0 md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
         style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
       >
         <ChevronLeft size={20} className="text-white" />
@@ -105,20 +104,18 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
       </button>
 
       {/* Edge fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to right, #05010a, transparent)', opacity: canScrollLeft ? 1 : 0 }} />
-      <div className="absolute right-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to left, #05010a, transparent)', opacity: canScrollRight ? 1 : 0 }} />
+      <div className="absolute right-0 top-[60px] bottom-0 w-16 z-20 pointer-events-none transition-opacity duration-300"
+        style={{ background: 'linear-gradient(to left, #050505, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
       {/* Scroll track */}
       <div
         ref={scrollRef}
         onScroll={checkScroll}
         onTouchStart={() => setHasInteracted(true)}
-        className="flex gap-4 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth overscroll-x-contain"
+        className="flex gap-3 md:gap-4 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth overscroll-x-contain"
         style={{
-          paddingLeft: 'max(1rem, calc((100vw - 1800px) / 2 + 3.5rem))',
-          paddingRight: 'max(1rem, calc((100vw - 1800px) / 2 + 3.5rem))',
+          paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)',
+          paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)',
           paddingTop: '8px',
           paddingBottom: '24px',
         }}
@@ -126,7 +123,7 @@ export function HorizontalRow({ title, items, seeAllHref, variant = 'default' }:
         {items.map((item, idx) => (
           <div
             key={`${item.id}-${idx}`}
-            className="relative flex-shrink-0"
+            className="relative flex-shrink-0 snap-start"
             style={{ width: 'clamp(140px, 15vw, 190px)' }}
           >
             {variant === 'numbered' && (

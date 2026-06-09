@@ -229,6 +229,54 @@ export const tmdb = {
       total_pages: 1,
       total_results: 12,
     })),
+  discoverGlobalProvider: async (providerId: string, baseRegion: string = 'US') => {
+    // Fetch from top regions to create a rich global catalog
+    const regions = [baseRegion, 'US', 'IN', 'GB'];
+    const uniqueRegions = Array.from(new Set(regions)).slice(0, 3); // Limit to 3 to avoid rate limits
+
+    const moviePromises = uniqueRegions.map(region => 
+      fetchTMDB<TMDBResponse<Media>>(`/discover/movie`, {
+        with_watch_providers: providerId,
+        watch_region: region,
+        sort_by: 'popularity.desc'
+      }, { forceProxy: true }).catch(() => ({ results: [] }))
+    );
+
+    const tvPromises = uniqueRegions.map(region => 
+      fetchTMDB<TMDBResponse<Media>>(`/discover/tv`, {
+        with_watch_providers: providerId,
+        watch_region: region,
+        sort_by: 'popularity.desc'
+      }, { forceProxy: true }).catch(() => ({ results: [] }))
+    );
+
+    const [movieRes, tvRes] = await Promise.all([
+      Promise.all(moviePromises),
+      Promise.all(tvPromises)
+    ]);
+
+    const allMovies = movieRes.flatMap(r => r.results || []);
+    const allTv = tvRes.flatMap(r => r.results || []);
+    
+    // Combine and mark media_type if missing
+    const combined = [
+      ...allMovies.map(m => ({ ...m, media_type: m.media_type || 'movie' })),
+      ...allTv.map(t => ({ ...t, media_type: t.media_type || 'tv' }))
+    ];
+
+    // Deduplicate
+    const uniqueMap = new Map();
+    for (const item of combined) {
+      if (item && item.id) {
+        uniqueMap.set(`${item.media_type}-${item.id}`, item);
+      }
+    }
+    
+    const deduped = Array.from(uniqueMap.values()) as Media[];
+    deduped.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+    return { results: deduped };
+  },
   getPerson: async (id: string) =>
     fetchTMDB<any>(`/person/${id}`, {
       append_to_response: "combined_credits",

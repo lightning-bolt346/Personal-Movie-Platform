@@ -183,6 +183,10 @@ export async function discoverMedia(type: "movie" | "tv", params: Record<string,
   return await tmdb.discover(type, params);
 }
 
+export async function getTopRatedAction(type: "movie" | "tv") {
+  return await tmdb.getTopRated(type);
+}
+
 export async function getSeasonDetailsAction(tvId: string, seasonNumber: number) {
   return await tmdb.getSeasonDetails(tvId, seasonNumber);
 }
@@ -409,4 +413,51 @@ export async function searchCollectionsAction(query: string, page: number = 1) {
     ...collectionRes,
     results
   };
+}
+
+// ─── Provider Global Actions ──────────────────────────────────────────────────
+
+export async function discoverGlobalProviderAction(
+  providerId: string,
+  type: 'movie' | 'tv',
+  params: Record<string, string>,
+  regions: string[]
+) {
+  try {
+    const promises = regions.map(region => {
+      const regionParams = { ...params, with_watch_providers: providerId, watch_region: region };
+      return fetchTMDB<TMDBResponse<Media>>(`/discover/${type}`, regionParams).catch(() => null);
+    });
+
+    const responses = await Promise.all(promises);
+    
+    // Merge and deduplicate
+    let allResults: Media[] = [];
+    let maxPage = 1;
+    let maxTotalPages = 1;
+
+    responses.forEach(res => {
+      if (res) {
+        if (res.results) allResults.push(...res.results);
+        if (res.page > maxPage) maxPage = res.page;
+        if (res.total_pages > maxTotalPages) maxTotalPages = res.total_pages;
+      }
+    });
+
+    // Deduplicate by ID
+    const uniqueResults = Array.from(new Map(allResults.map(item => [item.id, item])).values());
+    
+    // Sort by popularity descending since that's the default
+    uniqueResults.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+    return {
+      page: params.page ? parseInt(params.page) : 1,
+      results: uniqueResults,
+      total_pages: maxTotalPages,
+      total_results: uniqueResults.length
+    };
+  } catch (e) {
+    console.error("Global provider fetch failed:", e);
+    return { page: 1, results: [], total_pages: 1, total_results: 0 };
+  }
 }

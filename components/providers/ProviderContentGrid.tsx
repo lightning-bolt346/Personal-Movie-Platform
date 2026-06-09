@@ -5,7 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import { Provider } from '@/lib/providers';
 import { Media } from '@/types/tmdb';
 import { MediaCard } from '@/components/media/MediaCard';
-import { usePreferences } from '@/hooks/usePreferences';
+import { discoverGlobalProviderAction } from '@/app/actions';
+import { Loader2 } from 'lucide-react';
+
+// Use a subset of regions for global fetch to avoid rate limits
+const GLOBAL_REGIONS = ['US', 'IN', 'GB', 'JP', 'KR', 'ES', 'FR', 'DE'];
 
 interface ProviderContentGridProps {
   provider: Provider;
@@ -13,13 +17,12 @@ interface ProviderContentGridProps {
 
 export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
   const searchParams = useSearchParams();
-  const { preferences } = usePreferences();
 
-  const activeType = searchParams.get('type') || 'movie';
+  const activeType = (searchParams.get('type') || 'movie') as 'movie' | 'tv';
   const activeLang = searchParams.get('lang') || '';
   const activeGenre = searchParams.get('genre') || '';
   const activeSort = searchParams.get('sort') || 'popularity.desc';
-  const activeRegion = searchParams.get('region') || preferences.country || 'US';
+  const activeRegion = searchParams.get('region') || 'ALL';
   
   const [items, setItems] = useState<Media[]>([]);
   const [page, setPage] = useState(1);
@@ -31,22 +34,25 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
   const fetchItems = useCallback(async (pageNum: number, reset = false) => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      params.append('with_watch_providers', provider.id.toString());
-      params.append('watch_region', activeRegion);
-      params.append('sort_by', activeSort);
-      params.append('page', pageNum.toString());
-      if (activeLang) params.append('with_original_language', activeLang);
-      if (activeGenre) params.append('with_genres', activeGenre);
+      const params: Record<string, string> = {
+        sort_by: activeSort,
+        page: pageNum.toString()
+      };
+      
+      if (activeLang) params.with_original_language = activeLang;
+      if (activeGenre) params.with_genres = activeGenre;
 
-      // We fetch from our own Next.js API route to proxy the TMDB request safely on the client
-      // Wait, we can just fetch via a server action or API route.
-      // Since TMDB tokens shouldn't be exposed, let's use an API route or server action.
-      // Wait! Do we have a server action for this? 
-      // Instead, we can create a simple Server Action in lib/actions.ts or similar.
-      // For now, let's just assume we hit a local API route `api/discover?type=${activeType}&...`
-      const res = await fetch(`/api/discover?type=${activeType}&${params.toString()}`);
-      const data = await res.json();
+      let data;
+      
+      if (activeRegion === 'ALL') {
+        // Fetch from multiple regions concurrently
+        // Include provider's native region in the list to ensure local hits
+        const regionsToHit = Array.from(new Set([provider.region, ...GLOBAL_REGIONS]));
+        data = await discoverGlobalProviderAction(provider.id.toString(), activeType, params, regionsToHit);
+      } else {
+        // Single region fetch
+        data = await discoverGlobalProviderAction(provider.id.toString(), activeType, params, [activeRegion]);
+      }
       
       setItems(prev => {
         if (reset) return data.results || [];
@@ -56,13 +62,13 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
         return [...prev, ...newItems.filter((i: Media) => !existingIds.has(i.id))];
       });
       
-      setHasMore(data.page < data.total_pages && data.page < 500); // TMDB limits to 500 pages
+      setHasMore(data.page < data.total_pages && data.page < 500); 
     } catch (error) {
       console.error('Failed to fetch provider content:', error);
     } finally {
       setLoading(false);
     }
-  }, [activeType, activeLang, activeGenre, activeSort, provider.id, activeRegion]);
+  }, [activeType, activeLang, activeGenre, activeSort, provider.id, activeRegion, provider.region]);
 
   useEffect(() => {
     setPage(1);
@@ -75,25 +81,23 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
     
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
-        setPage(prev => {
-          const next = prev + 1;
-          fetchItems(next);
-          return next;
-        });
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchItems(nextPage, false);
       }
     }, { rootMargin: '300px' });
     
     if (node) observer.current.observe(node);
-  }, [loading, hasMore, fetchItems]);
+  }, [loading, hasMore, page, fetchItems]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="w-full flex flex-col">
       {items.length === 0 && !loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="flex flex-col items-center justify-center py-20 text-center w-full">
           <p className="text-zinc-500 text-lg">No content found matching these filters.</p>
           <button 
             onClick={() => {
-            window.history.pushState({}, '', `/providers/${provider.slug}`);
+              window.history.pushState({}, '', `/providers/${provider.slug}`);
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
             className="mt-4 px-6 py-2 rounded-full bg-zinc-800 text-white hover:bg-zinc-700 transition"
@@ -102,7 +106,7 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-5 w-full">
           {items.map((item, index) => {
             if (items.length === index + 1) {
               return (
@@ -121,9 +125,15 @@ export function ProviderContentGrid({ provider }: ProviderContentGridProps) {
           {loading && (
             // Skeleton loaders
             Array.from({ length: 10 }).map((_, i) => (
-              <div key={`skel-${i}`} className="w-full aspect-[2/3] bg-zinc-900 rounded-xl animate-pulse" />
+              <div key={`skel-${i}`} className="w-full aspect-[2/3] bg-zinc-900/50 rounded-xl animate-pulse border border-white/5" />
             ))
           )}
+        </div>
+      )}
+      
+      {loading && items.length > 0 && (
+        <div className="w-full py-8 flex justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-white/50" />
         </div>
       )}
     </div>

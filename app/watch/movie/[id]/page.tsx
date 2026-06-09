@@ -4,11 +4,11 @@ import { MovieClient } from './MovieClient';
 import { MediaGrid } from '@/components/media/MediaGrid';
 import { LegalBanner } from '@/components/ui/LegalBanner';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { generateSlug } from '@/lib/utils';
+import { generateSlug, getSiteUrl } from '@/lib/utils';
 
 export const revalidate = 3600; // 1 hour ISR
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+const siteUrl = getSiteUrl();
 
 export async function generateMetadata({
   params,

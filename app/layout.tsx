@@ -11,13 +11,13 @@ import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
-import Script from 'next/script';
+import { getSiteUrl } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const space = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' });
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -60,18 +60,12 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      index: false,
+      follow: false,
     },
-  },
-  verification: {
-    google: 'vrbomKYzEEs6XZErAY-s0kDR1hYHzBbmS0iHK3WVxTg',
   },
 };
 
@@ -126,17 +120,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <JsonLd data={globalSchema} />
-        {/* Google tag (gtag.js) */}
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-6RD41T4D6D" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-6RD41T4D6D');
-          `}
-        </Script>
       </head>
       <body className="bg-black text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
         {/* Ambient Background — Zivox Dark Violet */}

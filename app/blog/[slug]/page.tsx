@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import { blogPosts, getBlogPostBySlug } from '@/lib/blog';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { BackButton } from '@/components/ui/BackButton';
+import { getSiteUrl } from '@/lib/utils';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+const siteUrl = getSiteUrl();
 
 export async function generateStaticParams() {
   return blogPosts.map((post) => ({

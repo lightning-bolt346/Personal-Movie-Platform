@@ -2,27 +2,31 @@
 import { useEffect, useState } from 'react';
 import { usePreferences } from '@/hooks/usePreferences';
 import { HorizontalRow } from './HorizontalRow';
-import { discoverMedia } from '@/app/actions';
+import { discoverMedia, getTopRatedAction } from '@/app/actions';
 import { Media } from '@/types/tmdb';
+import { RefreshCw } from 'lucide-react';
 
 export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie' | 'tv' | 'all' }) {
   const { preferences } = usePreferences();
   const [recommendations, setRecommendations] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFallback, setIsFallback] = useState(false);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  const fetchRecommendations = async () => {
+    setLoading(true);
+    try {
+      if (preferences.preferredGenres.length === 0 && preferences.originalLanguage.length === 0) {
+        setIsFallback(true);
+        // Fallback to top rated
+        const res = await getTopRatedAction(mediaType === 'all' ? 'movie' : mediaType);
+        if (res && res.results) {
+          setRecommendations(res.results.slice(0, 30));
+        }
+        return;
+      }
 
-    // Skip if both genres and languages are empty (wait for auto-location)
-    if (preferences.preferredGenres.length === 0 && preferences.originalLanguage.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchRecommendations = async () => {
-      setLoading(true);
-      try {
-        const baseParams: Record<string, string> = {
+      setIsFallback(false);
+      const baseParams: Record<string, string> = {
           sort_by: 'popularity.desc',
           include_adult: preferences.adultContent ? 'true' : 'false'
         };
@@ -99,8 +103,21 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
       }
     };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     fetchRecommendations();
   }, [preferences.preferredGenres, preferences.adultContent, preferences.originalLanguage, mediaType]);
+
+  const handleRefresh = () => {
+    setRecommendations(prev => {
+      const shuffled = [...prev];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    });
+  };
 
   if (loading || recommendations.length === 0) {
     return null;
@@ -109,7 +126,19 @@ export function RecommendedForYou({ mediaType = 'movie' }: { mediaType?: 'movie'
   return (
     <div className="w-full">
       <HorizontalRow 
-        title="Recommended For You" 
+        title={isFallback ? "Critically Loved Movies" : "Recommended For You"} 
+        subtitle={isFallback ? undefined : "Based on your taste"}
+        actionNode={
+          !isFallback && (
+            <button 
+              onClick={handleRefresh}
+              className="ml-2 p-1.5 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-colors group"
+              aria-label="Refresh recommendations"
+            >
+              <RefreshCw size={14} className="group-active:rotate-180 transition-transform duration-500" />
+            </button>
+          )
+        }
         items={recommendations.slice(0, 15)} 
         seeAllHref={`/recommended/${mediaType}`}
       />

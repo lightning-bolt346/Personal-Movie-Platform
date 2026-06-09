@@ -1,5 +1,6 @@
 import { RecommendedClient } from './RecommendedClient';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { getSiteUrl } from '@/lib/utils';
 
 export async function generateMetadata({ params }: { params: Promise<{ type: string }> }) {
   const resolvedParams = await params;
@@ -19,7 +20,7 @@ export default async function RecommendedPage({ params }: { params: Promise<{ ty
   const resolvedParams = await params;
   const type = ['movie', 'tv', 'all'].includes(resolvedParams.type) ? resolvedParams.type as 'movie' | 'tv' | 'all' : 'all';
 
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+  const siteUrl = getSiteUrl();
   
   const jsonLd = {
     "@context": "https://schema.org",

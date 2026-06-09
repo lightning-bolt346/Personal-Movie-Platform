@@ -71,7 +71,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
   return (
     <div className="relative w-full bg-[#050505] z-10">
       <div
-        className="relative w-full bg-[#050505] overflow-hidden h-[85vh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px] group"
+        className="relative w-full bg-[#050505] overflow-hidden h-[100dvh] md:h-[95vh] min-h-[450px] md:min-h-[550px] max-h-[1080px] group"
         style={{ contain: 'layout' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -91,9 +91,11 @@ export function HeroSlider({ items }: { items: Media[] }) {
             alt={title}
             fill
             sizes="100vw"
+            quality={85}
             className="object-cover object-top"
             style={{ animation: 'ken-burns 16s ease-in-out alternate forwards' }}
-            priority
+            priority={currentIndex === 0}
+            {...(currentIndex === 0 ? { fetchPriority: "high" } : { loading: "lazy" })}
             referrerPolicy="no-referrer"
           />
           {/* Gradient overlays — brightened slightly for better visibility */}
@@ -116,8 +118,8 @@ export function HeroSlider({ items }: { items: Media[] }) {
         aria-label="Previous"
         className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 opacity-30 hover:opacity-100 group-hover:opacity-100"
         style={{
-          background: 'rgba(0,0,0,0.6)',
-          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'rgba(0,0,0,0.5)',
+          border: '1px solid rgba(255,255,255,0.1)',
           backdropFilter: 'blur(8px)',
         }}
       >
@@ -128,8 +130,8 @@ export function HeroSlider({ items }: { items: Media[] }) {
         aria-label="Next"
         className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 opacity-30 hover:opacity-100 group-hover:opacity-100"
         style={{
-          background: 'rgba(0,0,0,0.6)',
-          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'rgba(0,0,0,0.5)',
+          border: '1px solid rgba(255,255,255,0.1)',
           backdropFilter: 'blur(8px)',
         }}
       >
@@ -137,7 +139,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
       </button>
 
       {/* ── CONTENT — Always Visible ── */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-end px-4 sm:px-6 md:px-14 pb-0">
+      <div className="absolute inset-0 z-10 flex flex-col justify-end px-4 sm:px-6 md:px-14 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={`content-${current.id}-${currentIndex}`}
@@ -162,7 +164,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
               <h1
                 className="font-display font-black text-white leading-[0.9] mb-3 tracking-tight"
                 style={{
-                  fontSize: 'clamp(2rem, 8vw, 6rem)',
+                  fontSize: 'clamp(2rem, 8vw, 4.5rem)',
                   textShadow: '0 4px 40px rgba(0,0,0,0.9)',
                 }}
               >
@@ -172,6 +174,11 @@ export function HeroSlider({ items }: { items: Media[] }) {
 
             {/* Genre + Year + Rating Row - Pill Badges */}
             <div className="flex items-center gap-3 mb-5 flex-wrap">
+              {isMovie && (
+                <div className="flex items-center gap-1.5 bg-[#e50914] px-2 py-0.5 rounded-full shadow-lg">
+                  <span className="text-white text-[10px] font-bold uppercase tracking-[0.1em]">Movie</span>
+                </div>
+              )}
               {rating && (
                 <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-md shadow-lg">
                   <Star size={12} className="text-yellow-500 fill-yellow-500" />
@@ -200,7 +207,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
             </div>
 
             {/* Overview text */}
-            <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 max-w-lg mb-5">
+            <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-3 max-w-lg mb-5">
               {current.overview}
             </p>
 
@@ -208,7 +215,7 @@ export function HeroSlider({ items }: { items: Media[] }) {
             <div className="flex items-center gap-3">
               <Link
                 href={`/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(current.id.toString(), current.title || current.name)}?play=1`}
-                className="flex items-center gap-2.5 px-8 py-3 rounded-full font-bold text-[15px] text-black transition-[opacity,transform] duration-200 active:scale-95 hover:opacity-90 shadow-xl"
+                className="flex items-center justify-center gap-2.5 px-8 py-3 rounded-full font-bold text-[15px] text-black transition-[opacity,transform] duration-200 active:scale-95 hover:opacity-90 shadow-xl min-w-[140px]"
                 style={{
                   background: '#ffffff',
                 }}
@@ -247,25 +254,25 @@ export function HeroSlider({ items }: { items: Media[] }) {
         </AnimatePresence>
 
         {/* ── BOTTOM INFO BAR ── */}
-        <div className="flex items-center justify-between py-3 mb-0">
+        <div className="flex items-center justify-between pb-2 mb-0">
           {/* Dot indicators */}
           <div className="flex items-center gap-2">
             {visibleItems.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }}
-                className="rounded-full transition-all duration-400 ease-out"
+                className="rounded-full transition-[width,background-color,box-shadow] duration-300 ease-out"
                 style={{
-                  width: idx === currentIndex ? '32px' : '10px',
+                  width: idx === currentIndex ? '40px' : '8px',
                   height: '8px',
-                  background: idx === currentIndex ? '#e50914' : 'rgba(255,255,255,0.2)',
+                  background: idx === currentIndex ? '#e50914' : 'rgba(255,255,255,0.3)',
                   boxShadow: idx === currentIndex ? '0 0 12px rgba(229,9,20,0.8)' : 'none',
                 }}
               />
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-white/25 text-xs font-mono">
               {String(currentIndex + 1).padStart(2, '0')} / {String(visibleItems.length).padStart(2, '0')}
             </span>

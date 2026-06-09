@@ -235,9 +235,6 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                   <span className="text-crimson-500/60 text-xs">→</span>
                 </Link>
               )}
-
-              <p className="text-zinc-300 text-lg leading-relaxed max-w-4xl mt-4">{movie.overview}</p>
-
             </div>
           </div>
         )}
@@ -251,8 +248,28 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
           opacity: isPlaying ? 0 : 1,
           transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
         }}
+        className="flex flex-col gap-12"
       >
         <CastSection cast={movie.credits?.cast} crew={movie.credits?.crew} />
+
+        {/* Professional About Section */}
+        {movie.overview && (
+          <div className="flex flex-col gap-4 max-w-5xl">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+              <span className="w-1.5 h-6 rounded-full" style={{ backgroundColor: bgColor || 'white' }} />
+              About {movie.title}
+            </h2>
+            <div className="p-6 md:p-8 rounded-3xl bg-void-950 border border-white/5 shadow-2xl relative overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 w-full h-1 opacity-50"
+                style={{ background: `linear-gradient(90deg, ${bgColor || 'white'}, transparent)` }}
+              />
+              <p className="text-zinc-300 text-base md:text-lg leading-relaxed md:leading-loose">
+                {movie.overview}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />

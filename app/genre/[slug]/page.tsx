@@ -5,6 +5,7 @@ import { getGenreBySlug } from '@/lib/genres';
 import { MediaGrid } from '@/components/media/MediaGrid';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { BackButton } from '@/components/ui/BackButton';
+import { getSiteUrl } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +56,7 @@ export default async function GenrePage({ params, searchParams }: { params: Prom
     '@type': 'CollectionPage',
     name: `Best ${genre.name} Movies and TV Shows`,
     description: `A collection of the top-rated ${genre.name} movies and TV shows available to stream on ZIVOX.`,
-    url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/genre/${slug}`,
+    url: `${getSiteUrl()}/genre/${slug}`,
   };
 
   return (

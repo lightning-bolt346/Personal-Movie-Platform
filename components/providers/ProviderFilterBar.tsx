@@ -95,7 +95,7 @@ export function ProviderFilterBar({ provider }: ProviderFilterBarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between gap-4">
         
         {/* Type Tabs */}
-        <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 overflow-x-auto hide-scrollbar">
+        <div className="flex bg-zinc-900/50 p-1 rounded-full border border-white/5 overflow-x-auto no-scrollbar">
           {types.map((t) => {
             if (t.value && !provider.categories.includes(t.value as any)) return null;
             const isActive = activeType === t.value || (!activeType && !t.value);

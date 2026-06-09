@@ -8,10 +8,11 @@ import { Suspense } from 'react';
 import { ThemedLoader } from '@/components/ui/ThemedLoader';
 import { PROVIDERS } from '@/lib/providers';
 import nextDynamic from 'next/dynamic';
+import { getSiteUrl } from '@/lib/utils';
 
 const CollectionsRow = nextDynamic(() => import('@/components/media/CollectionsRow').then(mod => mod.CollectionsRow));
 const TimeBasedWidget = nextDynamic(() => import('@/components/home/TimeBasedWidget').then(mod => mod.TimeBasedWidget));
-const ProvidersGrid = nextDynamic(() => import('@/components/providers/ProvidersGrid').then(mod => mod.ProvidersGrid));
+import { ProvidersGrid } from '@/components/providers/ProvidersGrid';
 const Top10Row = nextDynamic(() => import('@/components/media/Top10Row').then(mod => mod.Top10Row));
 const HorizontalRow = nextDynamic(() => import('@/components/media/HorizontalRow').then(mod => mod.HorizontalRow));
 const ProviderHeroShelf = nextDynamic(() => import('@/components/providers/ProviderHeroShelf').then(mod => mod.ProviderHeroShelf));
@@ -19,7 +20,7 @@ const ProviderHeroShelf = nextDynamic(() => import('@/components/providers/Provi
 export const revalidate = 3600;
 
 async function HomeDataFetcher() {
-  const [trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData, disneyData, maxData, hotstarData] = await Promise.all([
+  const [trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData] = await Promise.all([
     tmdb.getTrending('all'),
     tmdb.getPopular('movie'),
     tmdb.getPopular('tv'),
@@ -32,9 +33,6 @@ async function HomeDataFetcher() {
     tmdb.discover('tv', { 'vote_average.gte': '7.5', 'vote_count.gte': '200', 'vote_count.lte': '2000', 'sort_by': 'popularity.desc' }),
     tmdb.discover('movie', { with_watch_providers: '8', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
     tmdb.discover('movie', { with_watch_providers: '9', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-    tmdb.discover('movie', { with_watch_providers: '337', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-    tmdb.discover('movie', { with_watch_providers: '1899', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-    tmdb.discover('movie', { with_watch_providers: '122', watch_region: 'IN', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
   ]);
 
   const top6Trending = trending.results?.slice(0, 6) || [];
@@ -52,6 +50,7 @@ async function HomeDataFetcher() {
 
   // Fetch fresh collection data for the curated row
   const collectionsData = await getCuratedCollections();
+  const siteUrl = getSiteUrl();
 
   return (
     <div className="flex flex-col min-h-screen -mt-[72px]">
@@ -60,29 +59,29 @@ async function HomeDataFetcher() {
         '@graph': [
           {
             '@type': 'WebSite',
-            '@id': `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/#website`,
+            '@id': `${siteUrl}/#website`,
             name: 'ZIVOX',
             alternateName: ['Zivox TV', 'Zivox Anime', 'Zivox Shows', 'Zivox Movies', 'Zivox App', 'Zivox Official'],
-            url: process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app',
+            url: siteUrl,
             description: 'Free premium streaming platform for movies, TV shows, and anime in HD quality without ads.',
             potentialAction: {
               '@type': 'SearchAction',
               target: {
                 '@type': 'EntryPoint',
-                urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/search?q={search_term_string}`,
+                urlTemplate: `${siteUrl}/search?q={search_term_string}`,
               },
               'query-input': 'required name=search_term_string',
             },
           },
           {
             '@type': 'Organization',
-            '@id': `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/#organization`,
+            '@id': `${siteUrl}/#organization`,
             name: 'ZIVOX',
             alternateName: ['Zivox App', 'Zivox Official'],
-            url: process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app',
+            url: siteUrl,
             logo: {
               '@type': 'ImageObject',
-              url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app'}/icon.png`,
+              url: `${siteUrl}/icon.png`,
             }
           }
         ]
@@ -90,8 +89,12 @@ async function HomeDataFetcher() {
       {/* Cinematic hero — full screen, sits behind nav */}
       <HeroSlider items={heroItemsWithLogos} />
 
+      <div className="md:hidden block mt-4 z-20 relative">
+        <TimeBasedWidget items={widgetPool} variant="mobile" />
+      </div>
+
       {/* Content rows */}
-      <div className="flex flex-col relative z-20 pb-28 md:pb-16 mt-4 gap-8 md:gap-14">
+      <div className="flex flex-col relative z-20 pb-[calc(64px+env(safe-area-inset-bottom,0px))] md:pb-16 md:mt-4 gap-6 md:gap-10">
         
         {/* Priority Rows (Above Fold) */}
         <ContinueWatching />
@@ -100,7 +103,9 @@ async function HomeDataFetcher() {
         {/* Movie Collections — curated iconic franchises */}
         {collectionsData.length > 0 && <CollectionsRow collections={collectionsData} />}
 
-        <TimeBasedWidget items={widgetPool} />
+        <div className="hidden md:block">
+          <TimeBasedWidget items={widgetPool} variant="desktop" />
+        </div>
 
         <ProvidersGrid />
 
@@ -131,9 +136,6 @@ async function HomeDataFetcher() {
         {/* Provider Shelves */}
         <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 8)!} title="Trending on Netflix" items={netflixData.results?.slice(0, 20) || []} />
         <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 9)!} title="New on Prime Video" items={primeData.results?.slice(0, 20) || []} />
-        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 337)!} title="Trending on Disney+" items={disneyData.results?.slice(0, 20) || []} />
-        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 1899)!} title="Trending on Max" items={maxData.results?.slice(0, 20) || []} />
-        <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 122)!} title="Trending on Hotstar" items={hotstarData.results?.slice(0, 20) || []} />
 
         <HorizontalRow
           title="💎 Top Rated TV Shows"
@@ -142,15 +144,12 @@ async function HomeDataFetcher() {
         />
         
         {/* Semantic SEO Block for Home Page */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full mt-12 mb-8">
-          <div className="bg-void-900/50 border border-zinc-800/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+        <div className="px-4 md:px-14 pb-8">
+          <div className="bg-white/[0.02] border border-zinc-800/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
             <h2 className="text-xl md:text-2xl font-bold font-display text-white mb-4">Watch Movies & TV Shows Free Online in HD</h2>
             <div className="prose prose-sm prose-invert max-w-none text-zinc-400 space-y-4">
               <p>
-                Welcome to <strong>ZIVOX</strong>, your premier destination to <a href="/movies" className="text-crimson-400 hover:underline">watch free movies online</a> and stream the latest TV series in stunning 1080p and 4K HD quality. Whether you're looking for Hollywood blockbusters, critically acclaimed indie films, or ongoing television episodes, ZIVOX offers an unparalleled streaming experience without the need for registration or expensive subscriptions.
-              </p>
-              <p>
-                As a leading 2026 streaming platform, ZIVOX features a massive library of constantly updated content. From <a href="/anime" className="text-pink-400 hover:underline">subbed and dubbed Anime</a> to classic cinema and trending internet series, our fast servers ensure buffer-free playback on any device.
+                Welcome to <strong>ZIVOX</strong>, your premier destination to <a href="/movies" className="text-[#e50914] hover:underline">watch free movies online</a> and stream the latest TV series in stunning 1080p and 4K HD quality.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
@@ -181,7 +180,7 @@ async function HomeDataFetcher() {
 }
 
 export default function Home() {
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zivox-streaming.vercel.app';
+  const siteUrl = getSiteUrl();
   
   const jsonLd = {
     "@context": "https://schema.org",

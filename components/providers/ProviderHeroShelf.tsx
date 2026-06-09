@@ -70,14 +70,16 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
           </Link>
         </div>
         
-        <Link
-          href={`/providers/${provider.slug}`}
+        <button
+          onClick={() => {
+            document.getElementById('provider-grid')?.scrollIntoView({ behavior: 'smooth' });
+          }}
           className="flex items-center gap-1 text-sm font-semibold transition-colors duration-200 group"
           style={{ color: provider.color }}
         >
           See All
           <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-        </Link>
+        </button>
       </div>
 
       {/* Scroll buttons */}
@@ -113,7 +115,7 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
         ref={scrollRef}
         onScroll={checkScroll}
         onPointerDown={() => setHasInteracted(true)}
-        className="w-full overflow-x-auto hide-scrollbar scroll-smooth"
+        className="w-full overflow-x-auto no-scrollbar scroll-smooth"
         style={{ overscrollBehaviorX: 'contain', touchAction: 'pan-x' }}
       >
         <div className="flex gap-3 md:gap-4 px-4 md:px-14 pb-8 w-max">

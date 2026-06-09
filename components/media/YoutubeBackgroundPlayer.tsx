@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/tmdb';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 interface YoutubeBackgroundPlayerProps {
   videoKey: string | null;
@@ -13,6 +14,8 @@ interface YoutubeBackgroundPlayerProps {
 export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayingChange }: YoutubeBackgroundPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -22,6 +25,9 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayi
   }, [isPlaying, onPlayingChange]);
 
   useEffect(() => {
+    setIsPaused(false);
+    setIsMuted(true);
+
     if (!videoKey) {
       setFailed(true);
       return;
@@ -35,7 +41,6 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayi
     // Generous 12-second failsafe timeout to prevent premature cutoffs on slow connections
     const timeoutId = setTimeout(() => {
       if (isMounted) {
-        // Dev-only: track failsafe triggers without leaking video keys to production
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
           console.debug('[YoutubeBackgroundPlayer] Failsafe triggered, falling back to poster.');
@@ -84,6 +89,40 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayi
     };
   }, [videoKey]);
 
+  const handlePlayPause = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevents click bubbling to trigger the details play state
+    if (typeof window === 'undefined') return;
+
+    const nextState = !isPaused;
+    setIsPaused(nextState);
+
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({
+        event: 'command',
+        func: nextState ? 'pauseVideo' : 'playVideo',
+        args: '',
+      }),
+      '*'
+    );
+  };
+
+  const handleMuteUnmute = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevents click bubbling
+    if (typeof window === 'undefined') return;
+
+    const nextState = !isMuted;
+    setIsMuted(nextState);
+
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({
+        event: 'command',
+        func: nextState ? 'mute' : 'unMute',
+        args: '',
+      }),
+      '*'
+    );
+  };
+
   return (
     <div className="absolute inset-0 w-full h-full bg-black overflow-hidden">
       {/* 1. Backdrop Poster (Always rendered behind, visible initially or if playback fails) */}
@@ -100,7 +139,7 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayi
       {videoKey && !failed && (
         <div 
           className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none transition-opacity duration-1000 ${
-            isPlaying ? 'opacity-60' : 'opacity-0'
+            isPlaying ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <iframe
@@ -119,6 +158,26 @@ export function YoutubeBackgroundPlayer({ videoKey, backdropPath, title, onPlayi
               }, 4000);
             }}
           />
+        </div>
+      )}
+
+      {/* 3. Controls (Play/Pause & Mute/Unmute) - Only visible when trailer is actively playing */}
+      {isPlaying && !failed && (
+        <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 z-30 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <button
+            onClick={handlePlayPause}
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-black/55 hover:bg-black/75 hover:border-white/20 backdrop-blur-md text-white transition-all duration-200 active:scale-90 hover:scale-105 shadow-xl cursor-pointer"
+            title={isPaused ? "Play Trailer" : "Pause Trailer"}
+          >
+            {isPaused ? <Play size={16} className="text-white fill-white" /> : <Pause size={16} className="text-white fill-white" />}
+          </button>
+          <button
+            onClick={handleMuteUnmute}
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-black/55 hover:bg-black/75 hover:border-white/20 backdrop-blur-md text-white transition-all duration-200 active:scale-90 hover:scale-105 shadow-xl cursor-pointer"
+            title={isMuted ? "Unmute Audio" : "Mute Audio"}
+          >
+            {isMuted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
+          </button>
         </div>
       )}
     </div>

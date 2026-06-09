@@ -428,11 +428,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                   </div>
                 </div>
 
-                <p className="text-zinc-300 text-lg leading-relaxed max-w-4xl">{show.overview}</p>
               </div>
             </div>
-
-            {/* Episode list */}
             {availableSeasons.length > 0 && (
               <div className={`w-full flex flex-col gap-4 transition-all duration-500 delay-100 ${isPlaying ? 'xl:w-full max-w-5xl mx-auto' : 'xl:w-96'}`}>
                 <div className="relative z-50">
@@ -516,6 +513,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             )}
           </div>
 
+          {/* Cast section — also collapses when playing */}
           <div
             style={{
               overflow: 'hidden',
@@ -523,8 +521,27 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
               opacity: isPlaying ? 0 : 1,
               transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
             }}
+            className="flex flex-col gap-12"
           >
             <CastSection cast={show.credits?.cast} crew={show.credits?.crew} createdBy={show.created_by} />
+
+            {/* Professional About Section */}
+            {show.overview && (
+              <div className="flex flex-col gap-4 max-w-5xl">
+                <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+                  <span className="w-1.5 h-6 rounded-full bg-crimson-500" />
+                  About {show.name}
+                </h2>
+                <div className="p-6 md:p-8 rounded-3xl bg-void-950 border border-white/5 shadow-2xl relative overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 w-full h-1 opacity-50 bg-gradient-to-r from-crimson-500 to-transparent"
+                  />
+                  <p className="text-zinc-300 text-base md:text-lg leading-relaxed md:leading-loose">
+                    {show.overview}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

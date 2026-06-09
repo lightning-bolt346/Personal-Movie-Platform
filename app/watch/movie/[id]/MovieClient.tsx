@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
 import { YoutubeBackgroundPlayer } from '@/components/media/YoutubeBackgroundPlayer';
 import { UpcomingBanner, type UpcomingMeta } from '@/components/media/UpcomingBanner';
+import { DomainNoticeModal } from '@/components/ui/DomainNoticeModal';
 
 // ─── Content State Detection ──────────────────────────────────────────────────
 
@@ -274,6 +275,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${movie.title} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/movie/${generateSlug(movie.id.toString(), movie.title)}` : undefined} />
+      <DomainNoticeModal triggerShow={isPlaying} />
     </div>
   );
 }

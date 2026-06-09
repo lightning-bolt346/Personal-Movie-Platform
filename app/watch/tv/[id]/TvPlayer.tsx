@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
 import { YoutubeBackgroundPlayer } from '@/components/media/YoutubeBackgroundPlayer';
 import { UpcomingBanner, type UpcomingMeta, type UpcomingReason } from '@/components/media/UpcomingBanner';
+import { DomainNoticeModal } from '@/components/ui/DomainNoticeModal';
 
 // ─── TV Content State Engine ──────────────────────────────────────────────────
 //
@@ -553,6 +554,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${show.name} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/tv/${generateSlug(show.id.toString(), show.name)}` : undefined} />
+      <DomainNoticeModal triggerShow={isPlaying} />
     </div>
   );
 }

@@ -150,6 +150,16 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+
+  const [noticeOpen, setNoticeOpen] = useState(isPlaying);
+
+  useEffect(() => {
+    if (isPlaying) {
+      setNoticeOpen(true);
+    } else {
+      setNoticeOpen(false);
+    }
+  }, [isPlaying]);
   const [bgTrailerPlaying, setBgTrailerPlaying] = useState(false);
   const trailer = show.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
 
@@ -327,6 +337,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       hasNextEpisode={hasNextEpisode()}
                       releaseYear={show.first_air_date}
                       initialServer={serverParam}
+                      blockTutorial={noticeOpen}
                     />
                   )}
                 </div>
@@ -554,7 +565,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${show.name} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/tv/${generateSlug(show.id.toString(), show.name)}` : undefined} />
-      <DomainNoticeModal triggerShow={isPlaying} />
+      <DomainNoticeModal isOpen={noticeOpen} onClose={() => setNoticeOpen(false)} />
     </div>
   );
 }

@@ -24,9 +24,11 @@ interface VideoPlayerProps {
   hasNextEpisode?: boolean;
   /** Pre-select a specific server (from URL ?server= param). Bypasses source-testing. */
   initialServer?: string;
+  /** Delay showing tutorial instructions if a parent modal is open */
+  blockTutorial?: boolean;
 }
 
-export function VideoPlayer({ type, id, season, episode, title, poster, releaseYear, onProgress, onPlayNext, hasNextEpisode, initialServer }: VideoPlayerProps) {
+export function VideoPlayer({ type, id, season, episode, title, poster, releaseYear, onProgress, onPlayNext, hasNextEpisode, initialServer, blockTutorial = false }: VideoPlayerProps) {
   const [currentSourceId, setCurrentSourceId] = useState(sources[0].id);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
@@ -43,7 +45,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const [showRotateHint, setShowRotateHint] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialCountdown, setTutorialCountdown] = useState(20);
+  const [tutorialCountdown, setTutorialCountdown] = useState(15);
 
   useEffect(() => {
     setMounted(true);
@@ -79,13 +81,10 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     checkOrientation();
     window.addEventListener('resize', checkOrientation);
     
-    // ── Tutorial Tracking (Powers of 2) ──
+    // ── Visit Logging ──
     try {
       const visits = parseInt(localStorage.getItem('player_visits') || '0', 10) + 1;
       localStorage.setItem('player_visits', visits.toString());
-      if (visits > 0 && (visits & (visits - 1)) === 0) {
-        setShowTutorial(true);
-      }
     } catch (e) {}
 
     // ── Multilingual Hint Toast ──
@@ -95,6 +94,20 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
     return () => window.removeEventListener('resize', checkOrientation);
   }, []);
+
+  // ── Tutorial Spotlight Trigger (Delayed until blockTutorial is false) ──
+  useEffect(() => {
+    if (!blockTutorial) {
+      try {
+        const visits = parseInt(localStorage.getItem('player_visits') || '0', 10);
+        if (visits > 0 && (visits & (visits - 1)) === 0) {
+          setShowTutorial(true);
+          setTutorialCountdown(15);
+        }
+      } catch (e) {}
+    }
+  }, [blockTutorial]);
+
   
   const [testingSources, setTestingSources] = useState(!initialServer);
   const [testProgress, setTestProgress] = useState(0);
@@ -550,7 +563,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                         onClick={(e) => { e.stopPropagation(); setShowTutorial(false); }}
                         className="bg-[#e53935] text-white font-bold h-[52px] w-full max-w-[340px] rounded-[10px] text-[16px] transition-all shadow-[0_0_20px_rgba(229,9,20,0.3)] active:scale-95 flex items-center justify-center mb-[env(safe-area-inset-bottom,16px)] md:mb-0"
                       >
-                        Got it!
+                        Got it! ({tutorialCountdown}s)
                       </button>
                     </div>
                  </div>

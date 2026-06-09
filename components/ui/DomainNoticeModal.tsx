@@ -4,11 +4,11 @@ import { createPortal } from 'react-dom';
 import { AlertCircle, Copy, Check, Share2, Globe, Sparkles, Bookmark, X } from 'lucide-react';
 
 interface DomainNoticeModalProps {
-  triggerShow: boolean;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export function DomainNoticeModal({ triggerShow }: DomainNoticeModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -18,21 +18,15 @@ export function DomainNoticeModal({ triggerShow }: DomainNoticeModalProps) {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (triggerShow) {
-      setIsOpen(true);
-    }
-  }, [triggerShow]);
-
   // Auto-close modal after 8 seconds
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
-        setIsOpen(false);
+        onClose();
       }, 8000); // 8000 ms = 8 seconds
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -81,7 +75,7 @@ export function DomainNoticeModal({ triggerShow }: DomainNoticeModalProps) {
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    onClose();
   };
 
   if (!mounted || !isOpen) return null;

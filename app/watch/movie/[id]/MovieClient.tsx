@@ -241,7 +241,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
         )}
       </div>
 
-      {/* Cast section — also collapses when playing */}
+      {/* Cast & About section — also collapses when playing */}
       <div
         style={{
           overflow: 'hidden',
@@ -251,8 +251,6 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
         }}
         className="flex flex-col gap-12"
       >
-        <CastSection cast={movie.credits?.cast} crew={movie.credits?.crew} />
-
         {/* Professional About Section */}
         {movie.overview && (
           <div className="flex flex-col gap-4 max-w-5xl">
@@ -271,6 +269,8 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
             </div>
           </div>
         )}
+
+        <CastSection cast={movie.credits?.cast} crew={movie.credits?.crew} />
       </div>
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />

@@ -514,7 +514,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             )}
           </div>
 
-          {/* Cast section — also collapses when playing */}
+          {/* Cast & About section — also collapses when playing */}
           <div
             style={{
               overflow: 'hidden',
@@ -524,8 +524,6 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
             }}
             className="flex flex-col gap-12"
           >
-            <CastSection cast={show.credits?.cast} crew={show.credits?.crew} createdBy={show.created_by} />
-
             {/* Professional About Section */}
             {show.overview && (
               <div className="flex flex-col gap-4 max-w-5xl">
@@ -543,6 +541,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                 </div>
               </div>
             )}
+
+            <CastSection cast={show.credits?.cast} crew={show.credits?.crew} createdBy={show.created_by} />
           </div>
         </>
       )}

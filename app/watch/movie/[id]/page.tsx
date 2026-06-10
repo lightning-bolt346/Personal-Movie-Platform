@@ -21,14 +21,15 @@ export async function generateMetadata({
   const movie = await tmdb.getDetails('movie', rawId);
 
   const title = movie.title
-    ? `Watch ${movie.title} Free in HD | ZIVOX`
-    : 'Watch Movies Free in HD | ZIVOX';
+    ? `Watch ${movie.title} in HD on ZIVOX`
+    : 'Watch Movies in HD on ZIVOX';
 
   // Truncate description to ≤160 chars for Google
   const rawDesc = movie.overview || 'Stream movies in premium HD quality on ZIVOX.';
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc;
 
-  const image = getImageUrl(movie.poster_path || movie.backdrop_path, 'w780');
+  // Prefer backdrop for a cinematic 16:9 Open Graph large image preview
+  const image = getImageUrl(movie.backdrop_path || movie.poster_path, 'original');
   const slug = generateSlug(rawId, movie.title);
   const canonicalUrl = `${siteUrl}/watch/movie/${slug}`;
 
@@ -55,7 +56,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      images: [{ url: image, width: 780, height: 1170, alt: movie.title ?? 'Movie poster' }],
+      images: [{ url: image, width: 1280, height: 720, alt: movie.title ?? 'Movie preview' }],
       type: 'video.movie',
       url: canonicalUrl,
     },

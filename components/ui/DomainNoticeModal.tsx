@@ -18,12 +18,12 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
     setMounted(true);
   }, []);
 
-  // Auto-close modal after 8 seconds
+  // Auto-close modal after 13 seconds
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
         onClose();
-      }, 8000); // 8000 ms = 8 seconds
+      }, 13000); // 13000 ms = 13 seconds
       return () => clearTimeout(timer);
     }
   }, [isOpen, onClose]);
@@ -79,6 +79,7 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
   };
 
   if (!mounted || !isOpen) return null;
+  if (typeof window !== 'undefined' && window.location.hostname.includes('zivox-tv')) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 md:p-6">
@@ -140,7 +141,7 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
             </h2>
 
             <p className="text-zinc-400 text-[11px] sm:text-xs leading-relaxed mb-4 sm:mb-5 max-w-sm">
-              Our current address will soon stop working. Please copy and save the new domain below to ensure you have uninterrupted access to ZIVOX.
+              This domain will be taken down today at <span className="text-red-400 font-bold">11:59 PM</span>. Please start using the new domain, and share and save it to ensure uninterrupted access to ZIVOX.
             </p>
 
             {/* Domain Display Card */}
@@ -195,22 +196,20 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
             {/* Share Option Grid */}
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full mb-4 sm:mb-5 shrink-0">
               <button
-                onClick={handleCopy}
-                className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-95 border ${
-                  copied 
-                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                    : 'bg-[#0b0c16] border-zinc-800 text-zinc-300 hover:bg-zinc-900'
-                }`}
+                onClick={() => {
+                  window.location.href = `https://${newDomain}${window.location.pathname}${window.location.search}`;
+                }}
+                className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-95 border bg-[#0b0c16] border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white hover:border-zinc-700`}
               >
-                {copied ? <Check size={13} /> : <Bookmark size={13} />}
-                {copied ? 'Domain Saved' : 'Save Domain'}
+                <Globe size={13} />
+                Go to New Domain
               </button>
               <button
                 onClick={handleShare}
                 className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-95 border ${
                   shared 
                     ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                    : 'bg-[#0b0c16] border-zinc-800 text-zinc-300 hover:bg-zinc-900'
+                    : 'bg-[#0b0c16] border-zinc-800 text-zinc-300 hover:bg-zinc-900 hover:text-white hover:border-zinc-700'
                 }`}
               >
                 {shared ? <Check size={13} /> : <Share2 size={13} />}

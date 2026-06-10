@@ -28,9 +28,11 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
     }
   }, [isOpen, onClose]);
 
-  // Lock body scroll when modal is open
+  // Lock body scroll when modal is actually displayed
   useEffect(() => {
-    if (isOpen) {
+    const isZivoxTv = typeof window !== 'undefined' && window.location.hostname.includes('zivox-tv');
+    
+    if (isOpen && !isZivoxTv) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';

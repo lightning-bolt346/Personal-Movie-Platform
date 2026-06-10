@@ -190,8 +190,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
     setSeason(s);
     setEpisode(e);
     setIsPlaying(true);
-    router.replace(`/watch/tv/${show.id}?season=${s}&episode=${e}`, { scroll: false });
-  }, [router, show.id]);
+    window.history.replaceState(null, '', `/watch/tv/${show.id}?season=${s}&episode=${e}`);
+  }, [show.id]);
 
   const playNextEpisode = useCallback(() => {
     const currentEpIndex = episodes.findIndex(ep => ep.episode_number === episode);
@@ -282,12 +282,11 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
               {/* Sticky player on mobile */}
               <div className="sticky top-[56px] md:static z-30 md:z-auto">
               <div className="relative w-full max-w-5xl mx-auto">
-                {/* Ambient Backlight */}
+                {/* Dynamic YouTube-style ambient backlight */}
                 <div
-                  className="absolute inset-[-5%] blur-[80px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none"
+                  className="absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1]"
                   style={{ backgroundColor: bgColor }}
                 />
-
                 <div
                   className={`relative w-full rounded-2xl overflow-hidden border border-zinc-800 bg-void-950 group ${
                     !isPlaying ? 'aspect-video md:aspect-[2.39/1] max-h-[520px] cursor-pointer' : 'min-h-[300px] flex flex-col'
@@ -414,7 +413,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         onClick={() => setIsPlaying(true)}
                         className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all active:scale-95 font-bold uppercase tracking-wider text-sm shadow-xl ${
                           continueWatching
-                            ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20'
+                            ? 'bg-premium-gradient hover:bg-premium-gradient-dark text-white shadow-brand-500/20'
                             : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                         }`}
                       >
@@ -501,7 +500,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                                 </div>
                                 {epProgress > 0 && !epWatched && (
                                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-900 opacity-80">
-                                    <div className="h-full bg-brand-500" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
+                                    <div className="h-full bg-premium-gradient" style={{ width: `${Math.min(100, Math.max(0, epProgress))}%` }} />
                                   </div>
                                 )}
                               </div>

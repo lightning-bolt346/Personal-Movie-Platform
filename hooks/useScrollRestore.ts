@@ -14,6 +14,11 @@ export function useScrollRestore() {
       requestAnimationFrame(() => {
         window.scrollTo({ top: parseInt(saved, 10), behavior: 'instant' });
       });
+    } else {
+      // Force scroll to top on first mount of any new page to prevent footer flash
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
     }
 
     const saveScroll = () => {
@@ -29,11 +34,32 @@ export function useScrollRestore() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Save last main entry page path to direct Back button correctly on collection detail pages
+    const mainPages = ['/', '/collections', '/movies', '/tv', '/anime', '/discover'];
+    if (mainPages.includes(pathname)) {
+      sessionStorage.setItem('zivox_last_main_page', pathname);
+    }
+
     try {
       const sessionStack = sessionStorage.getItem('app_history_stack');
       let stack: string[] = sessionStack ? JSON.parse(sessionStack) : [];
 
       const isBackNav = sessionStorage.getItem('is_back_nav') === 'true';
+      const prevPath = sessionStorage.getItem('zivox_current_path') || '/';
+      
+      // Save current path for the next page load
+      const currentPathWithSearch = window.location.pathname + window.location.search;
+      sessionStorage.setItem('zivox_current_path', currentPathWithSearch);
+
+      // Track entry points for collections and person pages during forward navigation
+      if (!isBackNav) {
+        if (pathname.includes('/collection/') && !prevPath.includes('/collection/')) {
+          sessionStorage.setItem('zivox_collection_referrer', prevPath);
+        }
+        if (pathname.includes('/person/') && !prevPath.includes('/person/')) {
+          sessionStorage.setItem('zivox_person_referrer', prevPath);
+        }
+      }
 
       if (isBackNav) {
         // Clear back nav flag

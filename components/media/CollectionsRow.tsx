@@ -143,7 +143,7 @@ export function CollectionsRow({ collections }: { collections: CollectionData[] 
                   {col.tagline}
                 </p>
               </div>
-              <div className="opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center gap-1 text-brand-500 text-xs font-bold">
+              <div className="opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center gap-1 text-white text-xs font-bold">
                 Explore <ArrowRight size={12} />
               </div>
             </div>

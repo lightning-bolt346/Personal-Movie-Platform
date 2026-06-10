@@ -89,19 +89,31 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
   const activeSearch = searchParams.get('q') || '';
   const [searchValue, setSearchValue] = useState(activeSearch);
 
-  // Debounce the search input
+  // Sync if URL is cleared externally
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (searchValue !== activeSearch) {
-        updateParam('q', searchValue);
+    setSearchValue(activeSearch);
+  }, [activeSearch]);
+
+  // Debounced auto-search — fires 500ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchValue && searchValue.trim()) {
+        params.set('q', searchValue.trim());
+      } else {
+        params.delete('q');
       }
-    }, 400);
-    return () => clearTimeout(handler);
-  }, [searchValue, activeSearch]);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const clearSearch = () => {
     setSearchValue('');
-    updateParam('q', '');
+    // Clear instantly (no debounce needed)
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('q');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (

@@ -38,9 +38,9 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
   const [icon, setIcon] = useState(<Moon size={18} className="text-brand-400" />);
   const [timeContext, setTimeContext] = useState('trending tonight');
   const [mounted, setMounted] = useState(false);
+  const [featuredItem, setFeaturedItem] = useState<Media | null>(null);
 
   useEffect(() => {
-    setMounted(true);
     const hour = new Date().getHours();
     
     if (hour >= 5 && hour < 12) {
@@ -60,12 +60,50 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
       setIcon(<Sparkles size={18} className="text-purple-400" />);
       setTimeContext('for the night owls');
     }
-  }, []);
 
-  if (!mounted || !items || items.length === 0) return null;
+    // Cache featured pick for 3 hours locally
+    let selectedItem: Media | null = null;
+    try {
+      const cached = localStorage.getItem('zivox_featured_pick');
+      const now = Date.now();
+      const THREE_HOURS = 3 * 60 * 60 * 1000;
+      
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Ensure the item exists, isn't expired, and belongs to our current items array to avoid broken detail pages
+        if (parsed && parsed.item && parsed.expiry && now < parsed.expiry) {
+          const exists = items.some(item => item.id === parsed.item.id);
+          if (exists) {
+            selectedItem = parsed.item;
+          }
+        }
+      }
+      
+      if (!selectedItem && items.length > 0) {
+        selectedItem = items[Math.floor(Math.random() * items.length)];
+        if (selectedItem) {
+          localStorage.setItem('zivox_featured_pick', JSON.stringify({
+            item: selectedItem,
+            expiry: now + THREE_HOURS
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to access localStorage for featured pick caching:', e);
+    }
 
-  // Grab one random item from the pool for the widget recommendation
-  const randomItem = items[Math.floor(Math.random() * items.length)];
+    if (!selectedItem && items.length > 0) {
+      selectedItem = items[Math.floor(Math.random() * items.length)];
+    }
+
+    setFeaturedItem(selectedItem);
+    setMounted(true);
+  }, [items]);
+
+  if (!mounted || !featuredItem || items.length === 0) return null;
+
+  // Grab the cached/persisted featured item
+  const randomItem = featuredItem;
   const title = randomItem.title || randomItem.name || '';
   const isMovie = randomItem.media_type === 'movie' || !randomItem.name;
   const href = `/watch/${isMovie ? 'movie' : 'tv'}/${generateSlug(randomItem.id.toString(), title)}`;
@@ -75,7 +113,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
     return (
       <Link href={href} className="block px-4 mb-2">
         <div className="w-full h-[48px] bg-void-900 border border-white/5 rounded-lg flex items-center justify-between px-3 relative overflow-hidden transition-all active:scale-[0.98]">
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-500" />
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-premium-gradient" />
           
           <div className="flex items-center gap-2.5 z-10">
             {icon}
@@ -123,7 +161,7 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
       
       <Link 
         href={href}
-        className="group relative w-full h-[280px] rounded-2xl overflow-hidden bg-void-900 border border-white/5 hover:border-white/10 transition-all duration-500 shadow-2xl block"
+        className="group relative w-full h-[300px] rounded-2xl overflow-hidden bg-void-900 border border-white/5 hover:border-white/10 transition-all duration-500 shadow-2xl block"
       >
         {/* Animated Background Glow */}
         <div className="absolute inset-0 bg-brand-500/20 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700" />
@@ -139,21 +177,21 @@ export function TimeBasedWidget({ items, variant = 'desktop' }: TimeBasedWidgetP
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
         
-        <div className="absolute inset-0 p-10 flex flex-col justify-center max-w-2xl z-10">
+        <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-center max-w-2xl z-10">
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-3 flex items-center gap-2"
+            className="text-xs font-bold text-brand-400 uppercase tracking-widest mb-2 flex items-center gap-2"
           >
             <Sparkles size={14} className="animate-pulse" /> Featured Pick
           </motion.div>
           
-          <h3 className="text-4xl md:text-5xl font-display font-black text-white mb-3 leading-tight drop-shadow-lg group-hover:translate-x-2 transition-transform duration-500 ease-out">
+          <h3 className="text-4xl md:text-5xl font-display font-black text-white mb-2 leading-tight drop-shadow-lg group-hover:translate-x-2 transition-transform duration-500 ease-out">
             {title}
           </h3>
           
-          <p className="text-white/60 text-sm md:text-base line-clamp-2 mb-8 max-w-xl group-hover:text-white/80 transition-colors duration-500">
+          <p className="text-white/60 text-sm md:text-base line-clamp-2 mb-6 max-w-xl group-hover:text-white/80 transition-colors duration-500">
             {formatOverview(randomItem.overview)}
           </p>
           

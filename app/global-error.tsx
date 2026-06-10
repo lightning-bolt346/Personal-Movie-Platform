@@ -35,7 +35,7 @@ export default function GlobalError({
         >
           {/* Logo */}
           <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.04em' }}>
-            ZI<span style={{ color: 'rgb(var(--brand-500))' }}>V</span>OX
+            ZI<span style={{ color: 'var(--brand-500)' }}>V</span>OX
           </div>
 
           <div>
@@ -53,7 +53,7 @@ export default function GlobalError({
             <button
               onClick={reset}
               style={{
-                background: 'rgb(var(--brand-500))',
+                background: 'var(--brand-500)',
                 color: '#fff',
                 border: 'none',
                 padding: '0.75rem 1.75rem',

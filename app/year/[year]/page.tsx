@@ -69,7 +69,7 @@ export default async function YearPage({ params }: { params: Promise<{ year: str
           <a 
             key={y} 
             href={`/year/${y}`}
-            className={`px-5 py-2 rounded-full border text-sm font-bold transition-all ${y === yearNum ? 'bg-brand-500 border-brand-500 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+            className={`px-5 py-2 rounded-full border text-sm font-bold transition-all ${y === yearNum ? 'bg-premium-gradient border-brand-500 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
           >
             {y}
           </a>

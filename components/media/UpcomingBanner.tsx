@@ -169,7 +169,7 @@ export function UpcomingBanner({
             <div
               className="absolute top-4 left-4 right-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-2xl"
               style={{
-                background: 'rgba(var(--brand-500),0.9)',
+                background: 'color-mix(in srgb, var(--brand-500) 90%, transparent)',
                 backdropFilter: 'blur(10px)',
               }}
             >
@@ -232,7 +232,7 @@ export function UpcomingBanner({
                 onClick={toggleReminder}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-xl sm:rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm transition-colors shadow-lg active:scale-95 ${
                   hasReminder
-                    ? 'bg-brand-600 hover:bg-brand-500 text-white shadow-brand-500/30'
+                    ? 'bg-premium-gradient-dark hover:bg-premium-gradient text-white shadow-brand-500/30'
                     : 'bg-white/10 hover:bg-white/20 text-white shadow-black/20'
                 }`}
               >
@@ -282,13 +282,13 @@ export function UpcomingBanner({
         <div
           className="mt-6 flex items-center gap-4 px-5 py-4 rounded-xl border"
           style={{
-            background: 'rgba(var(--brand-500),0.06)',
-            borderColor: 'rgba(var(--brand-500),0.20)',
+            background: 'color-mix(in srgb, var(--brand-500) 6%, transparent)',
+            borderColor: 'color-mix(in srgb, var(--brand-500) 20%, transparent)',
           }}
         >
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(var(--brand-500),0.15)' }}
+            style={{ background: 'color-mix(in srgb, var(--brand-500) 15%, transparent)' }}
           >
             <Radio size={18} className="text-brand-500" />
           </div>

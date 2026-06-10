@@ -132,8 +132,8 @@ export function PlayerToasts({ serverName, serverIsNoAds, isPaused }: PlayerToas
             className="backdrop-blur-2xl border rounded-xl px-4 py-3 shadow-2xl flex items-start gap-3 pointer-events-auto relative overflow-hidden"
             style={{
               backgroundColor: 'rgba(6, 6, 8, 0.94)',
-              borderColor: 'color-mix(in srgb, var(--ambient-color, rgba(255,255,255,0.15)) 30%, rgba(255,255,255,0.07))',
-              boxShadow: '0 6px 28px -8px color-mix(in srgb, var(--ambient-color, rgba(0,0,0,0.8)) 20%, rgba(0,0,0,0.6))'
+              borderColor: 'var(--ambient-color, rgba(255,255,255,0.15))',
+              boxShadow: '0 6px 28px -8px var(--ambient-color, rgba(0,0,0,0.8))'
             }}
           >
             {/* Ambient glow */}

@@ -36,7 +36,7 @@ export default function ProvidersDirectoryPage() {
       {/* Major Platforms */}
       <section className="mb-16 relative z-10">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-1.5 h-6 rounded-full bg-brand-500 shadow-[0_0_12px_rgba(220,38,38,0.6)]" />
+          <div className="w-1.5 h-6 rounded-full bg-premium-gradient shadow-[0_0_12px_rgba(220,38,38,0.6)]" />
           <h2 className="text-2xl font-bold text-white">Major Platforms</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

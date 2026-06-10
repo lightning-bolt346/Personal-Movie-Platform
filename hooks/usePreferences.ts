@@ -9,7 +9,7 @@ export type Preferences = {
   showRatings: boolean;
   country: string;
   locationAutoDetected?: boolean;
-  theme: string;
+  theme: 'red' | 'blue' | 'violet' | 'emerald' | 'mono' | 'rose' | 'amber' | 'cyan' | 'silicon';
 };
 
 const defaultPreferences: Preferences = {
@@ -20,7 +20,7 @@ const defaultPreferences: Preferences = {
   showRatings: true,
   country: 'US',
   locationAutoDetected: false,
-  theme: 'crimson',
+  theme: 'violet',
 };
 
 export function usePreferences() {

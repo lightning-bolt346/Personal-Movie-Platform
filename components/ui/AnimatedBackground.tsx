@@ -3,7 +3,7 @@ import { memo } from 'react';
 
 function AnimatedBackgroundComponent() {
   return (
-    <div className="fixed inset-0 z-0 bg-[#05010a] pointer-events-none">
+    <div className="fixed inset-0 z-0 bg-void-950 pointer-events-none">
       {/* 
         Container constrained to the upper part of the screen.
         We use a fade-out gradient at the bottom so it seamlessly blends into the dark background.
@@ -79,7 +79,7 @@ function AnimatedBackgroundComponent() {
         />
 
         {/* Bottom Fade to Black to blend with page content */}
-        <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-[#05010a] via-[#05010a]/90 to-transparent" />
+        <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-void-950 via-void-950/90 to-transparent" />
       </div>
 
       {/* Keyframes built from scratch for natural cloth movement */}

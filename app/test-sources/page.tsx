@@ -144,13 +144,13 @@ function TestSourcesClient() {
               <div className="flex gap-4">
                 <button
                   onClick={() => setType('movie')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'movie' ? 'bg-brand-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'movie' ? 'bg-premium-gradient text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
                 >
                   Movie
                 </button>
                 <button
                   onClick={() => setType('tv')}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'tv' ? 'bg-brand-500 text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-colors ${type === 'tv' ? 'bg-premium-gradient text-white' : 'bg-void-900 text-zinc-400 hover:bg-zinc-800'}`}
                 >
                   TV Show
                 </button>

@@ -126,8 +126,8 @@ export function Navbar() {
                  width: '16px',
                  height: '16px',
                  borderRadius: '50%',
-                 border: '2px solid rgba(var(--brand-500), 0.9)',
-                 boxShadow: '0 0 10px rgba(var(--brand-500),0.5)',
+                 border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
+                 boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent)',
                  WebkitTextFillColor: 'transparent',
                }}
              >
@@ -184,8 +184,8 @@ export function Navbar() {
                 width: '18px',
                 height: '18px',
                 borderRadius: '50%',
-                border: '2px solid rgba(var(--brand-500), 0.9)',
-                boxShadow: '0 0 10px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.2)',
+                border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
+                boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 20%, transparent)',
                 WebkitTextFillColor: 'transparent',
               }}
             >
@@ -263,8 +263,8 @@ export function Navbar() {
                 width: '18px',
                 height: '18px',
                 borderRadius: '50%',
-                border: '2px solid rgba(var(--brand-500), 0.9)',
-                boxShadow: '0 0 10px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.2)',
+                border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
+                boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 20%, transparent)',
                 WebkitTextFillColor: 'transparent',
               }}
             >
@@ -302,7 +302,7 @@ export function Navbar() {
                   {active && (
                     <span
                       className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full"
-                      style={{ background: 'linear-gradient(to right, rgb(var(--brand-500)), transparent)' }}
+                      style={{ background: 'linear-gradient(to right, var(--brand-500), transparent)' }}
                     />
                   )}
                 </Link>
@@ -424,16 +424,17 @@ export function Navbar() {
 
       {/* ── MOBILE BOTTOM DOCK ── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-[100] h-[64px]"
+        className="md:hidden fixed left-0 right-0 z-[100]"
         style={{
+          bottom: '-20px', // Extend 20px below the viewport to guarantee no gaps
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', // Push content back up
           background: 'rgba(5, 5, 5, 0.85)',
-          backdropFilter: 'blur(20px) saturate(1.8)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
+          backdropFilter: 'blur(10px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(10px) saturate(1.8)',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <div className="flex items-center justify-around h-full">
+        <div className="flex items-center justify-around h-[64px]">
           {MOBILE_DOCK_ITEMS.map(({ href, label, Icon }) => {
             const active = isActive(href);
             return (
@@ -458,7 +459,7 @@ export function Navbar() {
                 }`}
               >
                 {active && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-brand-500 shadow-[0_0_8px_rgba(var(--brand-500),0.8)] rounded-b-sm" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-premium-gradient shadow-[0_0_8px_color-mix(in srgb, var(--brand-500) 80%, transparent)] rounded-b-sm" />
                 )}
                 <Icon size={24} strokeWidth={active ? 2.5 : 1.5} />
                 <span className="text-[10px] font-medium tracking-[0.02em]">{label}</span>

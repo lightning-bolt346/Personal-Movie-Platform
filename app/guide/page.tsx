@@ -56,7 +56,7 @@ export default function GuidePage() {
             
             {/* Center Play Button */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-90 group-hover:scale-100">
-              <button className="w-16 h-16 md:w-20 md:h-20 bg-brand-600 rounded-full flex items-center justify-center pl-1 shadow-[0_0_30px_rgba(var(--brand-500),0.5)] hover:scale-110 active:scale-95 transition-all cursor-pointer">
+              <button className="w-16 h-16 md:w-20 md:h-20 bg-premium-gradient-dark rounded-full flex items-center justify-center pl-1 shadow-[0_0_30px_color-mix(in srgb, var(--brand-500) 50%, transparent)] hover:scale-110 active:scale-95 transition-all cursor-pointer">
                 <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
               </button>
             </div>
@@ -65,7 +65,7 @@ export default function GuidePage() {
             <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[10px] group-hover:translate-y-0">
               {/* Progress Bar */}
               <div className="w-full h-1.5 md:h-2 bg-white/20 rounded-full relative cursor-pointer overflow-hidden group/bar">
-                <div className="absolute top-0 left-0 bottom-0 w-[45%] bg-brand-500 rounded-full shadow-[0_0_10px_rgba(var(--brand-500),0.8)]" />
+                <div className="absolute top-0 left-0 bottom-0 w-[45%] bg-premium-gradient rounded-full shadow-[0_0_10px_color-mix(in srgb, var(--brand-500) 80%, transparent)]" />
                 <div className="absolute top-0 left-0 bottom-0 w-[60%] bg-white/30 rounded-full" />
               </div>
               
@@ -119,7 +119,7 @@ export default function GuidePage() {
           
           <div className="p-6 rounded-2xl border border-white/5 bg-black/40 relative overflow-hidden flex flex-col gap-4">
             <h4 className="text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-premium-gradient animate-pulse" />
               Try Hovering Below
             </h4>
             
@@ -326,7 +326,7 @@ export default function GuidePage() {
                   onClick={() => setActiveTab(idx)}
                   className={`flex flex-col items-start text-left p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive 
-                      ? 'bg-zinc-900 border-brand-500/50 shadow-[0_0_30px_rgba(var(--brand-500),0.1)] scale-[1.02]' 
+                      ? 'bg-zinc-900 border-brand-500/50 shadow-[0_0_30px_color-mix(in srgb, var(--brand-500) 10%, transparent)] scale-[1.02]' 
                       : 'bg-black border-white/5 hover:border-white/20 hover:bg-zinc-900/50 text-zinc-500'
                   }`}
                 >
@@ -410,7 +410,7 @@ export default function GuidePage() {
              
              <Link 
                href="/"
-               className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-white text-black font-black uppercase tracking-widest text-sm transition-all hover:scale-110 active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(var(--brand-500),0.5)]"
+               className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-white text-black font-black uppercase tracking-widest text-sm transition-all hover:scale-110 active:scale-95 shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_color-mix(in srgb, var(--brand-500) 50%, transparent)]"
              >
                Go to Homepage
                <Play className="w-5 h-5 fill-black" />

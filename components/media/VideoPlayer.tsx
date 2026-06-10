@@ -10,6 +10,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { motion, AnimatePresence } from 'motion/react';
 import { createPortal } from 'react-dom';
 import { PlayerToasts } from './PlayerToasts';
+import { usePreferences } from '@/hooks/usePreferences';
 
 interface VideoPlayerProps {
   type: 'movie' | 'tv';
@@ -487,8 +488,22 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     showToast(toastMsg);
   };
 
+  const { preferences } = usePreferences();
+  
+  const themeHexMap: Record<string, string> = {
+    violet: '7c3aed',
+    blue: '2563eb',
+    red: 'e50914',
+    emerald: '059669',
+    silicon: 'f8fafc',
+    rose: 'e11d48',
+    amber: 'f59e0b',
+    cyan: '0ea5e9'
+  };
+  const activeThemeHex = themeHexMap[preferences.theme || 'violet'] || '7c3aed';
+
   const source = getSource(currentSourceId);
-  const embedUrl = source.url(type, id, season, episode);
+  const embedUrl = source.url(type, id, season, episode, activeThemeHex);
 
   const sandboxAttrs = useSandbox 
     ? source.sandboxFlags 
@@ -501,6 +516,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="flex flex-col w-full relative bg-void-950 rounded-2xl overflow-hidden border border-zinc-800/60"
+      style={{
+        boxShadow: '0 0 150px -20px var(--brand-ambient), 0 0 40px -10px var(--brand-glow)'
+      }}
     >
       <PlayerToasts key={id} serverName={source.publicName} serverIsNoAds={source.noAds} isPaused={showTutorial} />
 
@@ -525,9 +543,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                  {/* LEFT: Servers Pointer */}
                  <div className="absolute left-2 top-2 flex flex-col items-start w-[45%] md:max-w-[220px]">
                    <div className="ml-4 md:ml-8 mb-1 text-brand-400 animate-bounce">
-                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_rgba(var(--brand-500),0.8)] md:w-6 md:h-6" />
+                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_color-mix(in srgb, var(--brand-500) 80%, transparent)] md:w-6 md:h-6" />
                    </div>
-                   <div className="bg-void-900/95 border border-brand-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_rgba(var(--brand-500),0.3)] pointer-events-auto">
+                   <div className="bg-void-900/95 border border-brand-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_color-mix(in srgb, var(--brand-500) 30%, transparent)] pointer-events-auto">
                      <h4 className="text-brand-400 font-bold text-[9px] md:text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1.5"><Server size={10} className="md:w-3 md:h-3" /> Servers & Audio</h4>
                      <p className="text-zinc-300 text-[8px] md:text-[10px] leading-relaxed">Switch servers to find <strong className="text-white">Multilingual/Hindi</strong> dubs. <span className="text-emerald-400 font-semibold block mt-0.5 flex items-center gap-1"><Globe size={8} className="md:w-3 md:h-3" /> Look for the Globe icon!</span></p>
                    </div>
@@ -536,9 +554,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                  {/* RIGHT: Fullscreen & Controls Pointer */}
                  <div className="absolute right-2 top-2 flex flex-col items-end w-[50%] md:max-w-[260px] text-right">
                    <div className="mr-4 md:mr-8 mb-1 text-brand-400 animate-bounce">
-                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_rgba(var(--brand-500),0.8)] md:w-6 md:h-6" />
+                     <ArrowUp size={20} className="drop-shadow-[0_0_8px_color-mix(in srgb, var(--brand-500) 80%, transparent)] md:w-6 md:h-6" />
                    </div>
-                   <div className="bg-void-900/95 border border-brand-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_rgba(var(--brand-500),0.3)] pointer-events-auto">
+                   <div className="bg-void-900/95 border border-brand-500/60 p-2 md:p-3 rounded-xl shadow-[0_0_20px_color-mix(in srgb, var(--brand-500) 30%, transparent)] pointer-events-auto">
                      <h4 className="text-brand-400 font-bold text-[9px] md:text-[11px] uppercase tracking-wider mb-1 flex items-center justify-end gap-1.5">Controls & Fullscreen <Settings size={10} className="md:w-3 md:h-3" /></h4>
                      <p className="text-zinc-300 text-[8px] md:text-[10px] leading-relaxed">
                        Share, Sandbox (Ad-block), or Favorite.<br/>
@@ -548,7 +566,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                  </div>
                  
                  {/* Center/Bottom Content: Heading + Got It Button */}
-                 <div className="absolute inset-0 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 pointer-events-auto flex flex-col items-center justify-end md:justify-center w-full pb-[env(safe-area-inset-bottom,24px)] md:pb-0">
+                 <div className="absolute inset-0 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 pointer-events-auto flex flex-col items-center justify-center pt-20 md:pt-0 w-full pb-8 md:pb-0">
                     {/* Add gradient background for mobile to make text readable over video */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent md:hidden pointer-events-none" />
                     
@@ -556,12 +574,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                       {/* Optional preview image could go here */}
                       <div className="text-center mb-6">
                         <h2 className="text-[clamp(20px,5vw,28px)] font-bold text-white leading-none drop-shadow-lg">Quick Instructions</h2>
-                        <p className="text-[#e53935] font-bold mt-2 text-[11px] tracking-[0.1em] uppercase">Read this carefully</p>
+                        <p className="text-brand-500 font-bold mt-2 text-[11px] tracking-[0.1em] uppercase">Read this carefully</p>
                       </div>
 
                       <button 
                         onClick={(e) => { e.stopPropagation(); setShowTutorial(false); }}
-                        className="bg-[#e53935] text-white font-bold h-[52px] w-full max-w-[340px] rounded-[10px] text-[16px] transition-all shadow-[0_0_20px_rgba(var(--brand-500),0.3)] active:scale-95 flex items-center justify-center mb-[env(safe-area-inset-bottom,16px)] md:mb-0"
+                        className="bg-premium-gradient text-white font-bold h-[52px] w-full max-w-[340px] rounded-[10px] text-[16px] transition-all shadow-[0_0_20px_color-mix(in srgb, var(--brand-500) 30%, transparent)] active:scale-95 flex items-center justify-center mb-4 md:mb-0"
                       >
                         Got it! ({tutorialCountdown}s)
                       </button>
@@ -678,7 +696,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                               onClick={() => handleSwitchServer(s.id)}
                               className={`group flex flex-col justify-between w-full p-3 md:p-4 rounded-lg md:rounded-2xl transition-all duration-300 border border-[oklch(1_0_0/0.08)] text-left cursor-pointer active:scale-[0.98] relative overflow-hidden ${
                                 isActive 
-                                  ? 'bg-brand-500/10 border-brand-500/50 text-white shadow-[0_0_20px_rgba(var(--brand-500),0.1)]' 
+                                  ? 'bg-brand-500/10 border-brand-500/50 text-white shadow-[0_0_20px_color-mix(in srgb, var(--brand-500) 10%, transparent)]' 
                                   : 'bg-black/20 text-zinc-300 hover:bg-black/40 hover:text-white'
                               }`}
                             >
@@ -694,7 +712,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                                   <div onClick={(e) => toggleFavServer(e, s.id)} className="hover:scale-110 active:scale-95 transition-transform">
                                     <Heart size={13} className={isFav ? "fill-pink-500 text-pink-500" : "text-zinc-600 hover:text-pink-400"} />
                                   </div>
-                                  <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500 shadow-[0_0_8px_rgb(var(--brand-500))]' : 'bg-zinc-700'}`} />
+                                  <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-premium-gradient shadow-[0_0_8px_var(--brand-500)]' : 'bg-zinc-700'}`} />
                                 </div>
                               </div>
                               <div className="mt-2 md:mt-3 z-10 flex-1 flex flex-col">
@@ -757,7 +775,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                                           }`}
                                         >
                                           <div className="flex items-center gap-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActiveCompact ? 'bg-brand-500' : 'bg-zinc-700'}`} />
+                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActiveCompact ? 'bg-premium-gradient' : 'bg-zinc-700'}`} />
                                             <span className="text-xs font-semibold">{s.publicName}</span>
                                             {s.noAds && <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20">âœ“</span>}
                                           </div>
@@ -838,7 +856,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                             <span className="text-[11px] text-[#9ca3af] truncate">Plays next episode</span>
                           </div>
                         </div>
-                        <button className={`shrink-0 relative w-10 h-5 rounded-full transition-all duration-300 ${autoPlayNext ? 'bg-brand-500' : 'bg-zinc-700'}`}>
+                        <button className={`shrink-0 relative w-10 h-5 rounded-full transition-all duration-300 ${autoPlayNext ? 'bg-premium-gradient' : 'bg-zinc-700'}`}>
                           <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300 ${autoPlayNext ? 'left-[22px]' : 'left-0.5'}`} />
                         </button>
                       </div>
@@ -858,11 +876,13 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
         title={title || ''}
-        shareUrl={typeof window !== 'undefined' ? (() => {
-          const u = new URL(window.location.href);
-          u.searchParams.set('play', '1');
-          u.searchParams.delete('t');
-          return u.toString();
+        shareUrl={mounted ? (() => {
+          try {
+            const u = new URL(window.location.href);
+            u.searchParams.set('play', '1');
+            u.searchParams.delete('t');
+            return u.toString();
+          } catch { return window.location.href; }
         })() : ''}
         subtitle={`Via ${source.publicName}`}
       >
@@ -965,7 +985,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             <button
               onClick={() => setShowShareModal(true)}
               title="Share"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/50 bg-brand-600 hover:bg-brand-500 text-white transition-all active:scale-95 font-bold text-xs shadow-lg shadow-brand-900/20"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-500/50 bg-premium-gradient-dark hover:bg-premium-gradient text-white transition-all active:scale-95 font-bold text-xs shadow-lg shadow-brand-900/20"
             >
               <span className="hidden sm:inline">Share</span>
               <Share2 size={14} />
@@ -1052,11 +1072,11 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                     title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}${isMultilingual ? ' — Multi-language' : ''}`}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
                       isActive
-                        ? 'bg-brand-500/20 border-brand-500/60 text-brand-400 shadow-[0_0_10px_rgba(var(--brand-500),0.2)] cursor-default'
+                        ? 'bg-brand-500/20 border-brand-500/60 text-brand-400 shadow-[0_0_10px_color-mix(in srgb, var(--brand-500) 20%, transparent)] cursor-default'
                         : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-brand-500 shadow-[0_0_6px_rgb(var(--brand-500))]' : 'bg-zinc-600'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-premium-gradient shadow-[0_0_6px_var(--brand-500)]' : 'bg-zinc-600'}`} />
                     {s.publicName}
                     {isActive && <span className="text-[9px] font-bold uppercase tracking-widest text-brand-500/80 ml-0.5">LIVE</span>}
                     {!isActive && s.noAds && <span className="text-[9px] text-emerald-500">●</span>}
@@ -1078,11 +1098,11 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                     title={isActive ? `Currently on ${s.publicName}` : `Switch to ${s.publicName}`}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide transition-all duration-200 border shrink-0 ${
                       isActive
-                        ? 'bg-brand-500/20 border-brand-500/60 text-brand-400 shadow-[0_0_10px_rgba(var(--brand-500),0.2)] cursor-default'
+                        ? 'bg-brand-500/20 border-brand-500/60 text-brand-400 shadow-[0_0_10px_color-mix(in srgb, var(--brand-500) 20%, transparent)] cursor-default'
                         : 'bg-void-900 border-zinc-700/60 text-zinc-400 hover:border-zinc-500 hover:text-white hover:bg-zinc-800/60 active:scale-95 cursor-pointer'
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-brand-500 shadow-[0_0_6px_rgb(var(--brand-500))]' : 'bg-zinc-600'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-premium-gradient shadow-[0_0_6px_var(--brand-500)]' : 'bg-zinc-600'}`} />
                     {s.publicName}
                     {isActive && <span className="text-[9px] font-bold uppercase tracking-widest text-brand-500/80 ml-0.5">LIVE</span>}
                     {!isActive && s.noAds && <span className="text-[9px] text-emerald-500">●</span>}
@@ -1115,12 +1135,12 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                         onClick={() => !isActive && handleSwitchServer(s.id)}
                         className={`shrink-0 flex items-center justify-center gap-1.5 h-[32px] px-3 text-[12px] whitespace-nowrap snap-start border-b-2 transition-all duration-200 bg-transparent ${
                           isActive
-                            ? 'border-brand-500 text-white font-bold cursor-default'
+                            ? 'border-brand-500 text-[var(--premium-text,#ffffff)] font-bold cursor-default'
                             : 'border-transparent text-zinc-400 hover:text-white active:bg-white/5 cursor-pointer'
                         }`}
                       >
                         {s.publicName}
-                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_6px_rgb(var(--brand-500))] shrink-0" />}
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-premium-gradient shadow-[0_0_6px_var(--brand-500)] shrink-0" />}
                         {!isActive && s.noAds && <span className="text-[10px] text-emerald-500 shrink-0">●</span>}
                         {isMultilingual && <span className="text-[14px] shrink-0 leading-none">🌐</span>}
                       </button>
@@ -1133,10 +1153,9 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 <div className="absolute right-0 top-0 bottom-1 w-12 bg-gradient-to-l from-void-950 to-transparent pointer-events-none z-10" />
               </div>
 
-              {/* All Servers Button */}
               <button
                 onClick={() => setShowSettingsModal(true)}
-                className="w-full text-center text-[12px] text-[#e53935] font-bold py-[6px] mt-1"
+                className="w-full text-center text-[12px] text-brand-500 font-bold py-[6px] mt-1"
               >
                 All {sources.length} servers ↑
               </button>
@@ -1185,7 +1204,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 <div
                   className="absolute inset-2 rounded-full"
                   style={{
-                    background: 'radial-gradient(circle, rgba(var(--brand-500),0.15) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, color-mix(in srgb, var(--brand-500) 15%, transparent) 0%, transparent 70%)',
                     animation: 'pulse-glow 2s ease-in-out infinite',
                   }}
                 />
@@ -1208,10 +1227,10 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 </div>
                 <div className="w-full h-[2px] bg-zinc-900 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-brand-600 to-brand-500 rounded-full transition-all duration-300 ease-out"
+                    className="h-full bg-premium-gradient-dark rounded-full transition-all duration-300 ease-out"
                     style={{ 
                       width: `${testProgress}%`,
-                      boxShadow: '0 0 8px rgba(var(--brand-500),0.6)',
+                      boxShadow: '0 0 8px color-mix(in srgb, var(--brand-500) 60%, transparent)',
                     }}
                   />
                 </div>
@@ -1287,7 +1306,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); if (onPlayNext) onPlayNext(); }}
-                  className="flex-1 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20"
+                  className="flex-1 px-4 py-2.5 bg-premium-gradient hover:bg-premium-gradient-dark rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20"
                 >
                   <Play size={14} fill="currentColor" /> Play Now
                 </button>

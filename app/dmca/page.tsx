@@ -27,7 +27,7 @@ export default function DmcaPage() {
         
         {/* Important Disclaimer Card */}
         <div className="bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 rounded-2xl p-6 md:p-8 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
+          <div className="absolute top-0 left-0 w-1 h-full bg-premium-gradient"></div>
           <div className="flex items-start gap-4">
             <div className="p-3 bg-brand-500/10 rounded-xl text-brand-500 shrink-0">
               <AlertTriangle size={24} />
@@ -48,7 +48,7 @@ export default function DmcaPage() {
         <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 md:p-8 space-y-8">
           <section>
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-premium-gradient"></div>
               Intermediary Disclaimer (India IT Act Section 79)
             </h2>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">
@@ -59,7 +59,7 @@ export default function DmcaPage() {
 
           <section>
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-premium-gradient"></div>
               Copyright Infringement
             </h2>
             <p className="text-zinc-400 leading-relaxed text-sm md:text-base mb-4">

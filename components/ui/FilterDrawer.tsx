@@ -40,6 +40,7 @@ const SORTS = [
 ];
 
 const TYPES = [
+  { value: 'all', label: 'All Content' },
   { value: 'movie', label: 'Movies' },
   { value: 'tv', label: 'TV Shows' },
   { value: 'anime', label: 'Anime' },
@@ -94,7 +95,7 @@ export function FilterDrawer({
   };
 
   const handleReset = () => {
-    setLocalType('movie');
+    setLocalType('all');
     setLocalGenres([]);
     setLocalYear('all');
     setLocalSort('popularity.desc');
@@ -196,7 +197,7 @@ export function FilterDrawer({
                       <button
                         key={g.value}
                         onClick={() => handleToggleGenre(g.value)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-brand-500 border-brand-500 text-white shadow-[0_0_10px_rgba(var(--brand-500),0.3)]' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${isActive ? 'bg-premium-gradient border-brand-500 text-white shadow-[0_0_10px_color-mix(in srgb, var(--brand-500) 30%, transparent)]' : 'bg-void-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                       >
                         {g.label}
                       </button>
@@ -216,7 +217,7 @@ export function FilterDrawer({
               </button>
               <button 
                 onClick={handleApply}
-                className="flex-1 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/20 active:scale-95"
+                className="flex-1 bg-premium-gradient hover:bg-premium-gradient-dark text-white rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/20 active:scale-95"
               >
                 Apply Filters
               </button>

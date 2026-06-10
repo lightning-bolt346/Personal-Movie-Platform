@@ -13,26 +13,32 @@ export function BackButton({ href }: BackButtonProps) {
   const handleBack = () => {
     if (typeof window === 'undefined') return;
     
-    // Check if there is a previous page in the history stack of this app.
-    // A simple heuristic is checking if history.length > 2 (though this includes other sites)
-    // Next.js doesn't expose a clean way to check if we can go back within the app.
-    // If href is provided, we can fallback to it.
-    
-    // If the referrer is our own site, we can safely go back.
-    const isInternal = document.referrer.includes(window.location.host);
-    
-    if (isInternal && window.history.length > 1) {
-      router.back();
+    try {
+      const sessionStack = sessionStorage.getItem('app_history_stack');
+      const stack: string[] = sessionStack ? JSON.parse(sessionStack) : [];
+      
+      // If we have more than 1 item in our internal app stack, 
+      // we can safely go back natively without leaving the app.
+      if (stack.length > 1) {
+        sessionStorage.setItem('is_back_nav', 'true');
+        router.back();
+        return;
+      }
+    } catch (e) {
+      console.error('Failed to navigate back using history stack:', e);
+    }
+
+    // Fallback if no internal history (e.g. opened directly via a link)
+    // We use router.replace to prevent trapping the user in a forward-history loop
+    if (href) {
+      router.replace(href);
     } else {
-      // Fallback
-      if (href) {
-        router.push(href);
+      if (pathname.startsWith('/providers/')) {
+        router.replace('/providers');
+      } else if (pathname.startsWith('/collection/')) {
+        router.replace('/collections');
       } else {
-        if (pathname.startsWith('/providers/')) {
-          router.push('/providers');
-        } else {
-          router.push('/');
-        }
+        router.replace('/');
       }
     }
   };

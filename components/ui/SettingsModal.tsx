@@ -68,19 +68,20 @@ const REGIONS = [
   { id: 'NL', name: 'Netherlands' }
 ];
 
-const THEMES = [
-  { id: 'crimson', name: 'Zivox Red', color: '#e50914' },
-  { id: 'violet', name: 'Ambient Space', color: '#8b5cf6' },
-  { id: 'cyan', name: 'Future Blue', color: '#06b6d4' },
-  { id: 'emerald', name: 'Calm Green', color: '#10b981' },
-  { id: 'amber', name: 'Cinematic Gold', color: '#f59e0b' },
-];
-
-type TabId = 'appearance' | 'content' | 'playback' | 'data';
+type TabId = 'content' | 'playback' | 'data' | 'appearance';
 
 export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { preferences, updatePreferences } = usePreferences();
-  const [activeTab, setActiveTab] = useState<TabId>('content');
+  const [activeTab, setActiveTab] = useState<TabId>('appearance');
+
+  const applyTheme = (theme: string) => {
+    if (theme === 'violet') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    updatePreferences({ theme: theme as any });
+  };
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -138,49 +139,9 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // Content for each tab
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'appearance':
-        return (
-          <motion.div
-            key="appearance"
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            className="space-y-8"
-          >
-            <section>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
-                Theme Color
-              </h3>
-              <p className="text-xs text-zinc-500 mb-4">Choose your preferred accent color across the platform.</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {THEMES.map(theme => {
-                  const isActive = preferences.theme === theme.id || (!preferences.theme && theme.id === 'crimson');
-                  return (
-                    <button
-                      key={theme.id}
-                      onClick={() => updatePreferences({ theme: theme.id })}
-                      className={`flex flex-col items-center gap-3 p-4 rounded-xl transition-all border ${
-                        isActive ? 'bg-white/10 border-brand-500 shadow-[0_0_20px_rgba(var(--brand-500),0.2)]' : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <div 
-                        className={`w-10 h-10 rounded-full shadow-inner ${isActive ? 'ring-2 ring-offset-2 ring-offset-void-950 ring-brand-500' : ''}`}
-                        style={{ backgroundColor: theme.color }}
-                      />
-                      <span className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-zinc-400'}`}>
-                        {theme.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          </motion.div>
-        );
-
       case 'content':
         return (
           <motion.div
@@ -192,7 +153,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           >
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-premium-gradient rounded-full"></span>
                 Primary Region
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Set your default region to see accurate streaming platform availability.</p>
@@ -207,27 +168,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
-                Interface Language
-              </h3>
-              <p className="text-xs text-zinc-500 mb-4">Set the language for movie/show metadata and titles.</p>
-              <select
-                value={preferences.contentLanguage || 'en-US'}
-                onChange={(e) => updatePreferences({ contentLanguage: e.target.value })}
-                className="bg-zinc-900/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwb2x5bGluZSBwb2ludHM9IjMgNiA2IDkgOSA2Ii8+PC9zdmc+')] bg-no-repeat bg-[position:calc(100%-15px)_center] w-full md:w-64"
-              >
-                <option value="en-US" className="bg-zinc-900">English (US)</option>
-                <option value="hi-IN" className="bg-zinc-900">Hindi</option>
-                <option value="es-ES" className="bg-zinc-900">Spanish</option>
-                <option value="fr-FR" className="bg-zinc-900">French</option>
-                <option value="de-DE" className="bg-zinc-900">German</option>
-                <option value="ja-JP" className="bg-zinc-900">Japanese</option>
-              </select>
-            </section>
-
-            <section>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-premium-gradient rounded-full"></span>
                 Favorite Genres
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Select genres to personalize your Discover feed.</p>
@@ -240,7 +181,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       onClick={() => handleToggleGenre(genre.id)}
                       className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         isSelected 
-                          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                          ? 'bg-premium-gradient text-white shadow-lg shadow-brand-500/20' 
                           : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
                       }`}
                     >
@@ -253,7 +194,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
             <section>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-premium-gradient rounded-full"></span>
                 Preferred Languages
               </h3>
               <p className="text-xs text-zinc-500 mb-4">Prioritize content originally produced in these languages.</p>
@@ -266,7 +207,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       onClick={() => handleToggleLang(lang.id)}
                       className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         isSelected 
-                          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                          ? 'bg-premium-gradient text-white shadow-lg shadow-brand-500/20' 
                           : 'bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/20'
                       }`}
                     >
@@ -293,7 +234,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           >
             <section className="space-y-3">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                <span className="w-1 h-4 bg-premium-gradient rounded-full"></span>
                 Display & Playback
               </h3>
               
@@ -305,7 +246,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <h4 className="font-semibold text-white">Include Mature Content</h4>
                   <p className="text-zinc-400 text-xs mt-0.5">Show 18+ and restricted content in recommendations</p>
                 </div>
-                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-brand-500' : 'bg-black/50 border border-white/20'}`}>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.adultContent ? 'bg-premium-gradient' : 'bg-black/50 border border-white/20'}`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.adultContent ? 'translate-x-7' : 'translate-x-1'}`} />
                 </div>
               </button>
@@ -318,7 +259,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <h4 className="font-semibold text-white">Show Content Ratings</h4>
                   <p className="text-zinc-400 text-xs mt-0.5">Display IMDb/TMDB star ratings on movie cards</p>
                 </div>
-                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-brand-500' : 'bg-black/50 border border-white/20'}`}>
+                <div className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${preferences.showRatings ? 'bg-premium-gradient' : 'bg-black/50 border border-white/20'}`}>
                   <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.showRatings ? 'translate-x-7' : 'translate-x-1'}`} />
                 </div>
               </button>
@@ -338,7 +279,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             <section className="space-y-4">
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <span className="w-1 h-4 bg-brand-500 rounded-full"></span>
+                  <span className="w-1 h-4 bg-premium-gradient rounded-full"></span>
                   Data Management
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed max-w-md">
@@ -396,6 +337,78 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             </section>
           </motion.div>
         );
+      case 'appearance': {
+        const THEMES = [
+          { id: 'violet', label: 'Amethyst', color: '#7c3aed', colorLight: '#a78bfa', desc: 'Cyberpunk & futuristic' },
+          { id: 'blue', label: 'Sapphire', color: '#2563eb', colorLight: '#60a5fa', desc: 'Cool, calm & premium' },
+          { id: 'red', label: 'Cinematic', color: '#e50914', colorLight: '#ef4444', desc: 'Classic bold energy' },
+          { id: 'emerald', label: 'Matrix', color: '#059669', colorLight: '#34d399', desc: 'Fresh, alive & vibrant' },
+          { id: 'rose', label: 'Cyber Rose', color: '#e11d48', colorLight: '#fb7185', desc: 'Vibrant & passionate' },
+          { id: 'amber', label: 'Golden Hour', color: '#f59e0b', colorLight: '#fbbf24', desc: 'Warm cinematic glow' },
+          { id: 'cyan', label: 'Neon Cyan', color: '#0ea5e9', colorLight: '#38bdf8', desc: 'High-tech & sleek' },
+          { id: 'silicon', label: 'Silicon White', color: '#f8fafc', colorLight: '#ffffff', desc: 'Pure ultra-modern contrast' },
+        ];
+        return (
+          <motion.div
+            key="appearance"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="space-y-8"
+          >
+            <section>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-2">
+                <span className="w-1 h-4 bg-premium-gradient rounded-full" />
+                Accent Color
+              </h3>
+              <p className="text-xs text-zinc-500 mb-6">Changes buttons, highlights and ambient glow across the entire platform. Takes effect instantly.</p>
+              <div className="grid grid-cols-1 gap-3">
+                {THEMES.map(theme => {
+                  const active = (preferences.theme || 'red') === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => applyTheme(theme.id)}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 text-left ${
+                        active
+                          ? 'bg-white/8 border-white/20 shadow-lg'
+                          : 'bg-white/3 border-white/8 hover:bg-white/6 hover:border-white/15'
+                      }`}
+                      style={active ? { borderColor: theme.color + '50', boxShadow: `0 0 20px ${theme.color}15` } : {}}
+                    >
+                      {/* Color swatch */}
+                      <div
+                        className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-transform group-hover:scale-110"
+                        style={{ 
+                          background: `linear-gradient(to top right, ${theme.color} 0%, ${theme.color} 70%, ${theme.colorLight} 100%)`, 
+                          boxShadow: active ? `0 0 16px ${theme.color}60` : 'none',
+                          color: theme.color 
+                        }}
+                      >
+                        {active && (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-white text-sm">{theme.label}</div>
+                        <div className="text-zinc-500 text-xs mt-0.5">{theme.desc}</div>
+                      </div>
+                      {active && (
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full" style={{ background: theme.color + '20', color: theme.color }}>Active</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </motion.div>
+        );
+      }
+
+      default:
+        return null;
     }
   };
 
@@ -435,21 +448,21 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </button>
               </div>
               
-              <div className="flex md:flex-col gap-1 p-2 md:p-4 overflow-x-auto md:overflow-visible no-scrollbar">
+              <div className="flex overflow-x-auto md:flex-col gap-2 p-3 md:p-4 no-scrollbar shadow-[inset_-20px_0_20px_-20px_rgba(0,0,0,0.8)] md:shadow-none">
                 <button 
                   onClick={() => setActiveTab('appearance')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                  className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-[13px] md:px-4 md:py-3 md:text-base rounded-xl transition-all font-semibold whitespace-nowrap shrink-0 ${
                     activeTab === 'appearance' 
                       ? 'bg-white/10 text-white shadow-lg border border-white/5' 
                       : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
                   }`}
                 >
-                  <Palette size={18} className={activeTab === 'appearance' ? 'text-white' : 'text-zinc-500'} />
+                  <Palette size={18} className={activeTab === 'appearance' ? 'text-brand-400' : 'text-zinc-500'} />
                   Appearance
                 </button>
                 <button 
                   onClick={() => setActiveTab('content')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                  className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-[13px] md:px-4 md:py-3 md:text-base rounded-xl transition-all font-semibold whitespace-nowrap shrink-0 ${
                     activeTab === 'content' 
                       ? 'bg-white/10 text-white shadow-lg border border-white/5' 
                       : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -460,7 +473,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </button>
                 <button 
                   onClick={() => setActiveTab('playback')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                  className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-[13px] md:px-4 md:py-3 md:text-base rounded-xl transition-all font-semibold whitespace-nowrap shrink-0 ${
                     activeTab === 'playback' 
                       ? 'bg-white/10 text-white shadow-lg border border-white/5' 
                       : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -471,7 +484,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </button>
                 <button 
                   onClick={() => setActiveTab('data')}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold whitespace-nowrap ${
+                  className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-[13px] md:px-4 md:py-3 md:text-base rounded-xl transition-all font-semibold whitespace-nowrap shrink-0 ${
                     activeTab === 'data' 
                       ? 'bg-white/10 text-white shadow-lg border border-white/5' 
                       : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
@@ -484,7 +497,7 @@ export function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             </div>
 
             {/* Right Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 bg-void-950 relative h-[calc(100%-80px)] md:h-full">
+            <div className="flex-1 flex flex-col min-w-0 bg-void-950 relative md:h-full overflow-hidden">
               {/* Close button for desktop */}
               <button
                 onClick={onClose}

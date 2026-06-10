@@ -1,7 +1,7 @@
 import { PROVIDERS } from '@/lib/providers';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import { SectionTitle } from '@/components/ui/SectionTitle';
 
 const TOP_PROVIDERS = [
   'netflix', 'prime-video', 'disney-plus', 'max', 'jiohotstar', 
@@ -15,26 +15,22 @@ export function ProvidersGrid() {
     .filter(Boolean) as typeof PROVIDERS;
 
   return (
-    <section className="w-full flex flex-col gap-5">
+    <section className="w-full flex flex-col gap-2">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 md:px-14">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-5 md:w-1.5 md:h-6 rounded-full bg-brand-500" />
-          <h2 className="text-lg md:text-2xl font-display font-bold text-white tracking-tight">
-            Stream by Platform
-          </h2>
-        </div>
-        <Link
-          href="/providers"
-          className="flex items-center gap-1 text-xs font-semibold text-white/40 hover:text-white transition-colors duration-200 group"
-        >
-          Explore All
-          <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-        </Link>
-      </div>
+      <SectionTitle
+        title="Stream by Platform"
+        viewAllHref="/providers"
+        className="!mt-0 !mb-0"
+      />
 
       {/* Scrolling Row */}
-      <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 md:px-14 pb-6 pt-2">
+      <div 
+        className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-6 pt-2 scroll-smooth"
+        style={{
+          paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)',
+          paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)',
+        }}
+      >
         {providers.map((p) => (
           <Link
             key={p.id}

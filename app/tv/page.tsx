@@ -57,7 +57,7 @@ async function TvDataFetcher() {
         />
 
         <HorizontalRow
-          title="🌟 Top Rated Series"
+          title="Top Rated Series"
           items={topTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />

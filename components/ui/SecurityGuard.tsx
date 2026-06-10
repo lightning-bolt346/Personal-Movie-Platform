@@ -58,16 +58,9 @@ export function SecurityGuard() {
     };
     document.addEventListener('keydown', handleKeyDown, { capture: true });
 
-    // 4. Advanced Debugger Trap
-    // Using a recursive setTimeout is harder to defeat with a simple `clearInterval` brute force.
-    let isTrapActive = true;
-    const triggerTrap = () => {
-      if (!isTrapActive) return;
-      (function() { return false; })['constructor']('debugger')();
-      setTimeout(triggerTrap, 50);
-    };
-    triggerTrap();
-
+    // 4. Debugger Trap intentionally removed — caused iOS Safari crash on iPhones.
+    // The Function constructor-based debugger loop is not supported in WKWebView / iOS Safari.
+    
     // 5. Anti-Tampering for DOM insertion (blocks bookmarklets from appending scripts)
     const originalAppendChild = Element.prototype.appendChild;
     Element.prototype.appendChild = function<T extends Node>(node: T): T {
@@ -82,7 +75,6 @@ export function SecurityGuard() {
     };
 
     return () => {
-      isTrapActive = false;
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown, { capture: true });
       Element.prototype.appendChild = originalAppendChild;

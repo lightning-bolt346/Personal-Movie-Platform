@@ -117,9 +117,9 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
             {/* Sticky player on mobile — stays visible while scrolling info */}
             <div className="sticky top-[56px] md:static z-30 md:z-auto">
               <div className="relative w-full max-w-5xl mx-auto">
-                {/* Ambient Backlight */}
+                {/* Dynamic YouTube-style ambient backlight */}
                 <div
-                  className="absolute inset-[-5%] blur-[80px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none"
+                  className="absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1]"
                   style={{ backgroundColor: bgColor }}
                 />
                 <div
@@ -210,7 +210,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                       onClick={() => setIsPlaying(true)}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all font-bold uppercase tracking-wider text-sm shadow-xl active:scale-95 ${
                         continueWatching
-                          ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20'
+                          ? 'bg-premium-gradient hover:bg-premium-gradient-dark text-white shadow-brand-500/20'
                           : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
                       }`}
                     >

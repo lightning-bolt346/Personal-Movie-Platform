@@ -35,8 +35,25 @@ async function HomeDataFetcher() {
     tmdb.discover('movie', { with_watch_providers: '9', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
   ]);
 
-  const top6Trending = trending.results?.slice(0, 6) || [];
-  const heroItemsWithLogos = await getHeroItemsWithLogos(top6Trending);
+  // Extract and interleave movie and tv items to ensure a balanced cinematic mix in the Hero slider
+  const trendingResults = trending.results || [];
+  const trendingMovies = trendingResults.filter((item: any) => item.media_type === 'movie');
+  const trendingTvs = trendingResults.filter((item: any) => item.media_type === 'tv');
+
+  const mixedHeroItems: any[] = [];
+  const maxLen = Math.max(trendingMovies.length, trendingTvs.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (trendingMovies[i] && mixedHeroItems.length < 6) mixedHeroItems.push(trendingMovies[i]);
+    if (trendingTvs[i] && mixedHeroItems.length < 6) mixedHeroItems.push(trendingTvs[i]);
+  }
+
+  // Fallback to normal slice if for some reason we don't have enough mixed items
+  if (mixedHeroItems.length < 6) {
+    const remaining = trendingResults.filter((item: any) => !mixedHeroItems.includes(item));
+    mixedHeroItems.push(...remaining.slice(0, 6 - mixedHeroItems.length));
+  }
+
+  const heroItemsWithLogos = await getHeroItemsWithLogos(mixedHeroItems);
   
   // Use classics and underrated gems for the time-based recommendations
   const widgetPool = [
@@ -116,19 +133,19 @@ async function HomeDataFetcher() {
         />
 
         <HorizontalRow
-          title="🔥 Popular Movies"
+          title="Popular Movies"
           items={popMovies.results?.slice(0, 20) || []}
           seeAllHref="/movies"
         />
 
         <HorizontalRow
-          title="📺 Trending TV Shows"
+          title="Trending TV Shows"
           items={popTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />
 
         <HorizontalRow
-          title="🌸 Anime Corner"
+          title="Anime Corner"
           items={popAnime.results?.slice(0, 20) || []}
           seeAllHref="/anime"
         />
@@ -138,7 +155,7 @@ async function HomeDataFetcher() {
         <ProviderHeroShelf provider={PROVIDERS.find(p => p.id === 9)!} title="New on Prime Video" items={primeData.results?.slice(0, 20) || []} />
 
         <HorizontalRow
-          title="💎 Top Rated TV Shows"
+          title="Top Rated TV Shows"
           items={topTv.results?.slice(0, 20) || []}
           seeAllHref="/tv"
         />

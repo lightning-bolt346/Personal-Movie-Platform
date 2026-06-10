@@ -60,26 +60,24 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
           {/* Brand Accent Bar */}
           <div className="w-1.5 h-7 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 12px ${provider.color}80` }} />
           
-          <Link href={`/providers/${provider.slug}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link href={`/providers/${provider.slug}`} className="group flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="relative w-16 h-7 hidden sm:block">
               <Image src={provider.logo} alt={provider.name} fill className="object-contain object-left" />
             </div>
-            <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight">
+            <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2">
               {title}
+              <ArrowRight size={18} className="opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" style={{ color: provider.color }} />
             </h2>
           </Link>
         </div>
         
-        <button
-          onClick={() => {
-            document.getElementById('provider-grid')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="flex items-center gap-1 text-sm font-semibold transition-colors duration-200 group"
-          style={{ color: provider.color }}
+        <Link
+          href={`/providers/${provider.slug}`}
+          className="flex items-center gap-1 text-xs font-semibold text-white/40 hover:text-white transition-colors duration-200 group"
         >
           See All
-          <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-        </button>
+          <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+        </Link>
       </div>
 
       {/* Scroll buttons */}

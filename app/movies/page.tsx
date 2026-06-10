@@ -25,14 +25,14 @@ export const metadata = {
 };
 
 const MOODS = [
-  { label: 'Feel Good', image: '/lgotja3xMoJZbynwHfcQcJAEMWH.jpg', genre: '35', desc: 'Comedy & Laughter', color: '#f59e0b', bg: 'from-amber-600/30 to-amber-900/10' },
-  { label: 'Thrilling', image: '/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', genre: '53', desc: 'Edge-of-seat tension', color: '#ef4444', bg: 'from-red-600/30 to-red-900/10' },
-  { label: 'Epic Adventure', image: '/iN41Ccw4DctL8npfmYg1j5Tr1eb.jpg', genre: '12', desc: 'Grand journeys', color: '#3b82f6', bg: 'from-blue-600/30 to-blue-900/10' },
-  { label: 'Horror', image: '/vh7np635kDIcfO6x2Y9ElgLJsuI.jpg', genre: '27', desc: 'Spine-chilling scares', color: '#7c3aed', bg: 'from-purple-700/30 to-purple-900/10' },
-  { label: 'Sci-Fi', image: '/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg', genre: '878', desc: 'Future worlds', color: '#06b6d4', bg: 'from-cyan-600/30 to-cyan-900/10' },
-  { label: 'Emotional', image: '/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg', genre: '18', desc: 'Deep & moving drama', color: '#ec4899', bg: 'from-pink-600/30 to-pink-900/10' },
-  { label: 'Classic Cinema', image: '/xnHVX37XZEp33hhCbYlQFq7ux1J.jpg', genre: '10749', desc: 'Timeless romance', color: '#84cc16', bg: 'from-lime-600/30 to-lime-900/10' },
-  { label: 'Mystery', image: '/zTnAnYIn0Iv3cn0ZHlzLhou3ybm.jpg', genre: '9648', desc: 'Whodunit puzzles', color: '#f97316', bg: 'from-orange-600/30 to-orange-900/10' },
+  { label: 'Feel Good', slug: 'feel-good', image: '/lgotja3xMoJZbynwHfcQcJAEMWH.jpg', genre: '35', desc: 'Comedy & Laughter', color: '#f59e0b', bg: 'from-amber-600/30 to-amber-900/10' },
+  { label: 'Thrilling', slug: 'thrilling', image: '/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', genre: '53', desc: 'Edge-of-seat tension', color: '#ef4444', bg: 'from-red-600/30 to-red-900/10' },
+  { label: 'Epic Adventure', slug: 'epic-adventure', image: '/iN41Ccw4DctL8npfmYg1j5Tr1eb.jpg', genre: '12', desc: 'Grand journeys', color: '#3b82f6', bg: 'from-blue-600/30 to-blue-900/10' },
+  { label: 'Horror', slug: 'horror', image: '/vh7np635kDIcfO6x2Y9ElgLJsuI.jpg', genre: '27', desc: 'Spine-chilling scares', color: '#7c3aed', bg: 'from-purple-700/30 to-purple-900/10' },
+  { label: 'Sci-Fi', slug: 'sci-fi', image: '/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg', genre: '878', desc: 'Future worlds', color: '#06b6d4', bg: 'from-cyan-600/30 to-cyan-900/10' },
+  { label: 'Emotional', slug: 'emotional', image: '/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg', genre: '18', desc: 'Deep & moving drama', color: '#ec4899', bg: 'from-pink-600/30 to-pink-900/10' },
+  { label: 'Classic Cinema', slug: 'classic-cinema', image: '/xnHVX37XZEp33hhCbYlQFq7ux1J.jpg', genre: '10749', desc: 'Timeless romance', color: '#84cc16', bg: 'from-lime-600/30 to-lime-900/10' },
+  { label: 'Mystery', slug: 'mystery', image: '/zTnAnYIn0Iv3cn0ZHlzLhou3ybm.jpg', genre: '9648', desc: 'Whodunit puzzles', color: '#f97316', bg: 'from-orange-600/30 to-orange-900/10' },
 ];
 
 export default async function MoviesPage() {
@@ -118,9 +118,9 @@ export default async function MoviesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
             {MOODS.map((mood) => (
               <Link
-                key={mood.genre}
-                href={`/genre/${mood.genre}?type=movie`}
-                className={`group relative flex flex-col justify-end p-4 md:p-5 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl border border-white/[0.05] hover:border-white/20`}
+                key={mood.slug}
+                href={`/mood/${mood.slug}`}
+                className={`group relative flex flex-col justify-end p-4 md:p-5 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] border border-white/[0.03] hover:border-white/30`}
                 style={{
                   minHeight: '120px',
                 }}
@@ -129,14 +129,14 @@ export default async function MoviesPage() {
                   src={`https://image.tmdb.org/t/p/w500${mood.image}`}
                   alt={mood.label}
                   fill
-                  className="object-cover opacity-50 group-hover:opacity-70 transition-all duration-500 group-hover:scale-[1.05]"
+                  className="object-cover opacity-50 group-hover:opacity-80 transition-all duration-700 group-hover:scale-[1.1]"
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/60 to-transparent group-hover:from-[#0a0a0f]/90 transition-all duration-500" />
                 <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                  style={{ background: `radial-gradient(ellipse at center, ${mood.color}30 0%, transparent 80%)` }}
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none mix-blend-overlay"
+                  style={{ background: `radial-gradient(circle at top right, ${mood.color}40 0%, transparent 70%)` }}
                 />
                 
                 <div className="relative z-10 w-full">

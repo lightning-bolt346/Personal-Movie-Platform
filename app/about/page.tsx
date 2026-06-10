@@ -157,7 +157,7 @@ export default function AboutPage() {
       <div className="text-center">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-brand-500/20"
+          className="inline-flex items-center gap-2 bg-premium-gradient hover:bg-premium-gradient-dark text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95 shadow-lg shadow-brand-500/20"
         >
           <Play size={18} className="fill-white" /> Start Watching Now
         </Link>

@@ -38,7 +38,7 @@ export function Footer() {
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px"
         style={{
-          background: 'linear-gradient(to right, transparent, rgba(var(--brand-500),0.5), transparent)',
+          background: 'linear-gradient(to right, transparent, color-mix(in srgb, var(--brand-500) 50%, transparent), transparent)',
         }}
       />
 
@@ -67,8 +67,8 @@ export function Footer() {
                   width: '22px',
                   height: '22px',
                   borderRadius: '50%',
-                  border: '2.5px solid rgba(var(--brand-500), 0.9)',
-                  boxShadow: '0 0 12px rgba(var(--brand-500),0.5), inset 0 0 6px rgba(var(--brand-500),0.15)',
+                  border: '2.5px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
+                  boxShadow: '0 0 12px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 15%, transparent)',
                   WebkitTextFillColor: 'transparent',
                   flexShrink: 0,
                 }}

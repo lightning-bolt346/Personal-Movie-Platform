@@ -18,7 +18,7 @@ export default function DiscoverPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [type, setType] = useState('movie');
+  const [type, setType] = useState('all');
   const [genres, setGenres] = useState<string[]>([]);
   const [year, setYear] = useState('all');
   const [sort, setSort] = useState('popularity.desc');
@@ -31,49 +31,81 @@ export default function DiscoverPage() {
 
   const fetchResults = useCallback((currentPage: number) => {
     setLoading(true);
-    const requestType = type === 'anime' ? 'tv' : type;
 
-    const params: Record<string, string> = {
-      sort_by: sort,
-      include_adult: adultContent ? 'true' : 'false',
-      page: currentPage.toString(),
-    };
-    
-    if (type === 'anime') {
-      // Enforce Animation genre (16) and Japanese original language for genuine Anime
-      params.with_genres = genres.length > 0 ? [...genres, '16'].join(',') : '16';
-      params.with_original_language = 'ja';
-    } else {
-      if (originalLanguage?.length > 0) {
-        params.with_original_language = originalLanguage.join('|');
-      }
-      if (genres.length > 0) {
-        params.with_genres = genres.join(',');
-      }
-    }
-    
-    if (year !== 'all') {
-      if (['2024', '2023', '2022'].includes(year)) {
-        params.primary_release_year = year;
-        params.first_air_date_year = year;
+    const buildParams = (targetType: string) => {
+      const params: Record<string, string> = {
+        sort_by: sort,
+        include_adult: adultContent ? 'true' : 'false',
+        page: currentPage.toString(),
+      };
+      
+      if (targetType === 'anime') {
+        params.with_genres = genres.length > 0 ? [...genres, '16'].join(',') : '16';
+        params.with_original_language = 'ja';
       } else {
-        const ranges: Record<string, Record<string, string>> = {
-          '2020s': { 'primary_release_date.gte': '2020-01-01', 'primary_release_date.lte': '2029-12-31' },
-          '2010s': { 'primary_release_date.gte': '2010-01-01', 'primary_release_date.lte': '2019-12-31' },
-          '2000s': { 'primary_release_date.gte': '2000-01-01', 'primary_release_date.lte': '2009-12-31' },
-          'older': { 'primary_release_date.lte': '1999-12-31' },
-        };
-        Object.assign(params, ranges[year] || {});
+        if (originalLanguage?.length > 0) {
+          params.with_original_language = originalLanguage.join('|');
+        }
+        if (genres.length > 0) {
+          params.with_genres = genres.join(',');
+        }
       }
-    }
+      
+      if (year !== 'all') {
+        if (['2024', '2023', '2022'].includes(year)) {
+          params.primary_release_year = year;
+          params.first_air_date_year = year;
+        } else {
+          const ranges: Record<string, Record<string, string>> = {
+            '2020s': { 'primary_release_date.gte': '2020-01-01', 'primary_release_date.lte': '2029-12-31' },
+            '2010s': { 'primary_release_date.gte': '2010-01-01', 'primary_release_date.lte': '2019-12-31' },
+            '2000s': { 'primary_release_date.gte': '2000-01-01', 'primary_release_date.lte': '2009-12-31' },
+            'older': { 'primary_release_date.lte': '1999-12-31' },
+          };
+          Object.assign(params, ranges[year] || {});
+        }
+      }
+      return params;
+    };
 
-    discoverMedia(requestType as 'movie' | 'tv', params).then(res => {
-      const items = res.results || [];
-      setResults(items.map((i: any) => ({ ...i, media_type: type as any })));
-      // Cap at 500 pages as per TMDB limits
-      setTotalPages(Math.min(res.total_pages || 1, 500));
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    if (type === 'all') {
+      Promise.all([
+        discoverMedia('movie', buildParams('movie')),
+        discoverMedia('tv', buildParams('tv')),
+        discoverMedia('tv', buildParams('anime'))
+      ]).then(([moviesRes, tvRes, animeRes]) => {
+        const mItems = (moviesRes.results || []).map((i: any) => ({ ...i, media_type: 'movie' }));
+        const tItems = (tvRes.results || []).map((i: any) => ({ ...i, media_type: 'tv' }));
+        const aItems = (animeRes.results || []).map((i: any) => ({ ...i, media_type: 'tv' }));
+        
+        // Interleave the results
+        const combined = [];
+        const maxLength = Math.max(mItems.length, tItems.length, aItems.length);
+        for (let i = 0; i < maxLength; i++) {
+          if (mItems[i]) combined.push(mItems[i]);
+          if (tItems[i]) combined.push(tItems[i]);
+          // To prevent duplication if anime already appeared in TV, we filter
+          if (aItems[i] && !combined.some(c => c.id === aItems[i].id)) {
+             combined.push(aItems[i]);
+          }
+        }
+        
+        // Remove duplicates entirely from combined array
+        const uniqueCombined = Array.from(new Map(combined.map(item => [item.id, item])).values());
+        
+        setResults(uniqueCombined);
+        setTotalPages(Math.min(Math.max(moviesRes.total_pages || 1, tvRes.total_pages || 1), 500));
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    } else {
+      const requestType = type === 'anime' ? 'tv' : type;
+      discoverMedia(requestType as 'movie' | 'tv', buildParams(type)).then(res => {
+        const items = res.results || [];
+        setResults(items.map((i: any) => ({ ...i, media_type: type === 'anime' ? 'tv' : type })));
+        setTotalPages(Math.min(res.total_pages || 1, 500));
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }
   }, [type, genres, year, sort, adultContent, originalLanguage]);
 
   useEffect(() => {
@@ -119,7 +151,7 @@ export default function DiscoverPage() {
               className={`flex items-center gap-2 bg-void-900 border border-zinc-700 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all shadow-md hover:bg-zinc-800 active:scale-95 ${genres.length > 0 || year !== 'all' ? 'border-brand-500 text-brand-500' : ''}`}
             >
               <SlidersHorizontal size={16} />
-              Filters {(genres.length > 0 || year !== 'all') && <span className="bg-brand-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full ml-1">!</span>}
+              Filters {(genres.length > 0 || year !== 'all') && <span className="bg-premium-gradient text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full ml-1">!</span>}
             </button>
             <button 
               onClick={handleSurpriseMe}
@@ -133,7 +165,10 @@ export default function DiscoverPage() {
       </div>
 
       <div className="max-w-[1800px] mx-auto">
-        <MoodBoard />
+        <MoodBoard onSelectMood={(genreId) => {
+          setGenres([genreId.toString()]);
+          setPage(1);
+        }} />
       </div>
 
       {/* Content Grid */}

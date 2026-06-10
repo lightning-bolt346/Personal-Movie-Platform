@@ -113,7 +113,7 @@ export function WelcomeModal() {
               animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-              className="relative w-full max-w-4xl bg-void-950 border border-white/10 rounded-3xl md:rounded-[32px] overflow-hidden shadow-[0_30px_100px_-20px_rgba(var(--brand-500),0.3)] flex flex-col md:flex-row z-10 max-h-[95vh] overflow-y-auto custom-scrollbar"
+              className="relative w-full max-w-4xl bg-void-950 border border-white/10 rounded-3xl md:rounded-[32px] overflow-hidden shadow-[0_30px_100px_-20px_color-mix(in srgb, var(--brand-500) 30%, transparent)] flex flex-col md:flex-row z-10 max-h-[95vh] overflow-y-auto custom-scrollbar"
             >
               {/* Left Column: Visuals & Movie Pitch */}
               <div className="md:w-[45%] shrink-0 relative h-[180px] sm:h-[220px] md:h-auto overflow-hidden group">
@@ -217,7 +217,7 @@ export function WelcomeModal() {
                   </button>
                   <button
                     onClick={closeModal}
-                    className="w-full sm:flex-1 py-3 md:py-4 rounded-xl bg-brand-600 hover:bg-brand-500 border border-brand-500/50 text-white font-bold text-xs md:text-sm transition-colors shadow-[0_0_20px_rgba(var(--brand-500),0.2)]"
+                    className="w-full sm:flex-1 py-3 md:py-4 rounded-xl bg-premium-gradient-dark hover:bg-premium-gradient border border-brand-500/50 text-white font-bold text-xs md:text-sm transition-colors shadow-[0_0_20px_color-mix(in srgb, var(--brand-500) 20%, transparent)]"
                   >
                     Enter Platform
                   </button>

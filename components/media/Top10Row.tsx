@@ -75,8 +75,8 @@ export function Top10Row({ title, items }: Top10RowProps) {
       <SectionTitle
         title={title}
         icon="🏆"
-        accent="gold"
-        className="!px-4 md:!px-14 !mt-0 !mb-4"
+        accent="brand"
+        className="!mt-0 !mb-4"
       />
 
       <button

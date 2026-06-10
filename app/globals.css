@@ -10,17 +10,22 @@
   --color-void-600: #404040;
   --color-void-700: #262626;
   --color-void-800: #171717;
-  --color-void-900: #0a0a0a;
-  --color-void-950: #050505;
-
-  --color-brand-300: rgb(var(--brand-300) / <alpha-value>);
-  --color-brand-400: rgb(var(--brand-400) / <alpha-value>);
-  --color-brand-500: rgb(var(--brand-500) / <alpha-value>);
-  --color-brand-600: rgb(var(--brand-600) / <alpha-value>);
+  --color-void-900: #12121a;
+  --color-void-950: #0a0a0f;
 
   --color-crimson-400: #ef4444;
   --color-crimson-500: #e50914;
   --color-crimson-600: #dc2626;
+  --color-crimson-900: #450a0a;
+
+  /* ── Brand Aliases — these resolve to CSS var so theme-switching works at runtime ── */
+  --color-brand-100: color-mix(in srgb, var(--brand-500, #e50914) 15%, transparent);
+  --color-brand-200: color-mix(in srgb, var(--brand-500, #e50914) 30%, transparent);
+  --color-brand-300: color-mix(in srgb, var(--brand-500, #e50914) 50%, #000);
+  --color-brand-400: var(--brand-400, #ef4444);
+  --color-brand-500: var(--brand-500, #e50914);
+  --color-brand-600: var(--brand-600, #dc2626);
+  --color-brand-700: color-mix(in srgb, var(--brand-500, #e50914) 70%, #000);
 
   --font-sans: "Inter", sans-serif;
   --font-display: "Space Grotesk", sans-serif;
@@ -28,41 +33,79 @@
   --font-body: "Inter", sans-serif;
 }
 
+/* ── Default theme: Cinematic Violet (Amethyst) ── */
 :root {
-  /* Crimson (Default) */
-  --brand-300: 252, 165, 165;
-  --brand-400: 239, 68, 68;
-  --brand-500: 229, 9, 20;
-  --brand-600: 220, 38, 38;
+  --brand-400: #a78bfa;
+  --brand-500: #7c3aed;
+  --brand-600: #6d28d9;
+  --brand-glow: rgba(124, 58, 237, 0.4);
+  --brand-ambient: rgba(124, 58, 237, 0.12);
 }
 
-[data-theme='violet'] {
-  --brand-300: 196, 181, 253;
-  --brand-400: 167, 139, 250;
-  --brand-500: 139, 92, 246;
-  --brand-600: 124, 58, 237;
+/* ── Blue theme ── */
+:root[data-theme="blue"] {
+  --brand-400: #60a5fa;
+  --brand-500: #2563eb;
+  --brand-600: #1d4ed8;
+  --brand-glow: rgba(37, 99, 235, 0.4);
+  --brand-ambient: rgba(37, 99, 235, 0.12);
 }
 
-[data-theme='cyan'] {
-  --brand-300: 103, 232, 249;
-  --brand-400: 34, 211, 238;
-  --brand-500: 6, 182, 214;
-  --brand-600: 8, 145, 178;
+/* ── Red theme ── */
+:root[data-theme="red"] {
+  --brand-400: #ef4444;
+  --brand-500: #e50914;
+  --brand-600: #dc2626;
+  --brand-glow: rgba(229, 9, 20, 0.4);
+  --brand-ambient: rgba(229, 9, 20, 0.12);
 }
 
-[data-theme='emerald'] {
-  --brand-300: 110, 231, 183;
-  --brand-400: 52, 211, 153;
-  --brand-500: 16, 185, 129;
-  --brand-600: 5, 150, 105;
+/* ── Emerald theme ── */
+:root[data-theme="emerald"] {
+  --brand-400: #34d399;
+  --brand-500: #059669;
+  --brand-600: #047857;
+  --brand-glow: rgba(5, 150, 105, 0.4);
+  --brand-ambient: rgba(5, 150, 105, 0.12);
 }
 
-[data-theme='amber'] {
-  --brand-300: 252, 211, 77;
-  --brand-400: 251, 191, 36;
-  --brand-500: 245, 158, 11;
-  --brand-600: 217, 119, 6;
+/* ── Silicon theme (pure white modern) ── */
+:root[data-theme="silicon"] {
+  --brand-400: #94a3b8; /* Darker slate for top right */
+  --brand-500: #ffffff; /* Pure white for bottom left */
+  --brand-600: #e2e8f0;
+  --brand-glow: rgba(255, 255, 255, 0.4);
+  --brand-ambient: rgba(255, 255, 255, 0.15);
+  --premium-text: #0a0a0f;
 }
+
+/* ── Rose theme (Cyber Rose) ── */
+:root[data-theme="rose"] {
+  --brand-400: #fb7185;
+  --brand-500: #e11d48;
+  --brand-600: #be123c;
+  --brand-glow: rgba(225, 29, 72, 0.4);
+  --brand-ambient: rgba(225, 29, 72, 0.12);
+}
+
+/* ── Amber theme (Golden Hour) ── */
+:root[data-theme="amber"] {
+  --brand-400: #fbbf24;
+  --brand-500: #f59e0b;
+  --brand-600: #d97706;
+  --brand-glow: rgba(245, 158, 11, 0.4);
+  --brand-ambient: rgba(245, 158, 11, 0.12);
+}
+
+/* ── Cyan theme (Neon Cyan) ── */
+:root[data-theme="cyan"] {
+  --brand-400: #38bdf8;
+  --brand-500: #0ea5e9;
+  --brand-600: #0284c7;
+  --brand-glow: rgba(14, 165, 233, 0.4);
+  --brand-ambient: rgba(14, 165, 233, 0.12);
+}
+
 
 /* ============================================================
    VOID NOIR — 2026 Design System
@@ -301,7 +344,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-  background-color: #0a0a0f;
+  background-color: var(--color-void-950);
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -376,4 +419,14 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .row-hidden { opacity: 1; transform: none; }
   .row-revealed { transition: none; }
+}
+
+@utility bg-premium-gradient {
+  background-image: linear-gradient(to top right, var(--brand-500) 0%, var(--brand-500) 70%, var(--brand-400) 100%);
+  color: var(--premium-text, #ffffff);
+}
+
+@utility bg-premium-gradient-dark {
+  background-image: linear-gradient(to top right, var(--brand-600) 0%, var(--brand-600) 70%, var(--brand-500) 100%);
+  color: var(--premium-text, #ffffff);
 }

@@ -199,7 +199,7 @@ function SearchPageContent() {
 
         {/* Search Mode Pills */}
         <div className="flex items-center p-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/15 mb-10 shadow-lg">
-          <button className="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all shadow-md shadow-brand-500/25">
+          <button className="flex items-center gap-2 bg-premium-gradient hover:bg-premium-gradient-dark px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all shadow-md shadow-brand-500/25">
             <Search size={16} /> Title Search
           </button>
           <button className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-white/50 hover:text-white/90 hover:bg-white/5 transition-all">
@@ -224,8 +224,8 @@ function SearchPageContent() {
             style={{
               background: focused ? 'rgba(255, 255, 255, 0.09)' : 'rgba(255, 255, 255, 0.07)',
               backdropFilter: 'blur(30px)',
-              border: focused ? '1px solid rgba(var(--brand-500), 0.45)' : '1px solid rgba(255, 255, 255, 0.15)',
-              boxShadow: focused ? '0 0 40px rgba(var(--brand-500), 0.25)' : '0 20px 40px rgba(0,0,0,0.4)',
+              border: focused ? '1px solid color-mix(in srgb, var(--brand-500) 45%, transparent)' : '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: focused ? '0 0 40px color-mix(in srgb, var(--brand-500) 25%, transparent)' : '0 20px 40px rgba(0,0,0,0.4)',
               transition: 'all 0.3s ease',
             }}
           />

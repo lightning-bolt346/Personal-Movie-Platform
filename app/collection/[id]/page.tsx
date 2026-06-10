@@ -37,7 +37,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Header */}
-      <div className="relative w-full min-h-[50vh] md:min-h-[60vh] flex flex-col pt-24 pb-12">
+      <div className="relative w-full min-h-[350px] md:min-h-[420px] flex flex-col pt-24 pb-4">
         <div className="absolute inset-0 bg-void-950/80 z-10 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/60 to-transparent z-10 pointer-events-none" />
         
@@ -84,7 +84,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ id:
       </div>
 
       {/* Grid */}
-      <div className="max-w-7xl mx-auto px-4 w-full relative z-30 pb-20 pt-8">
+      <div className="max-w-7xl mx-auto px-4 w-full relative z-30 pb-20 pt-4">
         <MediaGrid title={`${items.length} Movies`} items={items} />
       </div>
     </div>

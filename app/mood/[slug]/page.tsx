@@ -1,137 +1,147 @@
-import { discoverMedia } from '@/app/actions';
-import { MediaCard } from '@/components/media/MediaCard';
-import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
-import { ArrowLeft, Sparkles, Film, Tv } from 'lucide-react';
-import Link from 'next/link';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { tmdb } from '@/lib/tmdb';
+import { getSiteUrl } from '@/lib/utils';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { BackButton } from '@/components/ui/BackButton';
+import Image from 'next/image';
+import nextDynamic from 'next/dynamic';
 
-export const revalidate = 86400; // Cache for 24 hours
+const HorizontalRow = nextDynamic(() => import('@/components/media/HorizontalRow').then(mod => mod.HorizontalRow));
+const Top10Row = nextDynamic(() => import('@/components/media/Top10Row').then(mod => mod.Top10Row));
 
-const MOODS = [
-  { slug: 'need-a-laugh', label: 'Need a Laugh', genreId: 35, image: '/lgotja3xMoJZbynwHfcQcJAEMWH.jpg', color: '#f59e0b', description: 'Handpicked comedies guaranteed to boost your serotonin levels.' },
-  { slug: 'terrify-me', label: 'Terrify Me', genreId: 27, image: '/vh7np635kDIcfO6x2Y9ElgLJsuI.jpg', color: '#7c3aed', description: 'Keep the lights on. The most chilling horror films and series.' },
-  { slug: 'make-me-cry', label: 'Make Me Cry', genreId: 18, image: '/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg', color: '#ec4899', description: 'Emotional masterworks that will tug at your heartstrings.' },
-  { slug: 'mind-bending', label: 'Mind-Bending', genreId: 878, image: '/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg', color: '#06b6d4', description: 'Sci-Fi and psychological thrillers that will make you question reality.' },
-  { slug: 'romantic', label: 'Romantic', genreId: 10749, image: '/xnHVX37XZEp33hhCbYlQFq7ux1J.jpg', color: '#e50914', description: 'Epic love stories and feel-good rom-coms for date night.' },
-  { slug: 'adrenaline', label: 'Adrenaline', genreId: 28, image: '/6zg7A9ICOthNR2TSXlT51KvXrsA.jpg', color: '#ef4444', description: 'Explosive action and high-stakes adventures.' },
-];
+export const revalidate = 3600;
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = await params;
-  const mood = MOODS.find(m => m.slug === resolvedParams.slug);
+const MOODS_MAP: Record<string, { label: string, genre: string, image: string, color: string, desc: string }> = {
+  'feel-good': { label: 'Feel Good', genre: '35', image: '/lgotja3xMoJZbynwHfcQcJAEMWH.jpg', color: '#f59e0b', desc: 'Comedy & Laughter' },
+  'thrilling': { label: 'Thrilling', genre: '53', image: '/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg', color: '#ef4444', desc: 'Edge-of-seat tension' },
+  'epic-adventure': { label: 'Epic Adventure', genre: '12', image: '/iN41Ccw4DctL8npfmYg1j5Tr1eb.jpg', color: '#3b82f6', desc: 'Grand journeys' },
+  'horror': { label: 'Horror', genre: '27', image: '/vh7np635kDIcfO6x2Y9ElgLJsuI.jpg', color: '#7c3aed', desc: 'Spine-chilling scares' },
+  'sci-fi': { label: 'Sci-Fi', genre: '878', image: '/2I1OFQJ0L9T0dpU6FobKFWV2PxX.jpg', color: '#06b6d4', desc: 'Future worlds' },
+  'emotional': { label: 'Emotional', genre: '18', image: '/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg', color: '#ec4899', desc: 'Deep & moving drama' },
+  'classic-cinema': { label: 'Classic Cinema', genre: '10749', image: '/xnHVX37XZEp33hhCbYlQFq7ux1J.jpg', color: '#84cc16', desc: 'Timeless romance' },
+  'mystery': { label: 'Mystery', genre: '9648', image: '/zTnAnYIn0Iv3cn0ZHlzLhou3ybm.jpg', color: '#f97316', desc: 'Whodunit puzzles' },
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const mood = MOODS_MAP[slug];
+  
   if (!mood) return { title: 'Mood Not Found' };
   
+  const title = `${mood.label} Movies - Stream on ZIVOX`;
+  const description = `Dive into our hand-picked collection of ${mood.label.toLowerCase()} movies. Stream in premium HD quality for free on ZIVOX.`;
+
   return {
-    title: `${mood.label} Movies & Shows`,
-    description: mood.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      images: [{ url: `https://image.tmdb.org/t/p/w1280${mood.image}` }],
+    },
   };
 }
 
 export default async function MoodPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = await params;
-  const mood = MOODS.find(m => m.slug === resolvedParams.slug);
-  
+  const { slug } = await params;
+  const mood = MOODS_MAP[slug];
+
   if (!mood) {
     notFound();
   }
 
-  // Fetch best movies and tv shows concurrently
-  const [moviesRes, tvRes] = await Promise.all([
-    discoverMedia('movie', {
-      with_genres: mood.genreId.toString(),
-      sort_by: 'popularity.desc',
-      'vote_count.gte': '1000', // Ensure high quality
-      page: '1'
-    }),
-    discoverMedia('tv', {
-      with_genres: mood.genreId.toString(),
-      sort_by: 'popularity.desc',
-      'vote_count.gte': '500',
-      page: '1'
-    })
+  // Fetch curated collections for this specific mood genre
+  const [trending, topRated, newReleases, highlyAcclaimed] = await Promise.all([
+    tmdb.discover('movie', { with_genres: mood.genre, sort_by: 'popularity.desc' }),
+    tmdb.discover('movie', { with_genres: mood.genre, sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
+    tmdb.discover('movie', { with_genres: mood.genre, sort_by: 'primary_release_date.desc', 'primary_release_date.lte': new Date().toISOString().split('T')[0], 'vote_count.gte': '50' }),
+    tmdb.discover('movie', { with_genres: mood.genre, sort_by: 'vote_average.desc', 'vote_count.gte': '3000' })
   ]);
 
-  const movies = moviesRes.results?.slice(0, 12).map(m => ({ ...m, media_type: 'movie' })) || [];
-  const shows = tvRes.results?.slice(0, 12).map(t => ({ ...t, media_type: 'tv' })) || [];
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${mood.label} Movies Collection`,
+    description: `A premium collection of the best ${mood.label.toLowerCase()} movies available to stream on ZIVOX.`,
+    url: `${getSiteUrl()}/mood/${slug}`,
+  };
 
   return (
-    <div className="relative min-h-screen bg-void-950 pb-20">
-      <AnimatedBackground />
+    <div className="flex flex-col min-h-screen pb-[calc(64px+env(safe-area-inset-bottom,0px))] md:pb-20 bg-[#050505] -mt-[72px]">
+      <JsonLd data={jsonLd} />
       
-      {/* Dynamic Hero Header */}
-      <div className="relative h-[40vh] min-h-[400px] w-full flex flex-col justify-end p-8 md:p-16 overflow-hidden">
-        {/* Background Image with Parallax-like effect */}
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: `url(https://image.tmdb.org/t/p/w1280${mood.image})` }}
-        />
-        {/* Gradients */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-t from-void-950 via-void-950/80 to-transparent" />
-        <div 
-          className="absolute inset-0 z-0 opacity-40 mix-blend-overlay"
-          style={{ background: `radial-gradient(circle at 70% 30%, ${mood.color}, transparent 60%)` }}
-        />
+      {/* Mood Hero Header */}
+      <div className="relative w-full h-[60vh] md:h-[70vh] flex flex-col justify-end overflow-hidden">
+        <div className="absolute top-28 left-4 md:left-14 z-50">
+          <BackButton />
+        </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <Link href="/discover" className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-6 text-sm font-bold tracking-wide uppercase">
-            <ArrowLeft size={16} /> Back to Discover
-          </Link>
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={`https://image.tmdb.org/t/p/original${mood.image}`}
+            alt={mood.label}
+            fill
+            className="object-cover"
+            priority
+            quality={90}
+          />
+          {/* Gradients to blend into the dark theme */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505]/50" />
           
-          <h1 className="text-5xl md:text-7xl font-display font-black text-white drop-shadow-2xl mb-4 tracking-tighter" style={{ textShadow: `0 0 40px ${mood.color}80` }}>
-            {mood.label}
-          </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl font-medium leading-relaxed">
-            {mood.description}
-          </p>
+          {/* Dynamic Radial Glow based on Mood Color */}
+          <div 
+            className="absolute inset-0 mix-blend-overlay opacity-60"
+            style={{
+              background: `radial-gradient(circle at center, ${mood.color}40 0%, transparent 60%)`
+            }}
+          />
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 px-4 md:px-14 pb-12 md:pb-20 w-full max-w-7xl mx-auto">
+          <div className="flex flex-col gap-4 max-w-3xl">
+            <span 
+              className="px-3 py-1 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] rounded-full w-fit backdrop-blur-md shadow-lg border border-white/10"
+              style={{ backgroundColor: `${mood.color}20`, color: mood.color }}
+            >
+              Curated Collection
+            </span>
+            <h1 className="text-5xl md:text-7xl font-display font-black text-white tracking-tighter drop-shadow-2xl">
+              {mood.label}
+            </h1>
+            <p className="text-lg md:text-2xl text-white/80 font-medium drop-shadow-md max-w-2xl">
+              {mood.desc}. Hand-picked movies guaranteed to fit your exact mood right now.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Content Sections */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 -mt-12 space-y-16">
+      {/* Content Rows */}
+      <div className="relative z-20 flex flex-col gap-8 md:gap-12 pb-12 -mt-8 md:-mt-12 bg-gradient-to-b from-transparent to-[#050505]">
         
-        {/* Top Movies */}
-        {movies.length > 0 && (
-          <section className="bg-void-900/40 backdrop-blur-md border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-white flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-brand-500/20 text-brand-500">
-                  <Film size={24} />
-                </div>
-                Essential Movies
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {movies.map((item, i) => (
-                <div key={item.id} className="animate-slide-up" style={{ animationDelay: `${i * 0.05}s`, opacity: 0, animationFillMode: 'forwards' }}>
-                  <MediaCard media={item as any} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Top Shows */}
-        {shows.length > 0 && (
-          <section className="bg-void-900/40 backdrop-blur-md border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-white flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-brand-500/20 text-brand-500">
-                  <Tv size={24} />
-                </div>
-                Binge-Worthy Series
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {shows.map((item, i) => (
-                <div key={item.id} className="animate-slide-up" style={{ animationDelay: `${i * 0.05}s`, opacity: 0, animationFillMode: 'forwards' }}>
-                  <MediaCard media={item as any} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <Top10Row 
+          title={`Trending in ${mood.label}`} 
+          items={trending.results?.slice(0, 10) || []} 
+        />
+        
+        <HorizontalRow 
+          title="Top Rated" 
+          items={topRated.results?.slice(0, 20) || []} 
+        />
+        
+        <HorizontalRow 
+          title="New Releases" 
+          items={newReleases.results?.slice(0, 20) || []} 
+        />
+        
+        <HorizontalRow 
+          title="Critically Acclaimed" 
+          items={highlyAcclaimed.results?.slice(0, 20) || []} 
+        />
 
       </div>
     </div>

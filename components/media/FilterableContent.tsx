@@ -38,10 +38,10 @@ export function FilterableContent({ sections }: { sections: { title: string; ite
             onClick={() => handleFilter(null)}
             className="flex-shrink-0 snap-start h-[32px] px-[14px] rounded-full text-[12px] font-semibold whitespace-nowrap transition-all duration-200"
             style={{
-              background: activeGenres.length === 0 ? 'rgb(var(--brand-500))' : 'rgba(255,255,255,0.05)',
+              background: activeGenres.length === 0 ? 'var(--brand-500)' : 'rgba(255,255,255,0.05)',
               color: activeGenres.length === 0 ? '#fff' : 'rgba(255,255,255,0.5)',
-              border: activeGenres.length === 0 ? '1px solid rgb(var(--brand-500))' : '1px solid rgba(255,255,255,0.12)',
-              boxShadow: activeGenres.length === 0 ? '0 0 12px rgba(var(--brand-500),0.4)' : 'none',
+              border: activeGenres.length === 0 ? '1px solid var(--brand-500)' : '1px solid rgba(255,255,255,0.12)',
+              boxShadow: activeGenres.length === 0 ? '0 0 12px color-mix(in srgb, var(--brand-500) 40%, transparent)' : 'none',
             }}
             onMouseEnter={(e) => {
               if (activeGenres.length !== 0) {
@@ -66,10 +66,10 @@ export function FilterableContent({ sections }: { sections: { title: string; ite
                 onClick={() => handleFilter(genre.id)}
                 className="flex-shrink-0 snap-start h-[32px] px-[14px] rounded-full text-[12px] font-semibold whitespace-nowrap transition-all duration-200"
                 style={{
-                  background: active ? 'rgb(var(--brand-500))' : 'rgba(255,255,255,0.05)',
+                  background: active ? 'var(--brand-500)' : 'rgba(255,255,255,0.05)',
                   color: active ? '#fff' : 'rgba(255,255,255,0.5)',
-                  border: active ? '1px solid rgb(var(--brand-500))' : '1px solid rgba(255,255,255,0.12)',
-                  boxShadow: active ? '0 0 12px rgba(var(--brand-500),0.4)' : 'none',
+                  border: active ? '1px solid var(--brand-500)' : '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: active ? '0 0 12px color-mix(in srgb, var(--brand-500) 40%, transparent)' : 'none',
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {

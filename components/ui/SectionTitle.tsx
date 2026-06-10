@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -26,7 +28,7 @@ export function SectionTitle({
   const router = useRouter();
   
   const accentColors = {
-    brand: 'bg-brand-500',
+    brand: 'bg-premium-gradient',
     gold: 'bg-[#f59e0b]',
     blue: 'bg-[#3b82f6]'
   };
@@ -36,15 +38,30 @@ export function SectionTitle({
       <div className="flex items-center gap-3">
         <div className={cn("w-1 h-5 md:w-1.5 md:h-6 rounded-full", accentColors[accent])} />
         <div className="flex flex-col">
-          <h2 className="text-lg md:text-2xl font-display font-bold text-white tracking-tight flex items-center gap-2">
-            {icon && (
-              <span className="text-white/80">
-                {icon}
-              </span>
-            )}
-            {title}
-            {actionNode}
-          </h2>
+          {viewAllHref ? (
+            <Link href={viewAllHref} className="group flex items-center gap-2">
+              <h2 className="text-lg md:text-2xl font-display font-bold text-white tracking-tight flex items-center gap-2 transition-colors group-hover:text-brand-300">
+                {icon && (
+                  <span className="text-white/80 group-hover:text-brand-300 transition-colors">
+                    {icon}
+                  </span>
+                )}
+                {title}
+                {actionNode}
+                <ArrowRight size={18} className="opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-brand-400" />
+              </h2>
+            </Link>
+          ) : (
+            <h2 className="text-lg md:text-2xl font-display font-bold text-white tracking-tight flex items-center gap-2">
+              {icon && (
+                <span className="text-white/80">
+                  {icon}
+                </span>
+              )}
+              {title}
+              {actionNode}
+            </h2>
+          )}
           {subtitle && (
             <p className="text-[11px] text-white/40 mt-0.5 leading-none">
               {subtitle}

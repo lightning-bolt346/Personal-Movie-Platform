@@ -11,7 +11,7 @@ import { GlobalLoader } from '@/components/ui/GlobalLoader';
 import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
-import { ThemeManager } from '@/components/ui/ThemeManager';
+import { ThemePromptModal } from "@/components/ui/ThemePromptModal";
 import { getSiteUrl } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -121,60 +121,81 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <JsonLd data={globalSchema} />
+        {/* ── Theme Injection (runs before first paint — prevents FOUC) ── */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var s = localStorage.getItem('voidstream_app_state_v2');
+                  if (s) {
+                    var d = JSON.parse(s);
+                    var t = d && d.preferences && d.preferences.theme;
+                    if (t && t !== 'violet') {
+                      document.documentElement.setAttribute('data-theme', t);
+                    }
+                  }
+                } catch(e) {}
+              })();
+            `
+          }}
+        />
       </head>
-      <body className="bg-black text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
+      <body className="bg-void-950 text-zinc-100 min-h-screen flex flex-col font-body" suppressHydrationWarning>
         {/* Ambient Background — Zivox Dark Violet */}
-        <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden bg-black" style={{ contain: 'strict' }}>
-          {/* Primary top-center deep violet core */}
+        <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden" style={{ background: '#07070d', contain: 'strict' }}>
+          {/* Primary ambient glow — uses brand theme color */}
           <div
             style={{
               position: 'absolute',
-              top: '-30%',
+              top: '-25%',
               left: '50%',
               transform: 'translateX(-50%)',
-              width: '80%',
-              height: '70%',
-              background: 'radial-gradient(ellipse at center, rgba(76,20,200,0.18) 0%, rgba(50,10,130,0.08) 35%, rgba(50,10,130,0.02) 60%, transparent 80%)',
-              animation: 'purple-beam 16s ease-in-out infinite',
+              width: '70%',
+              height: '65%',
+              background: 'radial-gradient(ellipse at center, var(--brand-ambient) 0%, transparent 70%)',
+              filter: 'blur(60px)',
+              animation: 'purple-beam 18s ease-in-out infinite',
             }}
           />
-          {/* Top-left cool blue accent */}
+          {/* Top-left deep accent — always present for depth */}
           <div
             style={{
               position: 'absolute',
               top: '-10%',
               left: '-5%',
-              width: '40%',
-              height: '45%',
-              background: 'radial-gradient(ellipse at center, rgba(30,60,180,0.08) 0%, rgba(30,60,180,0.02) 40%, transparent 70%)',
-              animation: 'purple-beam 22s ease-in-out infinite reverse',
+              width: '45%',
+              height: '50%',
+              background: 'radial-gradient(ellipse at center, var(--brand-ambient) 0%, transparent 70%)',
+              animation: 'purple-beam 24s ease-in-out infinite reverse',
             }}
           />
-          {/* Top-right warm violet accent */}
+          {/* Top-right complementary accent */}
           <div
             style={{
               position: 'absolute',
               top: '-5%',
               right: '-5%',
               width: '35%',
-              height: '40%',
-              background: 'radial-gradient(ellipse at center, rgba(100,30,200,0.08) 0%, rgba(100,30,200,0.02) 40%, transparent 70%)',
-              animation: 'purple-beam 19s ease-in-out infinite',
+              height: '45%',
+              background: 'radial-gradient(ellipse at center, color-mix(in srgb, var(--brand-ambient) 60%, transparent) 0%, transparent 60%)',
+              animation: 'purple-beam 20s ease-in-out infinite 2s',
             }}
           />
-          {/* Very subtle warm bottom accent — prevents cold feel */}
+          {/* Bottom brand warm glow */}
           <div
             style={{
               position: 'absolute',
-              bottom: '-10%',
-              left: '30%',
-              width: '40%',
-              height: '30%',
-              background: 'radial-gradient(ellipse at center, rgba(80,20,160,0.06) 0%, rgba(80,20,160,0.01) 45%, transparent 70%)',
+              bottom: '-5%',
+              left: '35%',
+              width: '30%',
+              height: '25%',
+              background: 'radial-gradient(ellipse at center, var(--brand-ambient, rgba(229,9,20,0.08)) 0%, transparent 80%)',
+              opacity: 0.5,
             }}
           />
         </div>
-        <ThemeManager />
         <GlobalLoader />
         <Navbar />
         <main className="flex-1 flex flex-col pb-20 md:pb-0 relative z-10 w-full min-h-screen">
@@ -185,6 +206,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <ScrollToTop />
         <WelcomeModal />
+        <ThemePromptModal />
         <NotificationToaster />
         <SecurityGuard />
         <Analytics />

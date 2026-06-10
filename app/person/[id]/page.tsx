@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { BackButton } from '@/components/ui/BackButton';
 
+export const revalidate = 86400;
+
 export default async function PersonPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const person = await tmdb.getPerson(resolvedParams.id);

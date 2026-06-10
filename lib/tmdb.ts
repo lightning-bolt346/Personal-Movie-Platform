@@ -28,7 +28,7 @@ export async function fetchTMDB<T>(
     try {
       const isSearch = path.startsWith('/search');
       const res = await fetch(url, {
-        next: { revalidate: isSearch ? 0 : 3600 },
+        next: { revalidate: isSearch ? 0 : 86400 },
         signal: controller.signal,
       });
       

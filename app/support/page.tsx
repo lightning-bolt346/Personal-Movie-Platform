@@ -6,43 +6,12 @@ import { Copy, Check, Heart, ShieldCheck, Gem } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import Link from 'next/link';
 
-const BtcIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-    <path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.892 4.531-5.606-2.083-7.539-6.307-6.22l-.946-5.362-2.122.374.939 5.318c-3.142.92-2.88 1.406-2.88 1.406l1.378 1.956.883 5.011s-.81 1.258-3.056.862l1.642 2.33 1.054 5.96 2.123-.374-1.026-5.811c3.155-.838 7.042-3.123 7.102-3.123z"/>
-  </svg>
-);
-
-const EthIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-    <path d="M11.999 3l-6.398 10.638 6.398 3.774 6.402-3.774L11.999 3zM11.999 18.577l-6.398-8.939 6.398 11.362 6.402-11.362-6.402 8.939z"/>
-  </svg>
-);
-
-const UsdtIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M8 8h8M12 8v12M12 11c-3.5 0-6-1.5-6-3.5S8.5 4 12 4s6 1.5 6 3.5S15.5 11 12 11z"/>
-  </svg>
-);
-
-const UsdcIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 8v8M10.5 9.5c-.8-.5-1.5-.5-1.5.5s1 1.5 3 2 1.5 1 1.5 2-.5 1.5-1.5 1.5M9 14.5c.5.8 1.5.5 1.5-.5" />
-  </svg>
-);
-
-const BnbIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M12 2l-5 5 5 5 5-5-5-5zM6 8l-5 5 5 5 5-5-5-5zM18 8l-5 5 5 5 5-5-5-5zM12 14l-5 5 5 5 5-5-5-5z"/>
-  </svg>
-);
-
 const WALLETS = [
-  { id: 'usdt', label: 'USDT', network: 'Polygon', icon: <UsdtIcon />, color: '#8247E5', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
-  { id: 'usdc', label: 'USDC', network: 'Polygon', icon: <UsdcIcon />, color: '#2775CA', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
-  { id: 'eth',  label: 'ETH',  network: 'Ethereum',icon: <EthIcon />, color: '#627EEA', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
-  { id: 'btc',  label: 'BTC',  network: 'Bitcoin', icon: <BtcIcon />, color: '#F7931A', address: 'bc1q7rdc229skeumz0tfecmqnajhkw9s97ttrl0hgq' },
-  { id: 'bnb',  label: 'BNB',  network: 'BNB Smart Chain', icon: <BnbIcon />, color: '#F3BA2F', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
+  { id: 'usdt', label: 'USDT', network: 'Polygon', icon: <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" width="20" height="20" alt="USDT" />, color: '#8247E5', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
+  { id: 'usdc', label: 'USDC', network: 'Polygon', icon: <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdc.svg" width="20" height="20" alt="USDC" />, color: '#2775CA', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
+  { id: 'eth',  label: 'ETH',  network: 'Ethereum',icon: <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" width="20" height="20" alt="ETH" />, color: '#627EEA', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
+  { id: 'btc',  label: 'BTC',  network: 'Bitcoin', icon: <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" width="20" height="20" alt="BTC" />, color: '#F7931A', address: 'bc1q7rdc229skeumz0tfecmqnajhkw9s97ttrl0hgq' },
+  { id: 'bnb',  label: 'BNB',  network: 'BNB Smart Chain', icon: <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" width="20" height="20" alt="BNB" />, color: '#F3BA2F', address: '0xba3898d8b3d232111a2193c4d330e53cf4cf38cd' },
 ];
 
 export default function SupportPage() {

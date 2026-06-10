@@ -6,7 +6,26 @@ import { LegalBanner } from '@/components/ui/LegalBanner';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { generateSlug, getSiteUrl } from '@/lib/utils';
 
-export const revalidate = 3600; // 1 hour ISR
+export const revalidate = 86400; // 24 hour ISR
+
+export async function generateStaticParams() {
+  try {
+    const trending = await tmdb.getTrending('tv');
+    const popular = await tmdb.getPopular('tv');
+    
+    const allShows = [...(trending.results || []), ...(popular.results || [])];
+    const uniqueIds = Array.from(new Set(allShows.map(m => m.id)));
+
+    return uniqueIds.map((id) => {
+      const show = allShows.find(m => m.id === id);
+      return {
+        id: generateSlug(id.toString(), show?.name || show?.title || ''),
+      };
+    });
+  } catch (error) {
+    return [];
+  }
+}
 
 const siteUrl = getSiteUrl();
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { X, Play, ShieldCheck, Heart, Share2, Star, Gem, Coffee } from 'lucide-react';
 import { ShareModal } from '@/components/ui/ShareModal';
+import { DonationModal } from '@/components/ui/DonationModal';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/tmdb';
@@ -65,6 +66,7 @@ const TRENDING_PICKS = [
 export function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showDonationModal, setShowDonationModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [randomPick, setRandomPick] = useState(TRENDING_PICKS[0]);
 
@@ -76,7 +78,7 @@ export function WelcomeModal() {
     const hasSeen = localStorage.getItem('zivox_welcome_v4');
     if (!hasSeen) {
       localStorage.setItem('zivox_welcome_v4', 'true');
-      const timer = setTimeout(() => setIsOpen(true), 1500);
+      const timer = setTimeout(() => setIsOpen(true), 5000);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -194,7 +196,7 @@ export function WelcomeModal() {
                         Keep ZIVOX Alive <span className="text-[9px] md:text-[10px] bg-brand-500/20 text-brand-400 px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Optional</span>
                       </h4>
                       <p className="text-zinc-400 text-xs mt-1 md:mt-1.5 leading-relaxed hidden sm:block">We refuse to run ads. We pay heavily out of pocket to keep our servers lightning fast. If you love this project, consider making a small donation to help us survive.</p>
-                      <button type="button" onClick={(e) => e.preventDefault()} className="inline-flex items-center gap-1.5 md:gap-2 mt-1 sm:mt-2 md:mt-4 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors cursor-default">
+                      <button type="button" onClick={(e) => { e.preventDefault(); setShowDonationModal(true); }} className="inline-flex items-center gap-1.5 md:gap-2 mt-1 sm:mt-2 md:mt-4 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors cursor-pointer">
                         <Coffee size={14} /> Donate to Server Costs <span aria-hidden="true">→</span>
                       </button>
                     </div>
@@ -233,6 +235,11 @@ export function WelcomeModal() {
         onClose={() => setShowShareModal(false)}
         title="ZIVOX - Premium Ad-Free Streaming"
         shareUrl={typeof window !== 'undefined' ? window.location.origin : undefined}
+      />
+
+      <DonationModal
+        isOpen={showDonationModal}
+        onClose={() => setShowDonationModal(false)}
       />
     </>
   );

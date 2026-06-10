@@ -90,7 +90,7 @@ export function FilterableContent({ sections }: { sections: { title: string; ite
           })}
         </div>
         {/* Right edge fade gradient mask */}
-        <div className="absolute right-0 top-0 bottom-0 w-16 pointer-events-none bg-gradient-to-l from-[#050505] to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 pointer-events-none bg-gradient-to-l from-[#0a0a0f] to-transparent z-10" />
       </div>
 
       {/* Content */}

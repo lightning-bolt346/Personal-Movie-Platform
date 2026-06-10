@@ -12,6 +12,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SecurityGuard } from '@/components/ui/SecurityGuard';
 import { ThemePromptModal } from "@/components/ui/ThemePromptModal";
+import { GlobalDonationVerifier } from '@/components/ui/GlobalDonationVerifier';
 import { getSiteUrl } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -207,6 +208,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollToTop />
         <WelcomeModal />
         <ThemePromptModal />
+        <GlobalDonationVerifier />
         <NotificationToaster />
         <SecurityGuard />
         <Analytics />

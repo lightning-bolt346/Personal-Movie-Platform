@@ -61,9 +61,7 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
           <div className="w-1.5 h-7 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 12px ${provider.color}80` }} />
           
           <Link href={`/providers/${provider.slug}`} className="group flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="relative w-16 h-7 hidden sm:block">
-              <Image src={provider.logo} alt={provider.name} fill className="object-contain object-left" />
-            </div>
+            <img src={provider.logo} alt={provider.name} className="h-7 w-auto object-contain hidden sm:block" />
             <h2 className="text-lg md:text-xl font-display font-bold text-white tracking-tight flex items-center gap-2">
               {title}
               <ArrowRight size={18} className="opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" style={{ color: provider.color }} />
@@ -80,48 +78,50 @@ export function ProviderHeroShelf({ provider, title, items }: ProviderHeroShelfP
         </Link>
       </div>
 
-      {/* Scroll buttons */}
-      <button
-        onClick={() => scroll('left')}
-        aria-label="Scroll left"
-        className={`absolute left-4 md:left-14 top-[55%] -translate-y-1/2 z-30 w-10 h-10
-          flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
-          ${canScrollLeft ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
-      >
-        <ChevronLeft size={20} className="text-white" />
-      </button>
-      <button
-        onClick={() => scroll('right')}
-        aria-label="Scroll right"
-        className={`absolute right-4 md:right-14 top-[55%] -translate-y-1/2 z-30 w-10 h-10
-          flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
-          ${canScrollRight ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
-      >
-        <ChevronRight size={20} className="text-white" />
-      </button>
+      <div className="relative group/scroll">
+        {/* Scroll buttons */}
+        <button
+          onClick={() => scroll('left')}
+          aria-label="Scroll left"
+          className={`absolute left-4 md:left-14 top-1/2 -translate-y-1/2 z-30 w-10 h-10
+            flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
+            ${canScrollLeft ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/scroll:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
+          style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
+        >
+          <ChevronLeft size={20} className="text-white" />
+        </button>
+        <button
+          onClick={() => scroll('right')}
+          aria-label="Scroll right"
+          className={`absolute right-4 md:right-14 top-1/2 -translate-y-1/2 z-30 w-10 h-10
+            flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
+            ${canScrollRight ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/scroll:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
+          style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
+        >
+          <ChevronRight size={20} className="text-white" />
+        </button>
 
-      {/* Edge fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to right, #000 0%, transparent 100%)', opacity: canScrollLeft ? 1 : 0 }} />
-      <div className="absolute right-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to left, #000 0%, transparent 100%)', opacity: canScrollRight ? 1 : 0 }} />
+        {/* Edge fades */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 z-20 pointer-events-none transition-opacity duration-300"
+          style={{ background: 'linear-gradient(to right, #0a0a0f, transparent)', opacity: canScrollLeft ? 1 : 0 }} />
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-20 pointer-events-none transition-opacity duration-300"
+          style={{ background: 'linear-gradient(to left, #0a0a0f, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
-      {/* Scroll container */}
-      <div
-        ref={scrollRef}
-        onScroll={checkScroll}
-        onPointerDown={() => setHasInteracted(true)}
-        className="w-full overflow-x-auto no-scrollbar scroll-smooth"
-        style={{ overscrollBehaviorX: 'contain', touchAction: 'pan-x' }}
-      >
-        <div className="flex gap-3 md:gap-4 px-4 md:px-14 pb-8 w-max">
-          {items.map((item, index) => (
-            <div key={`${item.id}-${index}`} className="w-[140px] sm:w-[160px] md:w-[200px] lg:w-[220px] shrink-0">
-              <MediaCard media={item} />
-            </div>
-          ))}
+        {/* Scroll container */}
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          onPointerDown={() => setHasInteracted(true)}
+          className="w-full overflow-x-auto no-scrollbar scroll-smooth"
+          style={{ overscrollBehaviorX: 'contain', touchAction: 'pan-x' }}
+        >
+          <div className="flex gap-3 md:gap-4 px-4 md:px-14 pb-8 w-max">
+            {items.map((item, index) => (
+              <div key={`${item.id}-${index}`} className="w-[140px] sm:w-[160px] md:w-[200px] lg:w-[220px] shrink-0">
+                <MediaCard media={item} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

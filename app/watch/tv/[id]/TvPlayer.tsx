@@ -252,15 +252,36 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
   return (
     <div className="flex flex-col gap-8 md:gap-12 w-full max-w-7xl mx-auto px-4 py-6 md:py-8">
-      <button
-        onClick={() => {
-          if (isPlaying) setIsPlaying(false);
-          else router.back();
-        }}
-        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors w-fit -mb-2 md:-mb-6 min-h-[44px] px-1 md:px-0 rounded-xl active:bg-white/5 md:active:bg-transparent"
-      >
-        <ArrowLeft size={20} /> <span className="font-bold text-sm">Back</span>
-      </button>
+      {/* Back button & Watching Indicator */}
+      <div className="flex flex-wrap items-center gap-3 w-full -mb-2 md:-mb-6">
+        <button
+          onClick={() => {
+            if (isPlaying) setIsPlaying(false);
+            else router.back();
+          }}
+          className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors min-h-[44px] px-2 rounded-xl active:bg-white/5 md:active:bg-transparent shrink-0"
+        >
+          <ArrowLeft size={20} /> 
+          <span className="font-bold text-sm">
+            {isPlaying ? 'Back to Details' : 'Back'}
+          </span>
+        </button>
+
+        {isPlaying && (
+          <>
+            <span className="text-zinc-700 font-light select-none">|</span>
+            <span className="text-zinc-400 text-xs sm:text-sm font-medium truncate max-w-[280px] sm:max-w-xl">
+              Watching: <span className="text-amber-400 font-bold">{show.name}</span>
+              <span className="text-zinc-500 font-semibold ml-2">S{season}:E{episode}</span>
+              {episodes.find(ep => ep.episode_number === episode)?.name && (
+                <span className="text-zinc-600 font-normal ml-1.5 hidden sm:inline">
+                  - {episodes.find(ep => ep.episode_number === episode).name}
+                </span>
+              )}
+            </span>
+          </>
+        )}
+      </div>
       {/* ── FULLY UPCOMING: UpcomingBanner only ── */}
       {tvState === 'fully_upcoming' && (
         <UpcomingBanner media={show} meta={meta} />
@@ -282,9 +303,8 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
               {/* Sticky player on mobile */}
               <div className="sticky top-[56px] md:static z-30 md:z-auto">
               <div className="relative w-full max-w-5xl mx-auto">
-                {/* Dynamic YouTube-style ambient backlight */}
                 <div
-                  className="absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1]"
+                  className={`absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1] ${isPlaying ? 'hidden' : 'opacity-100'}`}
                   style={{ backgroundColor: bgColor }}
                 />
                 <div
@@ -301,6 +321,12 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                         title={show.name || ''}
                         onPlayingChange={setBgTrailerPlaying}
                       />
+                      {bgTrailerPlaying && (
+                        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 border border-white/10 backdrop-blur-md text-white/70 text-[9px] font-bold uppercase tracking-widest select-none pointer-events-none shadow-lg">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          Trailer Playing
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
                       <button
                         onClick={(e) => {

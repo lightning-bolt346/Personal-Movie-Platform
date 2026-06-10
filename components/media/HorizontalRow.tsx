@@ -81,68 +81,70 @@ export function HorizontalRow({ title, subtitle, items, seeAllHref, variant = 'd
         className="!mt-0 !mb-3"
       />
 
-      {/* Scroll buttons */}
-      <button
-        onClick={() => scroll('left')}
-        aria-label="Scroll left"
-        className={`absolute left-4 md:left-14 top-[55%] -translate-y-1/2 z-30 w-10 h-10
-          flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
-          ${canScrollLeft ? 'opacity-0 md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
-      >
-        <ChevronLeft size={20} className="text-white" />
-      </button>
-      <button
-        onClick={() => scroll('right')}
-        aria-label="Scroll right"
-        className={`absolute right-4 md:right-14 top-[55%] -translate-y-1/2 z-30 w-10 h-10
-          flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
-          ${canScrollRight ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/row:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
-      >
-        <ChevronRight size={20} className="text-white" />
-      </button>
+      <div className="relative group/scroll">
+        {/* Scroll buttons */}
+        <button
+          onClick={() => scroll('left')}
+          aria-label="Scroll left"
+          className={`absolute left-4 md:left-14 top-1/2 -translate-y-1/2 z-30 w-10 h-10
+            flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
+            ${canScrollLeft ? 'opacity-0 md:opacity-0 md:group-hover/scroll:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
+          style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
+        >
+          <ChevronLeft size={20} className="text-white" />
+        </button>
+        <button
+          onClick={() => scroll('right')}
+          aria-label="Scroll right"
+          className={`absolute right-4 md:right-14 top-1/2 -translate-y-1/2 z-30 w-10 h-10
+            flex items-center justify-center rounded-full transition-[opacity,transform] duration-200
+            ${canScrollRight ? (hasInteracted ? 'opacity-100' : 'opacity-0') + ' md:opacity-0 md:group-hover/scroll:opacity-100 hover:scale-110 active:scale-95' : 'opacity-0 pointer-events-none'}`}
+          style={{ background: 'rgba(6,6,6,0.9)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.6)' }}
+        >
+          <ChevronRight size={20} className="text-white" />
+        </button>
 
-      {/* Edge fades */}
-      <div className="absolute right-0 top-[60px] bottom-0 w-16 z-20 pointer-events-none transition-opacity duration-300"
-        style={{ background: 'linear-gradient(to left, #050505, transparent)', opacity: canScrollRight ? 1 : 0 }} />
+        {/* Edge fades */}
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-20 pointer-events-none transition-opacity duration-300"
+          style={{ background: 'linear-gradient(to left, #0a0a0f, transparent)', opacity: canScrollRight ? 1 : 0 }} />
 
-      {/* Scroll track */}
-      <div
-        ref={scrollRef}
-        onScroll={checkScroll}
-        onTouchStart={() => setHasInteracted(true)}
-        className="flex gap-3 md:gap-4 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth overscroll-x-contain"
-        style={{
-          paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)',
-          paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)',
-          paddingTop: '8px',
-          paddingBottom: '24px',
-        }}
-      >
-        {items.map((item, idx) => (
-          <div
-            key={`${item.id}-${idx}`}
-            className="relative flex-shrink-0 snap-start"
-            style={{ width: 'clamp(140px, 15vw, 190px)' }}
-          >
-            {variant === 'numbered' && (
-              <span
-                className="absolute -left-3 bottom-[52px] z-10 font-display font-black leading-none select-none pointer-events-none"
-                style={{
-                  fontSize: 'clamp(3rem, 8vw, 5rem)',
-                  color: 'transparent',
-                  WebkitTextStroke: '2px rgba(255,255,255,0.25)',
-                  lineHeight: 1,
-                }}
-              >
-                {idx + 1}
-              </span>
-            )}
-            <MediaCard media={item} />
-          </div>
-        ))}
-        <div className="flex-shrink-0 w-4 md:w-8" aria-hidden="true" />
+        {/* Scroll track */}
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          onTouchStart={() => setHasInteracted(true)}
+          className="flex gap-3 md:gap-4 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth overscroll-x-contain"
+          style={{
+            paddingLeft: 'clamp(1rem, 3.5vw, 3.5rem)',
+            paddingRight: 'clamp(1rem, 3.5vw, 3.5rem)',
+            paddingTop: '8px',
+            paddingBottom: '24px',
+          }}
+        >
+          {items.map((item, idx) => (
+            <div
+              key={`${item.id}-${idx}`}
+              className="relative flex-shrink-0 snap-start"
+              style={{ width: 'clamp(140px, 15vw, 190px)' }}
+            >
+              {variant === 'numbered' && (
+                <span
+                  className="absolute -left-3 bottom-[52px] z-10 font-display font-black leading-none select-none pointer-events-none"
+                  style={{
+                    fontSize: 'clamp(3rem, 8vw, 5rem)',
+                    color: 'transparent',
+                    WebkitTextStroke: '2px rgba(255,255,255,0.25)',
+                    lineHeight: 1,
+                  }}
+                >
+                  {idx + 1}
+                </span>
+              )}
+              <MediaCard media={item} />
+            </div>
+          ))}
+          <div className="flex-shrink-0 w-4 md:w-8" aria-hidden="true" />
+        </div>
       </div>
     </section>
   );

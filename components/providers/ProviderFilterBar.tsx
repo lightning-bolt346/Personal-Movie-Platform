@@ -4,6 +4,7 @@ import { Filter } from 'lucide-react';
 import { Provider } from '@/lib/providers';
 import { useState } from 'react';
 import { usePreferences } from '@/hooks/usePreferences';
+import { getContrastColor } from '@/lib/utils';
 
 interface ProviderFilterBarProps {
   provider: Provider;
@@ -106,7 +107,7 @@ export function ProviderFilterBar({ provider }: ProviderFilterBarProps) {
                 className="px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
                 style={{
                   backgroundColor: isActive ? provider.color : 'transparent',
-                  color: isActive ? '#fff' : 'rgba(255,255,255,0.5)',
+                  color: isActive ? getContrastColor(provider.color) : 'rgba(255,255,255,0.5)',
                 }}
               >
                 {t.label}
@@ -197,8 +198,8 @@ export function ProviderFilterBar({ provider }: ProviderFilterBarProps) {
             </div>
 
             <button 
-              className="w-full py-4 rounded-xl text-white font-bold mt-4"
-              style={{ backgroundColor: provider.color }}
+              className="w-full py-4 rounded-xl font-bold mt-4 transition-colors hover:brightness-110"
+              style={{ backgroundColor: provider.color, color: getContrastColor(provider.color) }}
               onClick={() => setIsMobileDrawerOpen(false)}
             >
               Apply Filters

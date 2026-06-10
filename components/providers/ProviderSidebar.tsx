@@ -5,6 +5,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { Film, Tv, Globe, Search, X } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { CustomDropdown } from '@/components/ui/CustomDropdown';
+import { getContrastColor } from '@/lib/utils';
 
 interface ProviderSidebarProps {
   provider: Provider;
@@ -151,9 +152,9 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
             <button
               onClick={() => updateParam('type', 'movie')}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeType === 'movie' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/80'
+                activeType === 'movie' ? 'shadow-sm' : 'text-white/40 hover:text-white/80'
               }`}
-              style={activeType === 'movie' ? { backgroundColor: provider.color } : {}}
+              style={activeType === 'movie' ? { backgroundColor: provider.color, color: getContrastColor(provider.color) } : {}}
             >
               <Film size={16} /> Movies
             </button>
@@ -162,9 +163,9 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
             <button
               onClick={() => updateParam('type', 'tv')}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeType === 'tv' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/80'
+                activeType === 'tv' ? 'shadow-sm' : 'text-white/40 hover:text-white/80'
               }`}
-              style={activeType === 'tv' ? { backgroundColor: provider.color } : {}}
+              style={activeType === 'tv' ? { backgroundColor: provider.color, color: getContrastColor(provider.color) } : {}}
             >
               <Tv size={16} /> Series
             </button>
@@ -184,10 +185,10 @@ export function ProviderSidebar({ provider }: ProviderSidebarProps) {
                 onClick={() => updateParam('region', chip.id)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
                   isActive 
-                    ? 'border-transparent text-white' 
+                    ? 'border-transparent' 
                     : 'border-white/10 bg-zinc-900/40 text-white/60 hover:bg-zinc-800 hover:text-white'
                 }`}
-                style={isActive ? { backgroundColor: provider.color } : {}}
+                style={isActive ? { backgroundColor: provider.color, color: getContrastColor(provider.color) } : {}}
                 title={chip.label}
               >
                 <span>{chip.flag}</span>

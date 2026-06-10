@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: 'Anime', href: '/anime' },
   { label: 'Discover', href: '/discover' },
   { label: 'Search', href: '/search' },
+  { label: 'Support Us', href: '/support' },
   { label: 'About', href: '/about' },
   { label: 'Blog', href: '/blog' },
   { label: 'Profile', href: '/profile' },

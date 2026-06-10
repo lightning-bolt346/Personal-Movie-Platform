@@ -8,17 +8,18 @@ import { Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAutoLocation } from '@/hooks/useAutoLocation';
 import { useRef } from 'react';
+import { DonationButton } from '@/components/ui/DonationButton';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/movies', label: 'Movies' },
   { href: '/tv', label: 'Series' },
   { href: '/anime', label: 'Anime' },
-  { href: '/discover', label: 'Discover' },
+  { href: '/schedule', label: 'Schedule' },
 ];
 
 const BROWSE_ITEMS = [
-  { href: '/schedule', label: 'Schedule' },
+  { href: '/discover', label: 'Discover' },
   { href: '/collections', label: 'Collections' },
   { href: '/blog', label: 'Blog' },
   { href: '/providers', label: 'Providers' },
@@ -205,6 +206,7 @@ export function Navbar() {
         </Link>
         <div className="flex items-center gap-4 z-10">
           <Link href="/search" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Search size={20} strokeWidth={2.5} /></Link>
+          <DonationButton />
           <button onClick={() => setIsSettingsOpen(true)} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Settings size={20} strokeWidth={2.5} /></button>
           <Link href="/profile" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><User size={20} strokeWidth={2.5} /></Link>
         </div>
@@ -395,6 +397,7 @@ export function Navbar() {
                 )}
               </AnimatePresence>
             </div>
+            <DonationButton />
             <Link
               href="/search"
               onClick={clearIframes}

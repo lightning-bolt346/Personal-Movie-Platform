@@ -11,6 +11,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { createPortal } from 'react-dom';
 import { PlayerToasts } from './PlayerToasts';
 import { usePreferences } from '@/hooks/usePreferences';
+import { SupportPopupModal } from '@/components/ui/SupportPopupModal';
+
 
 interface VideoPlayerProps {
   type: 'movie' | 'tv';
@@ -47,6 +49,13 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const [showShareModal, setShowShareModal] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialCountdown, setTutorialCountdown] = useState(15);
+  const [showSupportPopup, setShowSupportPopup] = useState(false);
+  const hasSupportedRef = useRef(false);
+
+  const [testingSources, setTestingSources] = useState(!initialServer);
+  const [testProgress, setTestProgress] = useState(0);
+  const [testingCurrentName, setTestingCurrentName] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -86,6 +95,16 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     try {
       const visits = parseInt(localStorage.getItem('player_visits') || '0', 10) + 1;
       localStorage.setItem('player_visits', visits.toString());
+      
+      const supportVal = localStorage.getItem('has_supported_zivox');
+      if (supportVal === 'true') {
+        hasSupportedRef.current = true;
+      } else if (supportVal) {
+        const expiry = parseInt(supportVal, 10);
+        hasSupportedRef.current = !isNaN(expiry) && Date.now() < expiry;
+      } else {
+        hasSupportedRef.current = false;
+      }
     } catch (e) {}
 
     // ── Multilingual Hint Toast ──
@@ -94,6 +113,35 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     }, 6000);
 
     return () => window.removeEventListener('resize', checkOrientation);
+  }, []);
+
+  // ── Background Crypto Transaction Validation ──
+  // Listen to global donation updates (verified / revoked)
+  useEffect(() => {
+    const handleDonationUpdate = () => {
+      try {
+        const supportVal = localStorage.getItem('has_supported_zivox');
+        if (supportVal === 'true') {
+          hasSupportedRef.current = true;
+          setShowSupportPopup(false);
+        } else if (supportVal) {
+          const expiry = parseInt(supportVal, 10);
+          const isValid = !isNaN(expiry) && Date.now() < expiry;
+          hasSupportedRef.current = isValid;
+          if (isValid) {
+            setShowSupportPopup(false);
+          } else {
+            setShowSupportPopup(true);
+          }
+        } else {
+          hasSupportedRef.current = false;
+          setShowSupportPopup(true);
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('zivox_donation_update', handleDonationUpdate);
+    return () => window.removeEventListener('zivox_donation_update', handleDonationUpdate);
   }, []);
 
   // ── Tutorial Spotlight Trigger (Delayed until blockTutorial is false) ──
@@ -109,11 +157,22 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
     }
   }, [blockTutorial]);
 
-  
-  const [testingSources, setTestingSources] = useState(!initialServer);
-  const [testProgress, setTestProgress] = useState(0);
-  const [testingCurrentName, setTestingCurrentName] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
+  // ── Support Popup Timer (2 Minutes) ──
+  useEffect(() => {
+    if (testingSources || hasSupportedRef.current) return;
+
+    const timer = setTimeout(() => {
+      if (!hasSupportedRef.current && !showSupportPopup) {
+        // Force exit native fullscreen so the user can see our React overlay
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setShowSupportPopup(true);
+      }
+    }, 120000);
+
+    return () => clearTimeout(timer);
+  }, [testingSources, showSupportPopup]);
 
   useEffect(() => {
     if (testingSources) return;
@@ -930,27 +989,6 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
           </div>
         </button>
 
-        {/* ── Copy with Timestamp */}
-        <button
-          onClick={() => {
-            const url = new URL(window.location.href);
-            url.searchParams.set('play', '1');
-            url.searchParams.set('server', encodeServer(currentSourceId));
-            url.searchParams.set('t', Math.floor(progress).toString());
-            navigator.clipboard.writeText(url.toString());
-            showToast(`Link at ${Math.floor(progress)}% on ${source.publicName} copied!`);
-            setShowShareModal(false);
-          }}
-          className="w-full flex items-center gap-3 px-4 py-3.5 bg-void-800 hover:bg-void-700 border border-zinc-700/50 rounded-2xl transition-all active:scale-[0.98] mt-2"
-        >
-          <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
-            <RotateCcw size={15} className="text-zinc-400" />
-          </div>
-          <div className="flex flex-col items-start min-w-0">
-            <span className="text-sm font-bold text-white">Copy with Timestamp</span>
-            <span className="text-[11px] text-white/40">Server + starts at {Math.floor(progress)}%</span>
-          </div>
-        </button>
       </ShareModal>
 
       {/* ── PLAYER TOP BAR ── */}
@@ -1242,7 +1280,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             <iframe
               key={`iframe-${currentSourceId}-${useSandbox ? 'sandbox' : 'nosandbox'}`}
               src={embedUrl}
-              className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
+              className={`absolute inset-0 w-full h-full border-0 transition-all duration-700 ${showSupportPopup ? 'grayscale blur-[4px] pointer-events-none opacity-40' : 'pointer-events-auto'}`}
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
               allowFullScreen
               sandbox={sandboxAttrs}
@@ -1314,6 +1352,21 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* 20-Second Support Popup */}
+        {mounted && typeof document !== 'undefined' && createPortal(
+          <SupportPopupModal
+            isOpen={showSupportPopup}
+            mediaType={type}
+            title={title}
+            onComplete={() => {
+              setShowSupportPopup(false);
+              hasSupportedRef.current = true;
+              window.dispatchEvent(new Event('zivox_donation_update'));
+            }}
+          />,
+          document.body
+        )}
       </div>
 
     </motion.div>

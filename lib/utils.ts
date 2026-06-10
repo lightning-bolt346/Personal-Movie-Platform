@@ -32,3 +32,13 @@ export function getSiteUrl(): string {
   }
   return 'http://localhost:3000';
 }
+
+export function getContrastColor(hexcolor: string): string {
+  if (!hexcolor || !hexcolor.startsWith('#')) return '#ffffff';
+  const hex = hexcolor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16) || 0;
+  const g = parseInt(hex.substr(2, 2), 16) || 0;
+  const b = parseInt(hex.substr(4, 2), 16) || 0;
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 150) ? '#000000' : '#ffffff';
+}

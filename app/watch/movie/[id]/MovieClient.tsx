@@ -96,16 +96,33 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
 
   return (
     <div className="flex flex-col gap-8 md:gap-12 w-full max-w-7xl mx-auto px-4 py-6 md:py-8">
-      {/* Back button — 44px tap target on mobile */}
-      <button
-        onClick={() => {
-          if (isPlaying) setIsPlaying(false);
-          else router.back();
-        }}
-        className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors w-fit -mb-2 md:-mb-6 min-h-[44px] px-1 md:px-0 rounded-xl active:bg-white/5 md:active:bg-transparent"
-      >
-        <ArrowLeft size={20} /> <span className="font-bold text-sm">Back</span>
-      </button>
+      {/* Back button & Watching Indicator */}
+      <div className="flex flex-wrap items-center gap-3 w-full -mb-2 md:-mb-6">
+        <button
+          onClick={() => {
+            if (isPlaying) setIsPlaying(false);
+            else router.back();
+          }}
+          className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors min-h-[44px] px-2 rounded-xl active:bg-white/5 md:active:bg-transparent shrink-0"
+        >
+          <ArrowLeft size={20} /> 
+          <span className="font-bold text-sm">
+            {isPlaying ? 'Back to Details' : 'Back'}
+          </span>
+        </button>
+
+        {isPlaying && (
+          <>
+            <span className="text-zinc-700 font-light select-none">|</span>
+            <span className="text-zinc-400 text-xs sm:text-sm font-medium truncate max-w-[280px] sm:max-w-xl">
+              Watching: <span className="text-amber-400 font-bold">{movie.title}</span>
+              {movie.release_date && (
+                <span className="text-zinc-600 text-xs ml-1">({movie.release_date.substring(0, 4)})</span>
+              )}
+            </span>
+          </>
+        )}
+      </div>
 
       <div className="flex flex-col gap-8">
         {/* ── UPCOMING: show UpcomingBanner ── */}
@@ -119,7 +136,7 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
               <div className="relative w-full max-w-5xl mx-auto">
                 {/* Dynamic YouTube-style ambient backlight */}
                 <div
-                  className="absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1]"
+                  className={`absolute inset-[-5%] md:inset-[-10%] blur-[80px] md:blur-[120px] opacity-100 transition-colors duration-1000 ease-in-out pointer-events-none z-[-1] ${isPlaying ? 'hidden' : 'opacity-100'}`}
                   style={{ backgroundColor: bgColor }}
                 />
                 <div
@@ -136,6 +153,12 @@ export function MovieClient({ movie }: { movie: MediaDetails }) {
                         title={movie.title || ''}
                         onPlayingChange={setBgTrailerPlaying}
                       />
+                      {bgTrailerPlaying && (
+                        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 border border-white/10 backdrop-blur-md text-white/70 text-[9px] font-bold uppercase tracking-widest select-none pointer-events-none shadow-lg">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          Trailer Playing
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/20 to-transparent pointer-events-none" />
                       <button
                         onClick={(e) => {

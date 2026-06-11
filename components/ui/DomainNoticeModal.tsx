@@ -30,7 +30,7 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
 
   // Lock body scroll when modal is actually displayed
   useEffect(() => {
-    const isZivoxTv = typeof window !== 'undefined' && window.location.hostname.includes('zivox-tv');
+    const isZivoxTv = typeof window !== 'undefined' && (window.location.hostname.includes('zivox-tv') || window.location.hostname.includes('zivox-streaming'));
     
     if (isOpen && !isZivoxTv) {
       document.body.style.overflow = 'hidden';
@@ -81,7 +81,7 @@ export function DomainNoticeModal({ isOpen, onClose }: DomainNoticeModalProps) {
   };
 
   if (!mounted || !isOpen) return null;
-  if (typeof window !== 'undefined' && window.location.hostname.includes('zivox-tv')) return null;
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('zivox-tv') || window.location.hostname.includes('zivox-streaming'))) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 md:p-6">

@@ -50,6 +50,15 @@ function isBlockedBot(userAgent: string): boolean {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get('host') || '';
+
+  // ─── Domain Migration Catch ─────────────────────────────────────────────────
+  // If user or bot lands on the old domain, intercept ALL routes and show the
+  // migration landing page. This instantly stops bots from spidering 5000+ links
+  // on the old domain, slashing edge requests.
+  if (hostname.includes('zivox-tv') && pathname !== '/moved') {
+    return NextResponse.rewrite(new URL('/moved', request.url));
+  }
 
   // Only apply to routes that cost real compute
   if (!isProtectedPath(pathname)) {

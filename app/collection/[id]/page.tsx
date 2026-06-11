@@ -5,6 +5,20 @@ import { generateSlug } from '@/lib/utils';
 import Image from 'next/image';
 import { BackButton } from '@/components/ui/BackButton';
 import { CollectionShareButton } from '@/components/ui/CollectionShareButton';
+import { COLLECTION_CATEGORIES } from '@/lib/collectionsData';
+
+export const revalidate = 86400; // 24h ISR — collection metadata rarely changes
+
+// ─── Pre-render All Curated Collections ──────────────────────────────────────
+// Previously 666 requests were at 0% cache. Pre-rendering every known collection
+// ID converts them all to static HTML served at zero compute cost.
+export async function generateStaticParams() {
+  // Flatten all IDs from every category and deduplicate
+  const allIds = [...new Set(Object.values(COLLECTION_CATEGORIES).flat())];
+  return allIds.map((id) => ({
+    id: id.toString(),
+  }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

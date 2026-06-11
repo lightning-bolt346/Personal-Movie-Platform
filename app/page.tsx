@@ -20,20 +20,54 @@ const ProviderHeroShelf = nextDynamic(() => import('@/components/providers/Provi
 export const revalidate = 3600;
 
 async function HomeDataFetcher() {
-  const [trending, popMovies, popTv, topMovies, topTv, popAnime, classicMovies, classicTv, underratedMovies, underratedTv, netflixData, primeData] = await Promise.all([
-    tmdb.getTrending('all'),
-    tmdb.getPopular('movie'),
-    tmdb.getPopular('tv'),
-    tmdb.getTopRated('movie'),
-    tmdb.getTopRated('tv'),
-    tmdb.getAnime('1').catch(() => ({ results: [] })),
-    tmdb.discover('movie', { 'primary_release_date.gte': '1980-01-01', 'primary_release_date.lte': '2014-12-31', 'vote_count.gte': '3000', 'sort_by': 'vote_average.desc' }),
-    tmdb.discover('tv', { 'first_air_date.gte': '1990-01-01', 'first_air_date.lte': '2014-12-31', 'vote_count.gte': '1500', 'sort_by': 'vote_average.desc' }),
-    tmdb.discover('movie', { 'vote_average.gte': '7.2', 'vote_count.gte': '300', 'vote_count.lte': '2500', 'sort_by': 'popularity.desc' }),
-    tmdb.discover('tv', { 'vote_average.gte': '7.5', 'vote_count.gte': '200', 'vote_count.lte': '2000', 'sort_by': 'popularity.desc' }),
-    tmdb.discover('movie', { with_watch_providers: '8', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-    tmdb.discover('movie', { with_watch_providers: '9', watch_region: 'US', sort_by: 'popularity.desc' }).catch(() => ({ results: [] })),
-  ]);
+  // ─── Single cached fetch replaces 12+ parallel TMDB calls ────────────────
+  // /api/home-data is cached at the CDN for 1h — this function runs at most
+  // once per hour regardless of traffic. All other requests hit CDN for free.
+  const siteUrl = getSiteUrl();
+  const homeDataUrl = `${siteUrl}/api/home-data`;
+
+  let trending: any, popMovies: any, popTv: any, topMovies: any, topTv: any;
+  let popAnime: any, classicMovies: any, classicTv: any, underratedMovies: any;
+  let underratedTv: any, netflixData: any, primeData: any;
+
+  try {
+    const res = await fetch(homeDataUrl, {
+      next: { revalidate: 3600 }, // Respect the same 1h cache window
+    });
+
+    if (!res.ok) throw new Error(`Home data fetch failed: ${res.status}`);
+
+    const data = await res.json();
+    trending = data.trending;
+    popMovies = data.popMovies;
+    popTv = data.popTv;
+    topMovies = data.topMovies;
+    topTv = data.topTv;
+    popAnime = data.popAnime ?? { results: [] };
+    classicMovies = data.classicMovies ?? { results: [] };
+    classicTv = data.classicTv ?? { results: [] };
+    underratedMovies = data.underratedMovies ?? { results: [] };
+    underratedTv = data.underratedTv ?? { results: [] };
+    netflixData = data.netflixData ?? { results: [] };
+    primeData = data.primeData ?? { results: [] };
+  } catch {
+    // Graceful fallback — individual TMDB calls if the cached route fails
+    const fallback = await Promise.all([
+      tmdb.getTrending('all'),
+      tmdb.getPopular('movie'),
+      tmdb.getPopular('tv'),
+      tmdb.getTopRated('movie'),
+      tmdb.getTopRated('tv'),
+    ]);
+    [trending, popMovies, popTv, topMovies, topTv] = fallback;
+    popAnime = { results: [] };
+    classicMovies = { results: [] };
+    classicTv = { results: [] };
+    underratedMovies = { results: [] };
+    underratedTv = { results: [] };
+    netflixData = { results: [] };
+    primeData = { results: [] };
+  }
 
   // Extract and interleave movie and tv items to ensure a balanced cinematic mix in the Hero slider
   const trendingResults = trending.results || [];
@@ -67,7 +101,7 @@ async function HomeDataFetcher() {
 
   // Fetch fresh collection data for the curated row
   const collectionsData = await getCuratedCollections();
-  const siteUrl = getSiteUrl();
+
 
   return (
     <div className="flex flex-col min-h-screen -mt-[72px]">

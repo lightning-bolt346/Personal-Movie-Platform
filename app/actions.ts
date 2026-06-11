@@ -95,7 +95,9 @@ export async function searchMedia(
       totalResults += tvRes.total_results;
     }
   } catch (err) {
-    console.error("Search fetch failed, using fallback:", err);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Search fetch failed:', err);
+    }
   }
 
   // Combine and de-duplicate by ID
@@ -103,51 +105,13 @@ export async function searchMedia(
     index === self.findIndex((t) => t.id === item.id)
   );
 
-  // If the query is short (< 4 chars) OR we found very few results (< 12), combine with fuzzy-matched trending/popular items
-  const isShortQuery = trimmedQuery.length < 4;
-  if ((isShortQuery || results.length < 12) && page === 1) {
-    try {
-      const [trendingRes, popularMovieRes, popularTvRes] = await Promise.all([
-        tmdb.getTrending("all").catch(() => ({ results: [] })),
-        tmdb.getPopular("movie").catch(() => ({ results: [] })),
-        tmdb.getPopular("tv").catch(() => ({ results: [] })),
-      ]);
-
-      const pool = [
-        ...(trendingRes.results || []),
-        ...(popularMovieRes.results || []).map(m => ({ ...m, media_type: 'movie' as const })),
-        ...(popularTvRes.results || []).map(t => ({ ...t, media_type: 'tv' as const })),
-      ];
-
-      const fuzzyMatches = pool
-        .map(item => ({
-          ...item,
-          media_type: (item.media_type === 'person' ? 'movie' : item.media_type) || (item.name ? 'tv' : 'movie') as 'movie' | 'tv' | 'person'
-        }))
-        .filter(item => {
-          const title = item.title || item.name || '';
-          return title && fuzzyMatch(title, trimmedQuery);
-        });
-
-      // Merge fuzzy matches at the front (high relevance)
-      results = [...fuzzyMatches, ...results].filter((item, index, self) =>
-        index === self.findIndex((t) => t.id === item.id)
-      );
-    } catch (e) {
-      console.error("Fuzzy fallback matching failed:", e);
-    }
-  }
-
   // Filter out 'person' media types and unreleased content
   const now = new Date().toISOString().split('T')[0];
   results = results.filter(item => {
     if (item.media_type === 'person') return false;
-    
-    // Check release dates. If in the future or completely missing (TBA), hide it.
     const releaseDate = item.release_date || item.first_air_date;
     if (!releaseDate) return false;
     if (releaseDate > now) return false;
-    
     return true;
   });
 
@@ -164,20 +128,31 @@ export async function searchMedia(
 
 export async function getSearchSuggestions(): Promise<Media[]> {
   try {
-    const res = await tmdb.getTrending("all");
+    // Use direct fetch so Next.js can cache this at the data layer (1h TTL).
+    // Previously tmdb.getTrending was called with no cache on every search page mount.
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!apiKey) return [];
+
+    const res = await fetch(
+      `https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}&language=en-US`,
+      { next: { revalidate: 3600 } } // Cache for 1 hour
+    );
+    if (!res.ok) return [];
+
+    const data = await res.json();
     const now = new Date().toISOString().split('T')[0];
-    return (res.results || []).filter(item => {
+    return ((data.results || []) as Media[]).filter((item) => {
       if (item.media_type === 'person') return false;
       const releaseDate = item.release_date || item.first_air_date;
       if (!releaseDate) return false;
       if (releaseDate > now) return false;
       return true;
     });
-  } catch (err) {
-    console.error("Failed to fetch suggestions:", err);
+  } catch {
     return [];
   }
 }
+
 
 export async function discoverMedia(type: "movie" | "tv", params: Record<string, string>) {
   return await tmdb.discover(type, params);
@@ -225,7 +200,9 @@ async function fetchTMDBWithRetry<T>(url: string, params: Record<string, string>
       return await fetchTMDB<T>(url, params);
     } catch (err) {
       if (attempt === retries) {
-        console.error(`[TMDB] Failed after ${retries + 1} attempts for ${url}:`, err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`[TMDB] Failed after ${retries + 1} attempts for ${url}:`, err);
+        }
         return null;
       }
       await new Promise(r => setTimeout(r, 600 * Math.pow(2, attempt))); // 600ms, 1.2s
@@ -321,53 +298,32 @@ export async function getCollectionsAction(ids: number[], forceProxy: boolean = 
   return data.filter(Boolean);
 }
 
-export async function getDynamicCollectionsAction(pageChunk: number) {
+// ─── getDynamicCollectionsAction ─────────────────────────────────────────────
+// REPLACED: The original version made 150+ parallel TMDB calls per invocation
+// (8 page fetches → ~150 movie detail fetches → collection fetches).
+// Now uses the static curated list — zero live TMDB calls, instant response.
+export async function getDynamicCollectionsAction(_pageChunk: number) {
   try {
-    // A chunk of 1 fetches pages 1,2,3,4. Chunk 2 fetches 5,6,7,8.
-    const startPage = (pageChunk - 1) * 4 + 1;
-    const pagePromises = [];
-    
-    // Fetch 8 pages of data simultaneously (4 popular, 4 top rated = 160 movies!)
-    for (let i = 0; i < 4; i++) {
-      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/popular', { page: String(startPage + i) }).catch(() => null));
-      pagePromises.push(fetchTMDB<TMDBResponse<Media>>('/movie/top_rated', { page: String(startPage + i) }).catch(() => null));
-    }
-    
-    const pagesData = await Promise.all(pagePromises);
-    const allMovies: Media[] = [];
-    pagesData.forEach(p => {
-      if (p && p.results) allMovies.push(...p.results);
-    });
-    
-    // Deduplicate movies to prevent redundant API calls
-    const uniqueMovies = Array.from(new Map(allMovies.map(m => [m.id, m])).values());
-    
-    // 🔥 MASSIVE PARALLEL FETCH: Get full details for ~150 movies simultaneously
-    const movieDetailsPromises = uniqueMovies.map(m => fetchTMDB<any>(`/movie/${m.id}`).catch(() => null));
-    const movieDetails = await Promise.all(movieDetailsPromises);
-    
-    // Extract unique hidden collections
-    const collectionIds = new Set<number>();
-    movieDetails.forEach(movie => {
-      if (movie && movie.belongs_to_collection) {
-        collectionIds.add(movie.belongs_to_collection.id);
-      }
-    });
-    
-    // Fetch the actual collection payloads
-    const collectionsData = await getCollectionsAction(Array.from(collectionIds), true);
-    
-    // Sort collections by popularity or movie count to make them look good
-    const sortedCollections = collectionsData.sort((a, b) => (b.parts?.length || 0) - (a.parts?.length || 0));
-    
+    const { getCuratedCollections } = await import('@/lib/collectionsData');
+    const collections = await getCuratedCollections();
+
+    // Map to the shape the collections page expects
+    const results = collections.map(c => ({
+      id: c.id,
+      name: c.name,
+      backdrop_path: c.backdrop,
+      poster_path: c.poster,
+      overview: c.tagline,
+      parts: Array.from({ length: c.movieCount }), // length hint for UI
+    }));
+
     return {
-      page: pageChunk,
-      results: sortedCollections,
-      total_pages: 50 // Arbitrarily high limit for infinite scrolling
+      page: 1,
+      results,
+      total_pages: 1, // Static — no infinite scroll needed
     };
-  } catch (e) {
-    console.error("Dynamic collections failed:", e);
-    return { page: pageChunk, results: [], total_pages: 50 };
+  } catch {
+    return { page: 1, results: [], total_pages: 1 };
   }
 }
 
@@ -413,7 +369,9 @@ export async function searchCollectionsAction(query: string, page: number = 1) {
         });
       }
     } catch (e) {
-      console.error("Supercharged search failed gracefully:", e);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Supercharged search failed:', e);
+      }
       finalCollections = nativeResults; // fallback
     }
   } else {
@@ -474,7 +432,9 @@ export async function discoverGlobalProviderAction(
       total_results: uniqueResults.length
     };
   } catch (e) {
-    console.error("Global provider fetch failed:", e);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Global provider fetch failed:', e);
+    }
     return { page: 1, results: [], total_pages: 1, total_results: 0 };
   }
 }
@@ -536,7 +496,9 @@ export async function searchProviderAction(
       total_results: searchRes.total_results // Note: this is the unfiltered total, used for pagination boundary
     };
   } catch (e) {
-    console.error("Provider search failed:", e);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Provider search failed:', e);
+    }
     return { page: 1, results: [], total_pages: 1, total_results: 0 };
   }
 }

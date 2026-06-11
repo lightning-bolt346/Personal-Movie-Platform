@@ -20,31 +20,37 @@ export async function fetchTMDB<T>(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-  const timeString = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits: 3 });
-  const endpoint = path + (Object.keys(params).length ? '?' + queryString : '');
+  // ── Revalidation strategy ────────────────────────────────────────────────
+  // - Search endpoints: revalidate=0 (always fresh, user-specific)
+  // - Trending/popular/discover: 86400s (24h) — data changes daily at most
+  // - Details pages: 86400s (24h) — safe to cache, ISR handles freshness
+  // This is what converts 121K live TMDB calls → cached CDN responses.
+  const isSearch = path.startsWith('/search');
+  const revalidateSeconds = isSearch ? 0 : 86400;
 
   const executeFetch = async (baseUrl: string, isFallback = false): Promise<T> => {
     const url = `${baseUrl}${path}?${queryString}`;
     try {
-      const isSearch = path.startsWith('/search');
       const res = await fetch(url, {
-        next: { revalidate: isSearch ? 0 : 86400 },
+        next: { revalidate: revalidateSeconds },
         signal: controller.signal,
       });
-      
+
       if (!res.ok) {
-        throw new Error(`TMDB API Error: ${res.statusText}`);
+        throw new Error(`TMDB API Error: ${res.status} ${res.statusText}`);
       }
-      
-      if (isFallback) {
-        console.log(`\x1b[33m[${timeString}] ⚠️ TMDB API FALLBACK SUCCESS: ${endpoint}\x1b[0m`);
-      } else {
-        console.log(`\x1b[32m[${timeString}] ✅ TMDB API SUCCESS: ${endpoint}\x1b[0m`);
+
+      // Development-only logging — never runs in production (saves 121K log writes/12h)
+      if (process.env.NODE_ENV === 'development') {
+        const tag = isFallback ? '⚠️ FALLBACK' : '✅';
+        console.log(`[TMDB ${tag}] ${path}`);
       }
-      return res.json();
-    } catch (err: any) {
-      if (isFallback || options.forceProxy) {
-        console.log(`\x1b[31m[${timeString}] ❌ TMDB API FAILED: ${endpoint} | Reason: ${err.message || 'Timeout/Network Error'}\x1b[0m`);
+
+      return res.json() as Promise<T>;
+    } catch (err: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        console.error(`[TMDB ❌] ${path} | ${msg}`);
       }
       throw err;
     }
@@ -58,7 +64,7 @@ export async function fetchTMDB<T>(
     }
   } catch (err) {
     if (!options.forceProxy) {
-      console.log(`\x1b[33m[${timeString}] 🔄 TMDB API RETRYING WITH PROXY: ${endpoint}\x1b[0m`);
+      // Primary TMDB API failed — silently fall back to proxy
       return await executeFetch(PROXY_BASE_URL, true);
     }
     throw err;

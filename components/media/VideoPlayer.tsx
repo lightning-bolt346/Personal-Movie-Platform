@@ -56,6 +56,10 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
   const [testProgress, setTestProgress] = useState(0);
   const [testingCurrentName, setTestingCurrentName] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectProgress, setConnectProgress] = useState(0);
+  const [networkSpeed, setNetworkSpeed] = useState<'fast' | 'medium' | 'slow'>('medium');
+  const connectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const connectIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -176,9 +180,44 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
   useEffect(() => {
     if (testingSources) return;
+
+    // ── Detect network speed to tune animation duration ──
+    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    let speed: 'fast' | 'medium' | 'slow' = 'medium';
+    if (connection) {
+      const rtt = connection.rtt || 150;
+      const downlink = connection.downlink || 5;
+      if (rtt < 80 && downlink > 10) speed = 'fast';
+      else if (rtt > 250 || downlink < 2) speed = 'slow';
+    }
+    setNetworkSpeed(speed);
+
+    // Duration adapts to network: fast=8s, medium=12s, slow=20s
+    // Iframe loads content in bg during this time so it's ready when anim ends
+    const duration = speed === 'fast' ? 8000 : speed === 'slow' ? 20000 : 12000;
+
     setIsConnecting(true);
-    const t = setTimeout(() => setIsConnecting(false), 4000);
-    return () => clearTimeout(t);
+    setConnectProgress(0);
+
+    // Smooth progress bar that fills over the duration
+    const step = 100 / (duration / 120); // tick every 120ms
+    connectIntervalRef.current = setInterval(() => {
+      setConnectProgress(p => {
+        if (p >= 95) return p; // Hold at 95% — jump to 100 when done
+        return Math.min(95, p + step);
+      });
+    }, 120);
+
+    connectTimerRef.current = setTimeout(() => {
+      setConnectProgress(100);
+      if (connectIntervalRef.current) clearInterval(connectIntervalRef.current);
+      setTimeout(() => setIsConnecting(false), 400); // Brief 100% flash
+    }, duration);
+
+    return () => {
+      if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
+      if (connectIntervalRef.current) clearInterval(connectIntervalRef.current);
+    };
   }, [currentSourceId, testingSources]);
 
   // Auto-scroll active server tab into view
@@ -1217,7 +1256,6 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
 
         {testingSources ? (
           <div className="absolute inset-0 z-40 bg-void-950 flex flex-col items-center justify-center p-4 text-center overflow-hidden">
-            {/* Blurred poster background for context */}
             {poster && (
               <div
                 className="absolute inset-0 opacity-20 pointer-events-none"
@@ -1233,7 +1271,6 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
             <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/70 to-void-950/50 pointer-events-none" />
             
             <div className="relative z-10 flex flex-col items-center gap-5 max-w-xs w-full">
-              {/* Crimson pulse ring */}
               <div className="relative">
                 <div
                   className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-brand-500/30 border-t-brand-500 animate-spin"
@@ -1257,7 +1294,6 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
                 </p>
               </div>
               
-              {/* Scanning bar */}
               <div className="w-full max-w-[200px]">
                 <div className="flex justify-between text-[9px] sm:text-[10px] font-mono text-zinc-600 mb-1.5 uppercase tracking-widest">
                   <span>Scanning</span>
@@ -1277,45 +1313,135 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
           </div>
         ) : (
           <>
+            {/* ── IFRAME — always rendered so content loads in background ──────────
+                During isConnecting, the iframe is invisible (opacity-0) but still
+                loading content. By the time the animation finishes, the video is ready.
+            */}
             <iframe
               key={`iframe-${currentSourceId}-${useSandbox ? 'sandbox' : 'nosandbox'}`}
               src={embedUrl}
-              className={`absolute inset-0 w-full h-full border-0 transition-all duration-700 ${showSupportPopup ? 'grayscale blur-[4px] pointer-events-none opacity-40' : 'pointer-events-auto'}`}
+              className={`absolute inset-0 w-full h-full border-0 transition-all duration-700 ${
+                isConnecting
+                  ? 'opacity-0 pointer-events-none'
+                  : showSupportPopup
+                    ? 'grayscale blur-[4px] pointer-events-none opacity-40'
+                    : 'pointer-events-auto opacity-100'
+              }`}
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
               allowFullScreen
               sandbox={sandboxAttrs}
             />
-            {/* 4-Second "Connecting" Overlay */}
+
+            {/* ── CONNECTING ANIMATION OVERLAY ─────────────────────────────────
+                Shows while the iframe loads in the background.
+                Duration: 8s (fast network) / 12s (medium) / 20s (slow).
+                Progress bar reflects real time elapsed so user knows it's working.
+            */}
             <AnimatePresence>
               {isConnecting && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0 z-30 bg-void-950 flex flex-col items-center justify-center p-4 text-center pointer-events-none"
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0 z-30 bg-void-950 flex flex-col items-center justify-center p-4 text-center pointer-events-none overflow-hidden"
                 >
+                  {/* Blurred poster background */}
                   {poster && (
                     <div
-                      className="absolute inset-0 opacity-10"
+                      className="absolute inset-0 opacity-[0.07]"
                       style={{
                         backgroundImage: `url(https://image.tmdb.org/t/p/w500${poster})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        filter: 'blur(30px) saturate(1.2)',
+                        filter: 'blur(50px) saturate(2)',
+                        transform: 'scale(1.15)',
                       }}
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-void-950 to-void-950/50" />
-                  
-                  <div className="relative z-10 flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 rounded-full border-2 border-brand-500/20 border-t-brand-500 animate-spin" style={{ animationDuration: '0.8s' }} />
-                    <div>
-                      <h3 className="text-sm font-bold font-display uppercase tracking-widest text-white mb-1">
-                        Connecting to Server
-                      </h3>
-                      <p className="text-[10px] text-zinc-400">
-                        Loading <span className="text-brand-400 font-bold">{source.publicName}</span> secure connection...
+                  <div className="absolute inset-0 bg-gradient-to-t from-void-950 via-void-950/80 to-void-950/60" />
+
+                  <div className="relative z-10 flex flex-col items-center gap-5 w-full max-w-[280px] sm:max-w-sm">
+                    {/* Animated server ring */}
+                    <div className="relative flex items-center justify-center">
+                      {/* Outer pulse ring */}
+                      <motion.div
+                        className="absolute w-24 h-24 rounded-full border border-brand-500/20"
+                        animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                      />
+                      {/* Middle ring */}
+                      <motion.div
+                        className="absolute w-16 h-16 rounded-full border border-brand-500/40"
+                        animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+                      />
+                      {/* Spinning arc */}
+                      <div
+                        className="w-12 h-12 rounded-full border-2 border-zinc-800 border-t-brand-500 animate-spin"
+                        style={{ animationDuration: '1.2s' }}
+                      />
+                      {/* Center dot */}
+                      <div className="absolute w-3 h-3 rounded-full bg-brand-500 shadow-[0_0_12px_var(--brand-500)]" />
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm sm:text-base font-display font-black uppercase tracking-widest text-white">
+                          Connecting to Server
+                        </h3>
+                        {/* Network speed badge */}
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                          networkSpeed === 'fast'
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                            : networkSpeed === 'slow'
+                              ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                        }`}>
+                          {networkSpeed === 'fast' ? '⚡ Fast' : networkSpeed === 'slow' ? '🐢 Slow' : '📶 OK'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-zinc-500 leading-relaxed">
+                        Establishing encrypted stream via{' '}
+                        <span className="text-brand-400 font-bold">{source.publicName}</span>
+                        <span className="animate-pulse">...</span>
+                      </p>
+                    </div>
+
+                    {/* Server status dots */}
+                    <div className="flex items-center gap-3">
+                      {['Auth', 'CDN', 'Stream'].map((label, i) => (
+                        <div key={label} className="flex flex-col items-center gap-1.5">
+                          <motion.div
+                            className="w-2 h-2 rounded-full bg-brand-500"
+                            animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}
+                            style={{ boxShadow: '0 0 6px var(--brand-500)' }}
+                          />
+                          <span className="text-[8px] uppercase tracking-widest text-zinc-600 font-bold">{label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="w-full">
+                      <div className="flex justify-between text-[9px] font-mono text-zinc-600 mb-2 uppercase tracking-widest">
+                        <span>Loading stream</span>
+                        <span className="text-brand-500 font-bold">{Math.round(connectProgress)}%</span>
+                      </div>
+                      <div className="w-full h-[3px] bg-zinc-900 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-brand-500 to-purple-500 rounded-full"
+                          style={{
+                            width: `${connectProgress}%`,
+                            boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 60%, transparent)',
+                            transition: 'width 0.15s ease-out',
+                          }}
+                        />
+                      </div>
+                      <p className="text-[9px] text-zinc-700 mt-2 text-center">
+                        Content loading in background — will be ready instantly ✓
                       </p>
                     </div>
                   </div>

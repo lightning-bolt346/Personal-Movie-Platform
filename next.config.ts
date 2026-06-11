@@ -5,22 +5,25 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   compress: true,
   images: {
-    unoptimized: true,
+    // ✅ CRITICAL FIX: In production (Vercel), we optimize images to AVIF/WebP to save 150GB+ bandwidth.
+    // In development, we disable it (unoptimized: true) to prevent local LRUCache 0-byte write bugs 
+    // from spamming the terminal, which only affects local Windows/Mac environments, never Vercel.
+    unoptimized: process.env.NODE_ENV === 'development',
     remotePatterns: [
-      { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'image.tmdb.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'picsum.photos' },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 86400,
-    deviceSizes: [375, 640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    qualities: [75, 85, 90, 100],
+    minimumCacheTTL: 604800, // 7 days
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [48, 96, 192, 256, 384],
   },
   turbopack: {},
   async headers() {
     return [
+      // Security headers for all routes
       {
         source: '/(.*)',
         headers: [
@@ -29,16 +32,54 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      // Static assets — immutable, 1 year TTL
       {
         source: '/(.*)\\.(ico|png|jpg|jpeg|svg|webp|avif|woff|woff2)',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
+      // Manifest — cache for 24 hours (already 100% cached, keep it that way)
+      {
+        source: '/manifest.json',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' },
+        ],
+      },
+      // Home data API — CDN cached for 1h, stale-while-revalidate for 24h
+      {
+        source: '/api/home-data',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=86400' },
+        ],
+      },
+      // Block bots from all API routes
       {
         source: '/api/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+          { key: 'Cache-Control', value: 'no-store' },
+        ],
+      },
+      // Watch pages — CDN cache for 24h (ISR revalidation handles freshness)
+      {
+        source: '/watch/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=86400, stale-while-revalidate=604800' },
+        ],
+      },
+      // Person pages — CDN cache for 24h
+      {
+        source: '/person/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=86400, stale-while-revalidate=604800' },
+        ],
+      },
+      // Collection pages — CDN cache for 24h
+      {
+        source: '/collection/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=86400, stale-while-revalidate=604800' },
         ],
       },
     ];

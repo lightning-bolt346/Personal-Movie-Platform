@@ -8,21 +8,42 @@ import { generateSlug, getSiteUrl } from '@/lib/utils';
 
 export const revalidate = 86400; // 24 hour ISR
 
+// ─── Pre-render Top 500 TV Shows ─────────────────────────────────────────────
+// Previously only ~80 IDs were pre-built → 3.1% cache rate on 17K requests.
+// Pre-building 500 IDs converts most requests to zero-cost static HTML.
 export async function generateStaticParams() {
   try {
-    const trending = await tmdb.getTrending('tv');
-    const popular = await tmdb.getPopular('tv');
-    
-    const allShows = [...(trending.results || []), ...(popular.results || [])];
-    const uniqueIds = Array.from(new Set(allShows.map(m => m.id)));
+    const TMDB_API_KEY = process.env.TMDB_API_KEY;
+    if (!TMDB_API_KEY) return [];
 
-    return uniqueIds.map((id) => {
-      const show = allShows.find(m => m.id === id);
-      return {
-        id: generateSlug(id.toString(), show?.name || show?.title || ''),
-      };
-    });
-  } catch (error) {
+    // 5 pages each of popular + top_rated TV = up to 500 unique shows
+    const fetches = await Promise.allSettled([
+      ...([1, 2, 3, 4, 5].map((page) =>
+        fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&page=${page}`, {
+          next: { revalidate: 86400 },
+        }).then((r) => r.json())
+      )),
+      ...([1, 2, 3, 4, 5].map((page) =>
+        fetch(`https://api.themoviedb.org/3/tv/top_rated?api_key=${TMDB_API_KEY}&page=${page}`, {
+          next: { revalidate: 86400 },
+        }).then((r) => r.json())
+      )),
+    ]);
+
+    const allShows: Array<{ id: number; name?: string; title?: string }> = [];
+    for (const result of fetches) {
+      if (result.status === 'fulfilled' && result.value?.results) {
+        allShows.push(...result.value.results);
+      }
+    }
+
+    // Deduplicate and cap at 500
+    const unique = [...new Map(allShows.map((s) => [s.id, s])).values()].slice(0, 500);
+
+    return unique.map((show) => ({
+      id: generateSlug(show.id.toString(), show.name || show.title || ''),
+    }));
+  } catch {
     return [];
   }
 }

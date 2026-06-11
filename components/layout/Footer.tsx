@@ -25,7 +25,7 @@ const LEGAL_LINKS = [
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname?.startsWith('/watch')) return null;
+  if (pathname === '/moved' || pathname?.startsWith('/watch')) return null;
 
   return (
     <footer

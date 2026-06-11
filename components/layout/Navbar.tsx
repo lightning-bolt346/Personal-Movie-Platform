@@ -101,6 +101,8 @@ export function Navbar() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
+  if (pathname === '/moved') return null;
+
   if (pathname?.startsWith('/watch')) {
     return (
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none">

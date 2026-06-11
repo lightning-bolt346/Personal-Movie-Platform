@@ -5,10 +5,10 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   compress: true,
   images: {
-    // ✅ CRITICAL FIX: In production (Vercel), we optimize images to AVIF/WebP to save 150GB+ bandwidth.
-    // In development, we disable it (unoptimized: true) to prevent local LRUCache 0-byte write bugs 
-    // from spamming the terminal, which only affects local Windows/Mac environments, never Vercel.
-    unoptimized: process.env.NODE_ENV === 'development',
+    // ✅ CRITICAL FIX: To prevent hitting Vercel Hobby's strict "1,000 Source Images/month" limit,
+    // we bypass Vercel's Image Optimization entirely. Instead, we fetch pre-compressed w500/w1280 
+    // images directly from TMDB's CDN, resulting in 0 Vercel compute and 0 Vercel bandwidth used for images.
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'image.tmdb.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },

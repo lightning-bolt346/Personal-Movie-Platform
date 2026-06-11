@@ -97,11 +97,20 @@ export function Navbar() {
       clearIframes();
     }
   };
+  const [isMovedDomain, setIsMovedDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hostname.includes('zivox-tv')) {
+        setIsMovedDomain(true);
+      }
+    }
+  }, []);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
-  if (pathname === '/moved') return null;
+  if (pathname === '/moved' || isMovedDomain) return null;
 
   if (pathname?.startsWith('/watch')) {
     return (

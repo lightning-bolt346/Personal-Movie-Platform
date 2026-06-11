@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Github, Twitter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -25,7 +26,17 @@ const LEGAL_LINKS = [
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname === '/moved' || pathname?.startsWith('/watch')) return null;
+  const [isMovedDomain, setIsMovedDomain] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hostname.includes('zivox-tv')) {
+        setIsMovedDomain(true);
+      }
+    }
+  }, []);
+
+  if (pathname === '/moved' || pathname?.startsWith('/watch') || isMovedDomain) return null;
 
   return (
     <footer

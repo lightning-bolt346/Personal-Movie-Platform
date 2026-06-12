@@ -121,66 +121,59 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
 
   if (theme === 'tv') {
     return (
-      <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#02050a] w-screen h-screen overflow-hidden">
-        {/* Retro CRT Scanlines & Static */}
-        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIiAvPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSIxIiBmaWxsPSIjZmZmIiAvPgo8L3N2Zz4=')] animate-[slide-down_20s_linear_infinite]" />
+      <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#050508] w-screen h-screen overflow-hidden">
+        {/* Soft Radial Ambient Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-500/10 blur-[120px] rounded-full pointer-events-none" />
         
-        {/* REC Indicator - Uses Brand Theme */}
-        <div className="absolute top-8 left-8 flex items-center gap-2 font-mono text-xl text-brand-500 tracking-widest font-bold">
-           <div className="w-4 h-4 bg-premium-gradient rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
-           REC
-        </div>
+        {/* Cinematic Grid Pattern */}
+        <div 
+          className="absolute inset-0 opacity-10 pointer-events-none" 
+          style={{
+            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px',
+            maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)'
+          }}
+        />
 
         <div className="relative z-10 flex flex-col items-center justify-center">
-          <div className="relative mb-6 w-full flex justify-center h-20 items-center">
-            {/* Unfilled Base for layout spacing */}
-            <div className="opacity-0"><Logo size="xl" /></div>
-
-            {/* Heavy Glitch Slices */}
-            {[...Array(5)].map((_, i) => (
-              <motion.div 
-                key={`glitch-${i}`}
-                className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen"
-                initial={{ clipPath: `inset(${i * 20}% 0 ${100 - (i + 1) * 20}% 0)` }}
-                animate={{ 
-                   x: [0, (i % 2 === 0 ? 1 : -1) * (15 + Math.random() * 15), 0, (i % 2 === 0 ? -1 : 1) * (10 + Math.random() * 10), 0],
-                   filter: ['hue-rotate(0deg)', 'hue-rotate(90deg)', 'hue-rotate(-90deg)', 'hue-rotate(180deg)', 'hue-rotate(0deg)']
-                }}
-                transition={{ duration: 0.8 + Math.random() * 0.4, ease: "linear", repeat: Infinity, repeatType: "mirror", delay: Math.random() * 0.3 }}
-              >
-                <Logo size="xl" className="pointer-events-none" />
-              </motion.div>
-            ))}
+          <div className="relative overflow-hidden mb-8 flex justify-center py-2 px-6">
+            <div className="opacity-10"><Logo size="xl" className="pointer-events-none" /></div>
             
-            {/* Chromatic Aberration Shadows */}
+            {/* The actual Logo fading in and floating up slightly */}
             <motion.div 
-              className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen opacity-70"
-              style={{ filter: 'drop-shadow(3px 0 0 cyan)' }}
-              animate={{ x: [0, -6, 3, -4, 0], opacity: [0.7, 1, 0.4, 0.9, 0.7] }}
-              transition={{ duration: 0.25, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
+              className="absolute inset-0 flex justify-center items-center"
+              initial={{ y: 15, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <Logo size="xl" className="pointer-events-none saturate-200" />
+              <Logo size="xl" className="pointer-events-none drop-shadow-[0_0_20px_color-mix(in_srgb,var(--brand-500)_50%,transparent)]" />
             </motion.div>
-            <motion.div 
-              className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen opacity-70"
-              style={{ filter: 'drop-shadow(-3px 0 0 fuchsia)' }}
-              animate={{ x: [0, 6, -3, 4, 0], opacity: [0.7, 0.4, 1, 0.6, 0.7] }}
-              transition={{ duration: 0.3, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
-            >
-              <Logo size="xl" className="pointer-events-none saturate-200" />
-            </motion.div>
+
+            {/* A glass-like reflection sweep over the logo */}
+            <motion.div
+              className="absolute inset-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 pointer-events-none"
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ duration: 1.5, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
+            />
           </div>
           
-          <div className="flex items-center gap-3 text-brand-400 mt-2">
-            <Tv className="w-5 h-5 text-brand-500 animate-pulse" />
-            <div className="font-mono text-xs tracking-[0.3em] text-brand-400 uppercase">Broadcast</div>
+          <motion.div 
+            className="flex items-center gap-3 text-brand-400 mt-2 relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <Tv className="w-5 h-5" />
+            <div className="font-mono text-xs tracking-[0.3em] uppercase">Series</div>
             <motion.div 
               className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 h-[2px] bg-premium-gradient rounded-full"
               initial={{ width: "0px" }}
               animate={{ width: "120px" }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transition={{ duration: 1.2, ease: "easeInOut", delay: 0.4 }}
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     );

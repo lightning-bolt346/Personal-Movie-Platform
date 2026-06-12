@@ -173,7 +173,7 @@ export function VideoPlayer({ type, id, season, episode, title, poster, releaseY
         }
         setShowSupportPopup(true);
       }
-    }, 120000);
+    }, 300000);
 
     return () => clearTimeout(timer);
   }, [testingSources, showSupportPopup]);

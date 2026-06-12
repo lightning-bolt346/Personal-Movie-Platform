@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Github, Twitter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { Logo } from '@/components/ui/Logo';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -47,30 +48,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <Link href="/" className="inline-flex items-baseline gap-0 select-none">
-              <span
-                className="font-display font-black tracking-[-0.05em] text-[26px] leading-none"
-                style={{
-                  background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                ZIVOX
-              </span>
-              <span
-                className="font-display font-black tracking-[-0.03em] text-[22px] leading-none ml-[2px]"
-                style={{
-                  background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                TV
-              </span>
-            </Link>
+            <Logo size="lg" />
             <p className="text-sm text-white/35 leading-relaxed max-w-xs">
               Premium cinematic streaming experience. Discover, watch, and enjoy
               thousands of movies and TV shows — all in one place.

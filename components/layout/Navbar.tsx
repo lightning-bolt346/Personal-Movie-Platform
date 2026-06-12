@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAutoLocation } from '@/hooks/useAutoLocation';
 import { useRef } from 'react';
 import { DonationButton } from '@/components/ui/DonationButton';
+import { Logo } from '@/components/ui/Logo';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
@@ -105,30 +106,7 @@ export function Navbar() {
     return (
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none">
         <div className="flex items-center gap-4 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-950/80 hover:border-white/20">
-           <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZivoxTV Home">
-             <span
-               className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
-               style={{
-                 background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
-                 WebkitBackgroundClip: 'text',
-                 WebkitTextFillColor: 'transparent',
-                 backgroundClip: 'text',
-               }}
-             >
-               ZIVOX
-             </span>
-             <span
-               className="font-display font-black tracking-[-0.03em] text-[14px] leading-none ml-[1px]"
-               style={{
-                 background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
-                 WebkitBackgroundClip: 'text',
-                 WebkitTextFillColor: 'transparent',
-                 backgroundClip: 'text',
-               }}
-             >
-               TV
-             </span>
-           </Link>
+           <Logo size="sm" onClick={clearIframes} />
            <div className="w-[1px] h-5 bg-white/15 hidden sm:block" />
            <Link href="/" onClick={(e) => handleNavigation(e, '/')} className="hidden sm:flex items-center gap-1.5 text-white/70 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 font-bold text-xs uppercase tracking-widest">
              <Home size={15} strokeWidth={2.5} /> 
@@ -146,30 +124,7 @@ export function Navbar() {
     <>
       {/* ── MOBILE TOP NAV ── */}
       <nav className={`md:hidden fixed top-0 left-0 right-0 z-[200] px-4 h-[52px] flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-[#050505]/70 backdrop-blur-[20px] saturate-[1.6]' : 'bg-transparent'}`}>
-        <Link href="/" onClick={(e) => handleNavigation(e, '/')} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZivoxTV Home">
-            <span
-              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
-              style={{
-                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              ZIVOX
-            </span>
-            <span
-              className="font-display font-black tracking-[-0.03em] text-[15px] leading-none ml-[1px]"
-              style={{
-                background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              TV
-            </span>
-        </Link>
+        <Logo size="md" onClick={(e) => handleNavigation(e, '/')} />
         <div className="flex items-center gap-4 z-10">
           <Link href="/search" onClick={clearIframes} className="text-white hover:text-white/80 transition-all duration-300 hover:scale-110 active:scale-95"><Search size={20} strokeWidth={2.5} /></Link>
           <DonationButton />
@@ -204,35 +159,7 @@ export function Navbar() {
           />
 
           {/* ── ZIVOX Logo ── */}
-          <Link
-            href="/"
-            onClick={(e) => handleNavigation(e, '/')}
-            className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none"
-            aria-label="ZIVOX Home"
-          >
-            <span
-              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
-              style={{
-                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              ZIVOX
-            </span>
-            <span
-              className="font-display font-black tracking-[-0.03em] text-[15px] leading-none ml-[1px]"
-              style={{
-                background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              TV
-            </span>
-          </Link>
+          <Logo size="md" onClick={(e) => handleNavigation(e, '/')} />
 
           {/* Nav Links */}
           <div className="flex items-center gap-6 z-10 mx-2">

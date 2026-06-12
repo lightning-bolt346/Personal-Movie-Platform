@@ -9,6 +9,17 @@ export function GlobalLoader() {
   const validPaths = ['/', '/movies', '/tv', '/anime'];
   const [isLoading, setIsLoading] = useState(() => validPaths.includes(pathname));
   const [theme, setTheme] = useState<LoaderTheme>(() => getThemeFromPath(pathname));
+  const [prevPath, setPrevPath] = useState(pathname);
+
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    if (validPaths.includes(pathname)) {
+      setIsLoading(true);
+      setTheme(getThemeFromPath(pathname));
+    } else {
+      setIsLoading(false);
+    }
+  }
 
   function getThemeFromPath(p: string): LoaderTheme {
     if (p.startsWith('/anime')) return 'anime';
@@ -47,21 +58,15 @@ export function GlobalLoader() {
   }, []);
 
   useEffect(() => {
-    // Auto-trigger on direct URL loads or normal next.js navigation
-    if (!validPaths.includes(pathname)) {
-      setIsLoading(false);
-      return;
-    }
-
-    setTheme(getThemeFromPath(pathname));
-    setIsLoading(true);
+    // Auto-clear loader after 2s
+    if (!isLoading) return;
     
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [isLoading, pathname]);
 
   return (
     <AnimatePresence>

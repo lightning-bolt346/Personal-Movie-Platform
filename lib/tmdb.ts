@@ -246,7 +246,7 @@ export const tmdb = {
         with_watch_providers: providerId,
         watch_region: region,
         sort_by: 'popularity.desc'
-      }, { forceProxy: true }).catch(() => ({ results: [] }))
+      }, undefined).catch(() => ({ results: [] }))
     );
 
     const tvPromises = uniqueRegions.map(region => 
@@ -254,7 +254,7 @@ export const tmdb = {
         with_watch_providers: providerId,
         watch_region: region,
         sort_by: 'popularity.desc'
-      }, { forceProxy: true }).catch(() => ({ results: [] }))
+      }, undefined).catch(() => ({ results: [] }))
     );
 
     const [movieRes, tvRes] = await Promise.all([

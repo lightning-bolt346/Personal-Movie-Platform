@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'motion/react';
 import { Hexagon, Film, Tv, Sparkles } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 export type LoaderTheme = 'home' | 'anime' | 'movies' | 'tv';
 
@@ -24,31 +25,27 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
         <div className="relative z-10 flex flex-col items-center justify-center">
           <div className="relative mb-6 w-full flex justify-center">
             {/* Unfilled Base */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-brand-950/30 uppercase pl-[0.4em] opacity-0">
-              ZIVOX
-            </h1>
+            <div className="opacity-0 pb-2"><Logo size="xl" /></div>
 
             {/* Top Half */}
-            <motion.h1 
-              className="absolute top-0 left-0 w-full text-center text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] bg-clip-text bg-premium-gradient uppercase pl-[0.4em]"
-              style={{ color: 'transparent', WebkitTextFillColor: 'transparent' }}
+            <motion.div 
+              className="absolute top-0 left-0 w-full flex justify-center pb-2"
               initial={{ clipPath: 'polygon(0 0, 100% 0, 100% 48%, 0 52%)', scale: 0.95, filter: 'blur(4px)' }}
               animate={{ clipPath: 'polygon(0 0, 100% 0, 100% 48%, 0 52%)', scale: 1, filter: 'blur(0px)', x: -8, y: -4 }}
               transition={{ duration: 1.0, ease: "easeOut", x: { delay: 1.0, duration: 0.3, type: "spring", stiffness: 400, damping: 15 }, y: { delay: 1.0, duration: 0.2, ease: "easeOut" } }}
             >
-              ZIVOX
-            </motion.h1>
+              <Logo size="xl" className="pointer-events-none" />
+            </motion.div>
             
             {/* Bottom Half */}
-            <motion.h1 
-              className="absolute top-0 left-0 w-full text-center text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] bg-clip-text bg-premium-gradient uppercase pl-[0.4em]"
-              style={{ color: 'transparent', WebkitTextFillColor: 'transparent' }}
+            <motion.div 
+              className="absolute top-0 left-0 w-full flex justify-center pb-2"
               initial={{ clipPath: 'polygon(0 52%, 100% 48%, 100% 100%, 0 100%)', scale: 0.95, filter: 'blur(4px)' }}
               animate={{ clipPath: 'polygon(0 52%, 100% 48%, 100% 100%, 0 100%)', scale: 1, filter: 'blur(0px)', x: 8, y: 4 }}
               transition={{ duration: 1.0, ease: "easeOut", x: { delay: 1.0, duration: 0.3, type: "spring", stiffness: 400, damping: 15 }, y: { delay: 1.0, duration: 0.2, ease: "easeOut" } }}
             >
-              ZIVOX
-            </motion.h1>
+              <Logo size="xl" className="pointer-events-none" />
+            </motion.div>
 
             {/* Katana Slash line */}
             <motion.div 
@@ -92,12 +89,10 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
         />
 
         <div className="relative z-10 flex flex-col items-center justify-center">
-          <div className="relative overflow-hidden mb-6">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-void-800/50 uppercase pl-[0.4em]">
-              ZIVOX
-            </h1>
-            <motion.h1 
-              className="absolute top-0 left-0 text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-transparent bg-clip-text bg-premium-gradient uppercase pl-[0.4em]"
+          <div className="relative overflow-hidden mb-6 flex justify-center">
+            <div className="opacity-20 grayscale brightness-50"><Logo size="xl" className="pointer-events-none" /></div>
+            <motion.div 
+              className="absolute top-0 left-0 w-full flex justify-center"
               initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 0.8 }}
               animate={{ clipPath: 'inset(0 0% 0 0)', opacity: [0.8, 1, 0.5, 1, 0.9, 1] }}
               transition={{ 
@@ -105,8 +100,8 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
                 opacity: { duration: 2, repeat: Infinity, ease: "linear" } 
               }}
             >
-              ZIVOX
-            </motion.h1>
+              <Logo size="xl" className="pointer-events-none drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+            </motion.div>
           </div>
           
           <div className="flex items-center gap-3 text-brand-500">
@@ -139,15 +134,13 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
         <div className="relative z-10 flex flex-col items-center justify-center">
           <div className="relative mb-6 w-full flex justify-center h-20 items-center">
             {/* Unfilled Base for layout spacing */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-transparent uppercase pl-[0.4em]">
-              ZIVOX
-            </h1>
+            <div className="opacity-0"><Logo size="xl" /></div>
 
             {/* Heavy Glitch Slices */}
             {[...Array(5)].map((_, i) => (
-              <motion.h1 
+              <motion.div 
                 key={`glitch-${i}`}
-                className="absolute top-1/2 -translate-y-1/2 left-0 w-full text-center text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-white uppercase pl-[0.4em] mix-blend-screen"
+                className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen"
                 initial={{ clipPath: `inset(${i * 20}% 0 ${100 - (i + 1) * 20}% 0)` }}
                 animate={{ 
                    x: [0, (i % 2 === 0 ? 1 : -1) * (15 + Math.random() * 15), 0, (i % 2 === 0 ? -1 : 1) * (10 + Math.random() * 10), 0],
@@ -155,25 +148,27 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
                 }}
                 transition={{ duration: 0.8 + Math.random() * 0.4, ease: "linear", repeat: Infinity, repeatType: "mirror", delay: Math.random() * 0.3 }}
               >
-                ZIVOX
-              </motion.h1>
+                <Logo size="xl" className="pointer-events-none" />
+              </motion.div>
             ))}
             
-            {/* Chromatic Aberration Shadows - Keep Cyan/Fuchsia for the realistic CRT RGB split effect */}
-            <motion.h1 
-              className="absolute top-1/2 -translate-y-1/2 left-0 w-full text-center text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-cyan-500 uppercase pl-[0.4em] mix-blend-screen opacity-70"
+            {/* Chromatic Aberration Shadows */}
+            <motion.div 
+              className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen opacity-70"
+              style={{ filter: 'drop-shadow(3px 0 0 cyan)' }}
               animate={{ x: [0, -6, 3, -4, 0], opacity: [0.7, 1, 0.4, 0.9, 0.7] }}
               transition={{ duration: 0.25, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
             >
-              ZIVOX
-            </motion.h1>
-            <motion.h1 
-              className="absolute top-1/2 -translate-y-1/2 left-0 w-full text-center text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-fuchsia-500 uppercase pl-[0.4em] mix-blend-screen opacity-70"
+              <Logo size="xl" className="pointer-events-none saturate-200" />
+            </motion.div>
+            <motion.div 
+              className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center mix-blend-screen opacity-70"
+              style={{ filter: 'drop-shadow(-3px 0 0 fuchsia)' }}
               animate={{ x: [0, 6, -3, 4, 0], opacity: [0.7, 0.4, 1, 0.6, 0.7] }}
               transition={{ duration: 0.3, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
             >
-              ZIVOX
-            </motion.h1>
+              <Logo size="xl" className="pointer-events-none saturate-200" />
+            </motion.div>
           </div>
           
           <div className="flex items-center gap-3 text-brand-400 mt-2">
@@ -197,18 +192,16 @@ export function ThemedLoader({ theme = 'home' }: { theme?: LoaderTheme }) {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-brand-500/5 blur-[120px] rounded-full" />
 
       <div className="relative z-10 flex flex-col items-center justify-center">
-        <div className="relative overflow-hidden mb-8">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-void-800/50 uppercase pl-[0.4em]">
-            ZIVOX
-          </h1>
-          <motion.h1 
-            className="absolute top-0 left-0 text-3xl md:text-4xl lg:text-5xl font-display font-black tracking-[0.4em] text-transparent bg-clip-text bg-premium-gradient uppercase pl-[0.4em]"
+        <div className="relative overflow-hidden mb-8 flex justify-center">
+          <div className="opacity-20 grayscale brightness-50"><Logo size="xl" /></div>
+          <motion.div 
+            className="absolute top-0 left-0 w-full flex justify-center"
             initial={{ clipPath: 'inset(0 100% 0 0)', scale: 0.95, opacity: 0 }}
             animate={{ clipPath: 'inset(0 0% 0 0)', scale: 1, opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.85, 0, 0.15, 1], delay: 0.1 }}
           >
-            ZIVOX
-          </motion.h1>
+            <Logo size="xl" className="pointer-events-none" />
+          </motion.div>
         </div>
 
         <div className="w-16 md:w-24 h-[2px] bg-void-800 rounded-full overflow-hidden relative">

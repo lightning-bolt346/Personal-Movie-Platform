@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { Github, Twitter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -26,17 +25,7 @@ const LEGAL_LINKS = [
 
 export function Footer() {
   const pathname = usePathname();
-  const [isMovedDomain, setIsMovedDomain] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (window.location.hostname.includes('zivox-tv')) {
-        setIsMovedDomain(true);
-      }
-    }
-  }, []);
-
-  if (pathname === '/moved' || pathname?.startsWith('/watch') || isMovedDomain) return null;
+  if (pathname?.startsWith('/watch')) return null;
 
   return (
     <footer
@@ -68,34 +57,18 @@ export function Footer() {
                   backgroundClip: 'text',
                 }}
               >
-                ZIV
+                ZIVOX
               </span>
               <span
-                className="font-display font-black text-[26px] leading-none mx-[2px]"
+                className="font-display font-black tracking-[-0.03em] text-[22px] leading-none ml-[2px]"
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '22px',
-                  height: '22px',
-                  borderRadius: '50%',
-                  border: '2.5px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
-                  boxShadow: '0 0 12px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 15%, transparent)',
-                  WebkitTextFillColor: 'transparent',
-                  flexShrink: 0,
-                }}
-              >
-              </span>
-              <span
-                className="font-display font-black tracking-[-0.05em] text-[26px] leading-none"
-                style={{
-                  background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                  background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                 }}
               >
-                X
+                TV
               </span>
             </Link>
             <p className="text-sm text-white/35 leading-relaxed max-w-xs">

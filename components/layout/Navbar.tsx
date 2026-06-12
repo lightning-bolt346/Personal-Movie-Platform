@@ -97,26 +97,15 @@ export function Navbar() {
       clearIframes();
     }
   };
-  const [isMovedDomain, setIsMovedDomain] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (window.location.hostname.includes('zivox-tv')) {
-        setIsMovedDomain(true);
-      }
-    }
-  }, []);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
-
-  if (pathname === '/moved' || isMovedDomain) return null;
 
   if (pathname?.startsWith('/watch')) {
     return (
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-center md:justify-start px-4 py-4 md:px-6 pointer-events-none">
         <div className="flex items-center gap-4 bg-void-950/60 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-void-950/80 hover:border-white/20">
-           <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
+           <Link href="/" onClick={clearIframes} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZivoxTV Home">
              <span
                className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
                style={{
@@ -124,37 +113,20 @@ export function Navbar() {
                  WebkitBackgroundClip: 'text',
                  WebkitTextFillColor: 'transparent',
                  backgroundClip: 'text',
-                 letterSpacing: '-0.04em',
                }}
              >
-               ZIV
+               ZIVOX
              </span>
              <span
-               className="font-display font-black text-[16px] leading-none mx-[1px]"
+               className="font-display font-black tracking-[-0.03em] text-[14px] leading-none ml-[1px]"
                style={{
-                 display: 'inline-flex',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 width: '16px',
-                 height: '16px',
-                 borderRadius: '50%',
-                 border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
-                 boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent)',
-                 WebkitTextFillColor: 'transparent',
-               }}
-             >
-             </span>
-             <span
-               className="font-display font-black tracking-[-0.05em] text-[16px] leading-none"
-               style={{
-                 background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                 background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
                  WebkitBackgroundClip: 'text',
                  WebkitTextFillColor: 'transparent',
                  backgroundClip: 'text',
-                 letterSpacing: '-0.04em',
                }}
              >
-               X
+               TV
              </span>
            </Link>
            <div className="w-[1px] h-5 bg-white/15 hidden sm:block" />
@@ -174,7 +146,7 @@ export function Navbar() {
     <>
       {/* ── MOBILE TOP NAV ── */}
       <nav className={`md:hidden fixed top-0 left-0 right-0 z-[200] px-4 h-[52px] flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-[#050505]/70 backdrop-blur-[20px] saturate-[1.6]' : 'bg-transparent'}`}>
-        <Link href="/" onClick={(e) => handleNavigation(e, '/')} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZIVOX Home">
+        <Link href="/" onClick={(e) => handleNavigation(e, '/')} className="flex items-center z-10 transition-all duration-300 hover:opacity-80 active:scale-95 select-none" aria-label="ZivoxTV Home">
             <span
               className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
               style={{
@@ -182,37 +154,20 @@ export function Navbar() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                letterSpacing: '-0.04em',
               }}
             >
-              ZIV
+              ZIVOX
             </span>
             <span
-              className="font-display font-black text-[18px] leading-none mx-[1px]"
+              className="font-display font-black tracking-[-0.03em] text-[15px] leading-none ml-[1px]"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
-                boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 20%, transparent)',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-            </span>
-            <span
-              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
-              style={{
-                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                letterSpacing: '-0.04em',
               }}
             >
-              X
+              TV
             </span>
         </Link>
         <div className="flex items-center gap-4 z-10">
@@ -262,37 +217,20 @@ export function Navbar() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                letterSpacing: '-0.04em',
               }}
             >
-              ZIV
+              ZIVOX
             </span>
             <span
-              className="font-display font-black text-[18px] leading-none mx-[1px]"
+              className="font-display font-black tracking-[-0.03em] text-[15px] leading-none ml-[1px]"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                border: '2px solid color-mix(in srgb, var(--brand-500) 90%, transparent)',
-                boxShadow: '0 0 10px color-mix(in srgb, var(--brand-500) 50%, transparent), inset 0 0 6px color-mix(in srgb, var(--brand-500) 20%, transparent)',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-            </span>
-            <span
-              className="font-display font-black tracking-[-0.05em] text-[18px] leading-none"
-              style={{
-                background: 'linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.65) 100%)',
+                background: 'linear-gradient(135deg, var(--brand-500) 0%, color-mix(in srgb, var(--brand-500) 70%, white) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                letterSpacing: '-0.04em',
               }}
             >
-              X
+              TV
             </span>
           </Link>
 

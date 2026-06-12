@@ -24,11 +24,11 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
-    template: '%s | ZIVOX',
+    default: 'ZivoxTV — Watch Movies, TV Shows & Anime Free in HD',
+    template: '%s | ZivoxTV',
   },
-  description: 'ZIVOX is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online.',
-  keywords: ['Zivox', 'Zivox tv', 'zivox anime', 'zivox shows', 'zivox vercel', 'zivox online movie', 'Zivox official', 'zivox app', 'watch free movies online', 'free HD movies', 'watch shows online free', 'watch anime free', 'free streaming sites', 'movies to watch free', 'online tv shows free', 'watch movies free 2026', 'no ads streaming', 'watch latest movies', 'free cinema online'],
+  description: 'ZivoxTV is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online.',
+  keywords: ['ZivoxTV', 'Zivox TV', 'zivoxtv', 'zivoxtv.live', 'zivox anime', 'zivox shows', 'zivox online movie', 'ZivoxTV official', 'zivox app', 'watch free movies online', 'free HD movies', 'watch shows online free', 'watch anime free', 'free streaming sites', 'movies to watch free', 'online tv shows free', 'watch movies free 2026', 'no ads streaming', 'watch latest movies', 'free cinema online'],
   alternates: {
     canonical: '/',
     languages: {
@@ -36,23 +36,23 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
-    description: 'ZIVOX is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online.',
+    title: 'ZivoxTV — Watch Movies, TV Shows & Anime Free in HD',
+    description: 'ZivoxTV is the ultimate free streaming platform. Watch the latest movies, TV shows, and anime in stunning HD quality online.',
     type: 'website',
-    siteName: 'ZIVOX',
+    siteName: 'ZivoxTV',
     url: siteUrl,
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ZIVOX — Premium Streaming',
+        alt: 'ZivoxTV — Premium Streaming',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ZIVOX — Watch Movies, TV Shows & Anime Free in HD',
+    title: 'ZivoxTV — Watch Movies, TV Shows & Anime Free in HD',
     description: 'Premium free streaming. Watch the latest movies, TV shows, and anime in stunning HD quality.',
     images: ['/og-image.png'],
   },
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "ZIVOX",
+      "name": "ZivoxTV",
       "url": siteUrl,
       "potentialAction": {
         "@type": "SearchAction",
@@ -87,11 +87,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "ZIVOX Streaming",
+      "name": "ZivoxTV",
       "url": siteUrl,
       "logo": `${siteUrl}/icon.png`,
       "sameAs": [
-        "https://twitter.com/zivox"
+        "https://twitter.com/zivoxtv"
       ]
     }
   ];

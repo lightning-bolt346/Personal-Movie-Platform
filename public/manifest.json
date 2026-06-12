@@ -1,6 +1,6 @@
 {
-  "name": "ZIVOX",
-  "short_name": "ZIVOX",
+  "name": "ZivoxTV",
+  "short_name": "ZivoxTV",
   "description": "Premium cinematic streaming. Watch movies, TV shows, and anime in stunning quality.",
   "start_url": "/",
   "display": "standalone",

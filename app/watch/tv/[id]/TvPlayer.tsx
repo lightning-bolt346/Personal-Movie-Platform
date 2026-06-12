@@ -22,7 +22,7 @@ import { Select } from '@/components/ui/Select';
 import { useAmbientColor } from '@/hooks/useAmbientColor';
 import { YoutubeBackgroundPlayer } from '@/components/media/YoutubeBackgroundPlayer';
 import { UpcomingBanner, type UpcomingMeta, type UpcomingReason } from '@/components/media/UpcomingBanner';
-import { DomainNoticeModal } from '@/components/ui/DomainNoticeModal';
+
 
 // ─── TV Content State Engine ──────────────────────────────────────────────────
 //
@@ -152,15 +152,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const [noticeOpen, setNoticeOpen] = useState(isPlaying);
 
-  useEffect(() => {
-    if (isPlaying) {
-      setNoticeOpen(true);
-    } else {
-      setNoticeOpen(false);
-    }
-  }, [isPlaying]);
   const [bgTrailerPlaying, setBgTrailerPlaying] = useState(false);
   const trailer = show.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
 
@@ -363,7 +355,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
                       hasNextEpisode={hasNextEpisode()}
                       releaseYear={show.first_air_date}
                       initialServer={serverParam}
-                      blockTutorial={noticeOpen}
+                      blockTutorial={false}
                     />
                   )}
                 </div>
@@ -580,7 +572,7 @@ function TvPlayerContent({ show }: { show: MediaDetails }) {
 
       <TrailerModal isOpen={trailerOpen} onClose={() => setTrailerOpen(false)} videoKey={trailer?.key || null} />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} title={`Watch ${show.name} on ZIVOX`} shareUrl={typeof window !== 'undefined' ? `${window.location.origin}/watch/tv/${generateSlug(show.id.toString(), show.name)}` : undefined} />
-      <DomainNoticeModal isOpen={noticeOpen} onClose={() => setNoticeOpen(false)} />
+
     </div>
   );
 }

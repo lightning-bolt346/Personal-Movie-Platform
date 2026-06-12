@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // ─── Bot Firewall ─────────────────────────────────────────────────────────────
 //
-// These bots consumed 128K of 154K total edge requests (83%) with near-zero
-// cache hit rates, burning 18h+ of Active CPU time and 1.5M+ function invocations.
-// Blocking them at the edge costs ZERO compute — they never touch Next.js functions.
+// Blocks known aggressive crawlers at the Vercel Edge before they can
+// burn compute or function invocations. Returns a minimal 200 so they
+// don't retry — a 403 triggers aggressive re-crawls.
 //
-// Strategy: return an immediate 200 with no content rather than a 403/robots
-// directive, so crawlers don't retry aggressively.
+// NOTE: For complete protection, pair with Cloudflare Bot Fight Mode
+// so bots are blocked at the DNS level before reaching Vercel at all.
 
 const BOT_BLOCKLIST = [
-  'meta-externalagent',       // 128K requests, 0.2% cached — the #1 killer
-  'facebookexternalhit',      // 22 requests
-  'Bytespider',               // TikTok crawler
+  'meta-externalagent',     // #1 killer — 5.8K+ req/hr at 0% cache rate
+  'facebookexternalhit',
+  'Bytespider',             // TikTok scraper
   'AhrefsBot',
   'SemrushBot',
   'MJ12bot',
@@ -20,10 +20,17 @@ const BOT_BLOCKLIST = [
   'PetalBot',
   'SeznamBot',
   'BingPreview',
+  'GPTBot',                 // OpenAI scraper
+  'ClaudeBot',              // Anthropic scraper
+  'Applebot',               // Apple scraper (high volume)
+  'YandexBot',
+  'baiduspider',
+  'DataForSeoBot',
+  'serpstatbot',
 ];
 
-// Only apply the bot firewall to expensive dynamic routes.
-// Static assets, manifest, and API health endpoints are excluded.
+// Only fire the firewall on expensive server-rendered routes.
+// Static assets, API endpoints, and the homepage are excluded.
 const PROTECTED_PATHS = [
   '/watch/',
   '/person/',
@@ -37,6 +44,9 @@ const PROTECTED_PATHS = [
   '/movies',
   '/tv',
   '/anime',
+  '/search',
+  '/recommended/',
+  '/providers',
 ];
 
 function isProtectedPath(pathname: string): boolean {
@@ -50,17 +60,21 @@ function isBlockedBot(userAgent: string): boolean {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hostname = request.headers.get('host') || '';
 
-  // ─── Domain Migration Catch ─────────────────────────────────────────────────
-  // If user or bot lands on the old domain, intercept ALL routes and show the
-  // migration landing page. This instantly stops bots from spidering 5000+ links
-  // on the old domain, slashing edge requests.
-  if (hostname.includes('zivox-tv') && pathname !== '/moved') {
-    return NextResponse.rewrite(new URL('/moved', request.url));
+  // 308 Permanent Redirect: old Vercel subdomains → real custom domain
+  // This trains bots and browsers to never use the old URLs again.
+  const hostname = request.headers.get('host') || '';
+  if (
+    hostname.includes('zivox-tv.vercel.app') ||
+    hostname.includes('zivox-streaming.vercel.app')
+  ) {
+    return NextResponse.redirect(
+      `https://www.zivoxtv.live${pathname}${request.nextUrl.search}`,
+      { status: 308 }
+    );
   }
 
-  // Only apply to routes that cost real compute
+  // Only apply bot firewall to routes that cost real compute
   if (!isProtectedPath(pathname)) {
     return NextResponse.next();
   }
@@ -68,8 +82,6 @@ export function proxy(request: NextRequest) {
   const ua = request.headers.get('user-agent') || '';
 
   if (isBlockedBot(ua)) {
-    // Return minimal 200 — bots interpret this as "seen, nothing to index"
-    // and back off. A 403 causes aggressive retries.
     return new NextResponse(
       '<!DOCTYPE html><html><body></body></html>',
       {
@@ -87,7 +99,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all paths except Next.js internals and static files
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|icon.png|manifest.json|sw.js|robots.txt|sitemap.xml).*)',
   ],
